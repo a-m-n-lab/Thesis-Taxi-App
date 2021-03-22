@@ -46,16 +46,16 @@ const WelcomeScreen = (props) => {
 WelcomeScreen.navigationOptions = (navData) => {
   return {
     headerLeft: () => (
-      <MainButton
-        onPress={() => {
-          navData.navigation.toggleDrawer();
-        }}
-      >
-        Drawer
-      </MainButton>
-      //   <HeaderButtons HeaderButtonComponent={HeaderButton}>
-      //     <Item title="Menu" iconName="ios-menu" onPress={() => {}} />
-      //   </HeaderButtons>
+      <HeaderButtons HeaderButtonComponent={HeaderButton} color="white">
+        <Item
+          color="white"
+          title="Menu"
+          iconName="ios-menu"
+          onPress={() => {
+            navData.navigation.toggleDrawer();
+          }}
+        />
+      </HeaderButtons>
     ),
   };
 };

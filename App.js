@@ -4,12 +4,21 @@ import * as Font from "expo-font";
 import AppLoading from "expo-app-loading";
 import UserNavigator from "./navigation/UserNavigator";
 
-// import { enableScreens } from "react-native-screens";
+import { createStore, combineReducers } from "redux";
+import { Provider } from "react-redux";
+import usersReducer from "./store/reducers/users";
+import { enableScreens } from "react-native-screens";
 
-// enableScreens(); //performance reasons
+enableScreens(); //performance reasons
+
+const rootReducer = combineReducers({
+  users: usersReducer,
+});
+const store = createStore(rootReducer);
 
 const fetchFonts = () => {
   return Font.loadAsync({
+    // returns a promise
     //loads fonts before
     PostNoBills: require("./assets/fonts/PostNoBillsJaffna-Regular.ttf"),
     Prata: require("./assets/fonts/Prata-Regular.ttf"),
@@ -22,17 +31,21 @@ const fetchFonts = () => {
   });
 };
 export default function App() {
-  const [dataLoaded, setDataLoaded] = useState(false); //first time running the app the fonts won't be loaded
-  if (!dataLoaded) {
+  const [fontLoaded, setFontLoaded] = useState(false); //first time running the app the fonts won't be loaded
+  if (!fontLoaded) {
     return (
       <AppLoading
-        startAsync={fetchFonts}
-        onFinish={() => setDataLoaded(true)} //after starting, set state to true
+        startAsync={fetchFonts} //function executed when component first rendered
+        onFinish={() => setFontLoaded(true)} //after starting, set state to true
         onError={(err) => console.log(err)}
       />
     );
   }
-  return <UserNavigator />;
+  return (
+    <Provider store={store}>
+      <UserNavigator />
+    </Provider>
+  );
 }
 
 const styles = StyleSheet.create({
