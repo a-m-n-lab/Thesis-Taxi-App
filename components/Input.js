@@ -5,7 +5,9 @@ import Colors from "../constants/Colors";
 const Input = (props) => {
   return (
     <View style={{ ...styles.inputText, ...props.style }}>
+      {/* <Text>{props.label}</Text> */}
       <TextInput
+        {...props}
         autoFocus={props.autoFocus}
         placeholder={props.placeholder}
         style={{

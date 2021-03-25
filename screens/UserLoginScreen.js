@@ -23,14 +23,31 @@ const UserLoginScreen = (props) => {
           <FontAwesome name="user-o" size={26} color="grey" />
         </View>
         <View>
-          <Input autoFocus={true} placeholder="Username" />
+          <Input
+            id="email"
+            autoFocus={true}
+            placeholder="E-mail"
+            keyboardType="email-address"
+            required
+            email
+            autoCapitalize="none"
+            initialValue=""
+          />
         </View>
 
         <View style={styles.passwordIconContainer}>
           <Ionicons name="key-outline" size={28} color="grey" />
         </View>
 
-        <Input placeholder="Password" />
+        <Input
+          id="password"
+          placeholder="Password"
+          keyboardType="default"
+          secureTextEntry
+          required
+          minLength={5}
+          autoCapitalize="none"
+        />
 
         <View style={styles.loginButtonContainer}>
           <Text style={styles.forgotPasswordText}>Forgot your password?</Text>
