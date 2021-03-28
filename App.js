@@ -2,19 +2,21 @@ import React, { useState } from "react";
 import { StyleSheet } from "react-native";
 import * as Font from "expo-font";
 import AppLoading from "expo-app-loading";
-import UserNavigator from "./navigation/UserNavigator";
-
-import { createStore, combineReducers } from "redux";
+import { createStore, combineReducers, applyMiddleware } from "redux";
+import ReduxThunk from "redux-thunk";
 import { Provider } from "react-redux";
 import usersReducer from "./store/reducers/users";
+import authReducer from "./store/reducers/auth";
 import { enableScreens } from "react-native-screens";
+import AppNavigator from "./navigation/AppNavigator";
 
 enableScreens(); //performance reasons
 
 const rootReducer = combineReducers({
   users: usersReducer,
+  auth: authReducer,
 });
-const store = createStore(rootReducer);
+const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 
 const fetchFonts = () => {
   return Font.loadAsync({
@@ -43,7 +45,7 @@ export default function App() {
   }
   return (
     <Provider store={store}>
-      <UserNavigator />
+      <AppNavigator />
     </Provider>
   );
 }

@@ -1,5 +1,5 @@
-import React, { useReducer, useCallback, useState, useEffect } from "react";
-import { Text, View, StyleSheet, Alert } from "react-native";
+import React, { useReducer, useCallback } from "react";
+import { View, StyleSheet } from "react-native";
 import Colors from "../constants/Colors";
 import Logo from "../components/Logo";
 
@@ -9,8 +9,11 @@ import MainButton from "../components/MainButton";
 
 import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
-import * as authActions from "../store/actions/auth";
 import { useDispatch } from "react-redux";
+import * as authActions from "../store/actions/auth";
+
+// import { HeaderButtons, Item } from "react-navigation-header-buttons";
+// import HeaderButton from "../components/HeaderButton";
 
 const FORM_INPUT_UPDATE = "FORM_INPUT_UPDATE";
 
@@ -36,12 +39,8 @@ const formReducer = (state, action) => {
   }
   return state;
 };
-
-const UserLoginScreen = (props) => {
-  const [error, setError] = useState();
-
+const AuthScreen = (props) => {
   const dispatch = useDispatch();
-
   const [formState, dispatchFormState] = useReducer(formReducer, {
     inputValues: {
       email: "",
@@ -53,33 +52,15 @@ const UserLoginScreen = (props) => {
     },
     formIsValid: false,
   });
-
-  useEffect(() => {
-    if (error) {
-      Alert.alert("An Error Occurred!", error, [{ text: "Okay" }]);
-    }
-  }, [error]);
-
-  const userLoginHandler = async () => {
-    let action;
-    action = authActions.userLogin(
-      formState.inputValues.email,
-      formState.inputValues.password
+  const signupHandler = () => {
+    dispatch(
+      authActions.signup(
+        formState.inputValues.email,
+        formState.inputValues.password
+      )
     );
-    setError(null);
-    try {
-      await dispatch(action);
-      props.navigation.navigate("User");
-    } catch (err) {
-      setError(err.message);
-    }
+    props.navigation.navigate("UserLogin");
   };
-  // setError(null);
-  // try {
-  //   await dispatch(action);
-  // }catch (err){
-  //   setError(err.message);
-  // } };
 
   const inputChangeHandler = useCallback(
     (inputIdentifier, inputValue, inputValidity) => {
@@ -94,11 +75,12 @@ const UserLoginScreen = (props) => {
   );
 
   return (
-    <View style={styles.userLoginContainer}>
+    // <KeyboardAvoidingView>
+    <View style={styles.registerContainer}>
       <Logo />
       <Subtitle>
-        {` LOG IN 
-- USER - `}
+        {` SIGN UP 
+- USER- `}
       </Subtitle>
       <View style={styles.loginContainer}>
         <View style={styles.usernameIconContainer}>
@@ -117,7 +99,19 @@ const UserLoginScreen = (props) => {
             initialValue=""
           />
         </View>
+        {/* <View style={styles.phoneIconContainer}>
+          <Ionicons name="call-outline" size={28} color="grey" />
+        </View>
 
+        <Input
+          id="phone"
+          placeholder="Phone"
+          keyboardType="default"
+          required
+          minLength={5}
+          autoCapitalize="none"
+          onInputChange={inputChangeHandler}
+        /> */}
         <View style={styles.passwordIconContainer}>
           <Ionicons name="key-outline" size={28} color="grey" />
         </View>
@@ -134,22 +128,35 @@ const UserLoginScreen = (props) => {
         />
 
         <View style={styles.loginButtonContainer}>
-          <Text style={styles.forgotPasswordText}>Forgot your password?</Text>
-          <MainButton style={styles.loginButton} onPress={userLoginHandler}>
-            LOGIN
+          <MainButton style={styles.loginButton} onPress={signupHandler}>
+            SIGNUP
           </MainButton>
         </View>
       </View>
     </View>
+    // </KeyboardAvoidingView>
   );
 };
 
-// UserLoginScreen.navigationOptions = {
-//   headerTitle: "Login",
-//   headerStyle: {},
+// RegistrationScreen.navigationOptions = (navData) => {
+//   return {
+//     headerLeft: () => (
+//       <HeaderButtons HeaderButtonComponent={HeaderButton} color="white">
+//         <Item
+//           color="white"
+//           title="Menu"
+//           iconName="ios-menu"
+//           onPress={() => {
+//             navData.navigation.toggleDrawer();
+//           }}
+//         />
+//       </HeaderButtons>
+//     ),
+//   };
 // };
+
 const styles = StyleSheet.create({
-  userLoginContainer: {
+  registerContainer: {
     flex: 1,
     backgroundColor: "white",
   },
@@ -166,21 +173,17 @@ const styles = StyleSheet.create({
     top: 60,
   },
   loginButtonContainer: {
-    flexDirection: "row",
+    left: 190,
     top: 60,
-    width: "100%",
-  },
-  forgotPasswordText: {
-    color: "black",
-    top: 30,
-    marginHorizontal: 30,
+    width: 150,
   },
   loginButton: {
     color: "white",
     backgroundColor: Colors.darkGrey,
     width: 150,
-    alignSelf: "center",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 
-export default UserLoginScreen;
+export default AuthScreen;

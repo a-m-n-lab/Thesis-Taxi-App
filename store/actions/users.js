@@ -8,6 +8,7 @@ export const editUser = (id, firstName, lastName, phone) => {
       firstName,
       lastName,
       phone,
+      role,
     },
   };
 };

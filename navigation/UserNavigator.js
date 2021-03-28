@@ -1,13 +1,14 @@
 import React from "react";
-import { Platform } from "react-native";
+import { Platform, SafeAreaView, Button, View } from "react-native";
 import { createStackNavigator } from "react-navigation-stack";
-import { createAppContainer } from "react-navigation";
-import { createDrawerNavigator } from "react-navigation-drawer";
+import { DrawerNavigatorItem, createAppContainer } from "react-navigation";
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerItemList,
+  DrawerItem,
+} from "react-navigation-drawer";
 
-import UserLoginScreen from "../screens/UserLoginScreen";
-import WelcomeScreen from "../screens/WelcomeScreen";
-import DriverLoginScreen from "../screens/DriverLoginScreen";
-import DriverPageScreen from "../screens/DriverPageScreen";
 import UserMap from "../screens/UserMap";
 import UserProfileScreen from "../screens/UserProfileScreen";
 import AboutUsScreen from "../screens/AboutUsScreen";
@@ -17,57 +18,25 @@ import Colors from "../constants/Colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 
-//1st stack
+import { useDispatch } from "react-redux";
+import * as authActions from "../store/actions/auth";
+
+import CustomDrawerContent from "../components/navigation/CustomDrawerContent";
+const defaultNavOptions = {
+  headerTitleAlign: "center",
+  headerStyle: {
+    backgroundColor: Platform.OS === "android" ? "black" : "white",
+  },
+  headerTintColor: Platform.OS === "android" ? "white" : "black",
+};
+
 const UserNavigator = createStackNavigator(
   {
-    Welcome: {
-      screen: WelcomeScreen,
-      navigationOptions: {
-        headerStyle: {
-          backgroundColor: "black",
-        },
-        headerTintColor: "black",
-        //headerTitle:"blabla" -- this one has priority
-      },
-    },
-    UserLogin: {
-      screen: UserLoginScreen,
-      navigationOptions: {
-        //   headerStyle: {
-        //     backgroundColor: Platform.OS === "android" ? "black" : "white",
-        //   },
-        //   headerTitleAlign: "center",
-        headerTitle: "Login",
-        // headerTintColor: Platform.OS === "android" ? "white" : "black",
-      },
-    },
     Maps: {
       screen: UserMap,
       navigationOptions: {
         headerTitle: "Maps",
       },
-    },
-    DriverLogin: {
-      screen: DriverLoginScreen,
-
-      navigationOptions: {
-        headerTitle: "Login",
-        //   headerStyle: {
-        //     backgroundColor: Platform.OS === "android" ? "black" : "white",
-        //   },
-        //   headerTitleAlign: "center",
-        //
-        //   headerTintColor: Platform.OS === "android" ? "white" : "black",
-      },
-    },
-    DriversPage: {
-      screen: DriverPageScreen,
-      // navigationOptions: {
-      //   headerStyle: {
-      //     backgroundColor: Platform.OS === "android" ? "black" : "white",
-      //   },
-      //   headerTitleAlign: "center",
-      // },
     },
   },
   {
@@ -77,15 +46,10 @@ const UserNavigator = createStackNavigator(
       ),
       headerTitle: "Driver",
     },
-    defaultNavigationOptions: {
-      headerTitleAlign: "center",
-      headerStyle: {
-        backgroundColor: Platform.OS === "android" ? "black" : "white",
-      },
-      headerTintColor: Platform.OS === "android" ? "white" : "black",
-    },
+    defaultNavigationOptions: defaultNavOptions,
   }
 );
+
 //2nd stack
 const UserDrawer = createStackNavigator(
   {
@@ -102,13 +66,7 @@ const UserDrawer = createStackNavigator(
         />
       ),
     },
-    defaultNavigationOptions: {
-      headerTitleAlign: "center",
-      headerStyle: {
-        backgroundColor: Platform.OS === "android" ? "black" : "white",
-      },
-      headerTintColor: Platform.OS === "android" ? "white" : "black",
-    },
+    defaultNavigationOptions: defaultNavOptions,
   }
 );
 const AboutUs = createStackNavigator(
@@ -128,18 +86,12 @@ const AboutUs = createStackNavigator(
       ),
       headerTitle: "About Us",
     },
-    defaultNavigationOptions: {
-      headerTitleAlign: "center",
-      headerStyle: {
-        backgroundColor: Platform.OS === "android" ? "black" : "white",
-      },
-      headerTintColor: Platform.OS === "android" ? "white" : "black",
-    },
+    defaultNavigationOptions: defaultNavOptions,
   }
 );
-const MainNavigator = createDrawerNavigator(
+const UserMainNavigator = createDrawerNavigator(
   {
-    Welcome: {
+    UserMaps: {
       screen: UserNavigator,
     },
     Profile: UserDrawer,
@@ -150,6 +102,33 @@ const MainNavigator = createDrawerNavigator(
     contentOptions: {
       activeTintColor: Colors.purple,
     },
+    drawerContent: (props) => {
+      const dispatch = useDispatch();
+      return (
+        <View style={{ flex: 1, paddingTop: 20 }}>
+          <SafeAreaView forceInset={{ top: "always", horizontal: "never" }}>
+            <DrawerItem {...props} />
+            <Button
+              title="Logout"
+              color={Colors.primary}
+              onPress={() => {
+                dispatch(authActions.logout());
+                // props.navigation.navigate('Auth');
+              }}
+            />
+          </SafeAreaView>
+        </View>
+      );
+      // {/* <Button
+      //   title="Logout"
+      //   color={Colors.darkGrey}
+      //   onPress={() => {
+      //     dispatch(authActions.logout());
+      //     props.navigation.navigate("Auth");
+      //   }}
+      // /> */
+    },
   }
 );
-export default createAppContainer(MainNavigator);
+
+export default createAppContainer(UserMainNavigator);

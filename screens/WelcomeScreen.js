@@ -36,29 +36,20 @@ const WelcomeScreen = (props) => {
           <Text style={styles.newAccountText}>Don't have an account?</Text>
         </View>
         <View style={styles.registerContainer}>
-          <MainButton style={styles.registerButton}>Register now</MainButton>
+          <MainButton
+            style={styles.registerButton}
+            onPress={() => {
+              props.navigation.navigate({ routeName: "UserSignup" });
+            }}
+          >
+            Signup now
+          </MainButton>
         </View>
       </View>
     </ImageBackground>
   );
 };
 
-WelcomeScreen.navigationOptions = (navData) => {
-  return {
-    headerLeft: () => (
-      <HeaderButtons HeaderButtonComponent={HeaderButton} color="white">
-        <Item
-          color="white"
-          title="Menu"
-          iconName="ios-menu"
-          onPress={() => {
-            navData.navigation.toggleDrawer();
-          }}
-        />
-      </HeaderButtons>
-    ),
-  };
-};
 const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
