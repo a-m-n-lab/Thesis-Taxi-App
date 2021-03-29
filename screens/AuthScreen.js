@@ -27,7 +27,7 @@ const AuthScreen = (props) => {
   if (!firebase.apps.length) {
     firebase.initializeApp(ApiKeys.FirebaseConfig);
   }
-  const submitValue = () => {
+  const submitValue = (props) => {
     const details = {
       password: password,
       firstname: firstname,
@@ -48,7 +48,7 @@ const AuthScreen = (props) => {
           .set({
             name: fullname,
             email: email,
-            phonenumber: phoneNumber,
+            phone: phone,
           })
           .then(() => {
             alert("sucesss");
