@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet } from "react-native";
 import * as Font from "expo-font";
+
 import AppLoading from "expo-app-loading";
 import { createStore, combineReducers, applyMiddleware } from "redux";
 import ReduxThunk from "redux-thunk";
@@ -9,14 +10,16 @@ import usersReducer from "./store/reducers/users";
 import authReducer from "./store/reducers/auth";
 import { enableScreens } from "react-native-screens";
 import AppNavigator from "./navigation/AppNavigator";
+import firebase from "firebase/app";
+import ApiKeys from "./constants/ApiKeys";
 
 enableScreens(); //performance reasons
 
-const rootReducer = combineReducers({
-  users: usersReducer,
-  auth: authReducer,
-});
-const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
+// const rootReducer = combineReducers({
+//   users: usersReducer,
+//   auth: authReducer,
+// });
+// const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 
 const fetchFonts = () => {
   return Font.loadAsync({
@@ -33,6 +36,10 @@ const fetchFonts = () => {
   });
 };
 export default function App() {
+  if (!firebase.app.length) {
+    firebase.initializeApp(ApiKeys.FirebaseConfig);
+    const database = firebase.database();
+  }
   const [fontLoaded, setFontLoaded] = useState(false); //first time running the app the fonts won't be loaded
   if (!fontLoaded) {
     return (
@@ -43,10 +50,11 @@ export default function App() {
       />
     );
   }
+
   return (
-    <Provider store={store}>
-      <AppNavigator />
-    </Provider>
+    // <Provider store={store}>
+    <AppNavigator />
+    // {/* </Provider> */}
   );
 }
 

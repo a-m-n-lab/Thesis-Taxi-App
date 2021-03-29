@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "874076654414",
+    "firebase_url": "https://reactnative-blink-app-default-rtdb.firebaseio.com",
+    "project_id": "reactnative-blink-app",
+    "storage_bucket": "reactnative-blink-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:874076654414:android:5f3b8fb691c306e5902c1f",
+        "android_client_info": {
+          "package_name": "com.blink.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "874076654414-feonabtlqf2v3ak978m8d5t8rc6tprr7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuZp6zYb8ZSCQvZYKHqI5Mtx8NCWgf5wY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "874076654414-feonabtlqf2v3ak978m8d5t8rc6tprr7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,5 @@
 import React, { useReducer, useCallback, useState, useEffect } from "react";
-import { Text, View, StyleSheet, Alert } from "react-native";
+import { Text, View, StyleSheet, Alert, ToastAndroid } from "react-native";
 import Colors from "../constants/Colors";
 import Logo from "../components/Logo";
 
@@ -9,9 +9,11 @@ import MainButton from "../components/MainButton";
 
 import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
-import * as authActions from "../store/actions/auth";
-import { useDispatch } from "react-redux";
 
+import ApiKeys from "../constants/ApiKeys";
+import Toast from "react-native-simple-toast";
+//import   firebase from 'react-native-firebase';
+import * as firebase from "firebase";
 const FORM_INPUT_UPDATE = "FORM_INPUT_UPDATE";
 
 const formReducer = (state, action) => {
@@ -42,6 +44,9 @@ const UserLoginScreen = (props) => {
 
   const dispatch = useDispatch();
 
+  if (!firebase.apps.length) {
+    firebase.initializeApp(ApiKeys.FirebaseConfig);
+  }
   const [formState, dispatchFormState] = useReducer(formReducer, {
     inputValues: {
       email: "",
@@ -80,7 +85,24 @@ const UserLoginScreen = (props) => {
   // }catch (err){
   //   setError(err.message);
   // } };
-
+  firebase.initializeApp(ApiKeys.FirebaseConfig);
+  const userLoginAsync = async () => {
+    firebase
+      .auth()
+      .signInWithEmailAndPassword(
+        formState.inputValues.email,
+        formState.inputValues.password
+      )
+      .then(
+        () => {
+          AsyncStorage.setItem("userId", firebase.auth().currentUser.id);
+          props.navigation.navigate("Maps");
+        },
+        (error) => {
+          Toast.show("error" + error.message, Toast.SHORT, Toast.TOP);
+        }
+      );
+  };
   const inputChangeHandler = useCallback(
     (inputIdentifier, inputValue, inputValidity) => {
       dispatchFormState({
@@ -135,7 +157,7 @@ const UserLoginScreen = (props) => {
 
         <View style={styles.loginButtonContainer}>
           <Text style={styles.forgotPasswordText}>Forgot your password?</Text>
-          <MainButton style={styles.loginButton} onPress={userLoginHandler}>
+          <MainButton style={styles.loginButton} onPress={userLoginAsync}>
             LOGIN
           </MainButton>
         </View>
