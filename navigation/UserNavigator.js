@@ -2,12 +2,7 @@ import React from "react";
 import { Platform, SafeAreaView, Button, View } from "react-native";
 import { createStackNavigator } from "react-navigation-stack";
 import { DrawerNavigatorItem, createAppContainer } from "react-navigation";
-import {
-  createDrawerNavigator,
-  DrawerContentScrollView,
-  DrawerItemList,
-  DrawerItem,
-} from "react-navigation-drawer";
+import { createDrawerNavigator, DrawerItem } from "react-navigation-drawer";
 
 import UserMap from "../screens/UserMap";
 import UserProfileScreen from "../screens/UserProfileScreen";

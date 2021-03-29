@@ -23,7 +23,7 @@ const WelcomeScreen = (props) => {
             });
           }}
         >
-          User Login
+          Passenger Login
         </MainButton>
         <MainButton
           onPress={() => {
@@ -42,7 +42,15 @@ const WelcomeScreen = (props) => {
               props.navigation.navigate({ routeName: "UserSignup" });
             }}
           >
-            Signup now
+            Passenger Signup
+          </MainButton>
+          <MainButton
+            style={styles.registerButton}
+            onPress={() => {
+              props.navigation.navigate({ routeName: "DriverSignup" });
+            }}
+          >
+            Driver Signup
           </MainButton>
         </View>
       </View>

@@ -26,7 +26,7 @@ import Toast from "react-native-simple-toast";
 import * as firebase from "firebase";
 import ApiKeys from "../constants/ApiKeys";
 
-export default class AuthScreen extends React.Component {
+export default class DriverRegisterScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -41,6 +41,7 @@ export default class AuthScreen extends React.Component {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
     }
   }
+
   componentDidMount() {
     this.authUnsubscriber = firebase.auth().onAuthStateChanged((authData) => {
       this.setState({ authData });
@@ -55,7 +56,7 @@ export default class AuthScreen extends React.Component {
         <Logo />
         <Subtitle>
           {` SIGN UP 
-- PASSENGER- `}
+- DRIVER- `}
         </Subtitle>
         <View style={styles.loginContainer}>
           <Input
@@ -113,7 +114,6 @@ export default class AuthScreen extends React.Component {
 
           <View style={styles.loginButtonContainer}>
             <MainButton style={styles.loginButton} onPress={this._VerifyAsync}>
-              <MainButton onPress={() => {}}>Let's go </MainButton>
               SIGNUP
             </MainButton>
           </View>
@@ -131,33 +131,28 @@ export default class AuthScreen extends React.Component {
       this.state.lastname.trim() === "" ||
       this.state.password.length == ""
     ) {
-      Toast.show(
-        "All inputs must be filled!",
-        Toast.SHORT,
-        Toast.TOP,
-        ToastStyle
-      );
+      Toast.show("All inputs must be filled!", Toast.SHORT, Toast.TOP);
       return;
     }
     if (reg.test(this.state.email) === false) {
-      Toast.show("INVALID EMAIL!", Toast.SHORT, Toast.TOP, ToastStyle);
+      Toast.show("INVALID EMAIL!", Toast.SHORT, Toast.TOP);
       return;
     }
+
+    this.setState({ color: "#42A5F5" });
 
     firebase
       .auth()
       .createUserWithEmailAndPassword(this.state.email, this.state.password)
       .then(
         (authData) => {
-          //create a rider node with:firstname,lastname,phone,profile
-
           if (firebase.auth().currentUser) {
             userId = firebase.auth().currentUser.uid;
             if (userId) {
-              AsyncStorage.setItem("userId", userId);
+              AsyncStorage.setItem("driverId", userId);
               firebase
                 .database()
-                .ref(`Users/${userId}/Details`)
+                .ref(`Drivers/${userId}/Details`)
                 .set({
                   firstname: this.state.firstname,
                   lastname: this.state.lastname,
@@ -167,12 +162,13 @@ export default class AuthScreen extends React.Component {
                 })
                 .then(
                   () => {
-                    Toast.show("User added successfully", Toast.SHORT);
-
-                    this.props.navigation.navigate("App1");
+                    Toast.show("Driver added successfully", Toast.SHORT);
+                    this.setState({ color: "#ffffff" });
+                    this.props.navigation.navigate("App2");
                   },
                   (error) => {
                     Toast.show(error.message, Toast.SHORT);
+                    this.setState({ color: "#ffffff" });
                   }
                 );
             }
@@ -182,6 +178,7 @@ export default class AuthScreen extends React.Component {
         },
         (error) => {
           Toast.show("error:" + error.message, Toast.SHORT, Toast.TOP);
+          this.setState({ color: "#ffffff" });
         }
       );
 
@@ -196,19 +193,19 @@ const styles = StyleSheet.create({
   },
   loginContainer: {
     padding: 15,
-    //top: 60,
+    top: 60,
   },
   usernameIconContainer: {
     justifyContent: "center",
-    //top: 40,
+    top: 40,
   },
   passwordIconContainer: {
     marginVertical: 15,
-    //top: 60,
+    top: 60,
   },
   loginButtonContainer: {
     left: 190,
-    //top: 60,
+    top: 60,
     width: 150,
   },
   loginButton: {

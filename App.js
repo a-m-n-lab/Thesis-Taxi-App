@@ -17,11 +17,11 @@ import ApiKeys from "./constants/ApiKeys";
 enableScreens();
 //performance reasons
 
-// const rootReducer = combineReducers({
-//   users: usersReducer,
-//   auth: authReducer,
-// });
-// const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
+const rootReducer = combineReducers({
+  users: usersReducer,
+  auth: authReducer,
+});
+const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 
 const fetchFonts = () => {
   return Font.loadAsync({
@@ -54,9 +54,9 @@ export default function App() {
   }
 
   return (
-    // <Provider store={store}>
-    <AppNavigator />
-    // {/* </Provider> */}
+    <Provider store={store}>
+      <AppNavigator />
+    </Provider>
   );
 }
 

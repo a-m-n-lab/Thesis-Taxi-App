@@ -1,5 +1,15 @@
 import React, { useReducer, useCallback, useState, useEffect } from "react";
-import { Text, View, StyleSheet, Alert, ToastAndroid } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  AsyncStorage,
+  TouchableOpacity,
+  TextInput,
+  KeyboardAvoidingView,
+  Image,
+  ActivityIndicator,
+} from "react-native";
 import Colors from "../constants/Colors";
 import Logo from "../components/Logo";
 
@@ -14,157 +24,105 @@ import ApiKeys from "../constants/ApiKeys";
 import Toast from "react-native-simple-toast";
 //import   firebase from 'react-native-firebase';
 import * as firebase from "firebase";
-const FORM_INPUT_UPDATE = "FORM_INPUT_UPDATE";
 
-const formReducer = (state, action) => {
-  if (action.type === FORM_INPUT_UPDATE) {
-    const updatedValues = {
-      ...state.inputValues,
-      [action.input]: action.value,
-    };
-    const updatedValidities = {
-      ...state.inputValidities,
-      [action.input]: action.isValid,
-    };
-    let updatedFormIsValid = true;
-    for (const key in updatedValidities) {
-      updatedFormIsValid = updatedFormIsValid && updatedValidities[key];
-    }
-    return {
-      formIsValid: updatedFormIsValid,
-      inputValidities: updatedValidities,
-      inputValues: updatedValues,
-    };
-  }
-  return state;
-};
-
-const UserLoginScreen = (props) => {
-  const [error, setError] = useState();
-
-  const dispatch = useDispatch();
-
-  if (!firebase.apps.length) {
-    firebase.initializeApp(ApiKeys.FirebaseConfig);
-  }
-  const [formState, dispatchFormState] = useReducer(formReducer, {
-    inputValues: {
-      email: "",
+export default class RiderLogin extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
       password: "",
-    },
-    inputValidities: {
-      email: false,
-      password: false,
-    },
-    formIsValid: false,
-  });
+      email: "",
 
-  useEffect(() => {
-    if (error) {
-      Alert.alert("An Error Occurred!", error, [{ text: "Okay" }]);
+      color: "#ffffff",
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(ApiKeys.FirebaseConfig);
     }
-  }, [error]);
+  }
+  render() {
+    //const animating = this.state.animating;
+    const color = this.state.color;
+    return (
+      <View style={styles.userLoginContainer}>
+        <Logo />
+        <Subtitle>
+          {` LOG IN 
+- PASSENGER - `}
+        </Subtitle>
+        <View style={styles.loginContainer}>
+          <View style={styles.usernameIconContainer}>
+            <FontAwesome name="user-o" size={26} color="grey" />
+          </View>
+          <View>
+            <Input
+              id="email"
+              autoFocus={true}
+              placeholder="E-mail"
+              keyboardType="email-address"
+              required
+              email
+              autoCapitalize="none"
+              onChangeText={(email) => this.setState({ email })}
+              initialValue=""
+            />
+          </View>
 
-  const userLoginHandler = async () => {
-    let action;
-    action = authActions.userLogin(
-      formState.inputValues.email,
-      formState.inputValues.password
+          <View style={styles.passwordIconContainer}>
+            <Ionicons name="key-outline" size={28} color="grey" />
+          </View>
+
+          <Input
+            id="password"
+            placeholder="Password"
+            keyboardType="default"
+            secureTextEntry
+            required
+            minLength={5}
+            autoCapitalize="none"
+            onChangeText={(password) => this.setState({ password })}
+          />
+
+          <View style={styles.loginButtonContainer}>
+            <Text style={styles.forgotPasswordText}>Forgot your password?</Text>
+            <MainButton style={styles.loginButton} onPress={this._signInAsync}>
+              LOGIN
+            </MainButton>
+          </View>
+        </View>
+      </View>
     );
-    setError(null);
-    try {
-      await dispatch(action);
-      props.navigation.navigate("User");
-    } catch (err) {
-      setError(err.message);
+  }
+
+  _signInAsync = async () => {
+    let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (this.state.email.trim() === "") {
+      Toast.show("email input must be filled!", Toast.SHORT, Toast.TOP);
+      return;
     }
-  };
-  // setError(null);
-  // try {
-  //   await dispatch(action);
-  // }catch (err){
-  //   setError(err.message);
-  // } };
-  firebase.initializeApp(ApiKeys.FirebaseConfig);
-  const userLoginAsync = async () => {
+    if (this.state.password.length == "") {
+      Toast.show("password must be filled!", Toast.SHORT, Toast.TOP);
+      return;
+    }
+    if (reg.test(this.state.email) === false) {
+      Toast.show("INVALID EMAIL!", Toast.SHORT, Toast.TOP, ToastStyle);
+      return;
+    }
+
     firebase
       .auth()
-      .signInWithEmailAndPassword(
-        formState.inputValues.email,
-        formState.inputValues.password
-      )
+      .signInWithEmailAndPassword(this.state.email, this.state.password)
       .then(
         () => {
-          AsyncStorage.setItem("userId", firebase.auth().currentUser.id);
-          props.navigation.navigate("Maps");
+          AsyncStorage.setItem("riderId", firebase.auth().currentUser.uid);
+          this.setState({ color: "#ffffff" });
+          this.props.navigation.navigate("Maps");
         },
         (error) => {
-          Toast.show("error" + error.message, Toast.SHORT, Toast.TOP);
+          Toast.show("error:" + error.message, Toast.SHORT, Toast.TOP);
+          this.setState({ color: "#ffffff" });
         }
       );
   };
-  const inputChangeHandler = useCallback(
-    (inputIdentifier, inputValue, inputValidity) => {
-      dispatchFormState({
-        type: FORM_INPUT_UPDATE,
-        value: inputValue,
-        isValid: inputValidity,
-        input: inputIdentifier,
-      });
-    },
-    [dispatchFormState]
-  );
-
-  return (
-    <View style={styles.userLoginContainer}>
-      <Logo />
-      <Subtitle>
-        {` LOG IN 
-- USER - `}
-      </Subtitle>
-      <View style={styles.loginContainer}>
-        <View style={styles.usernameIconContainer}>
-          <FontAwesome name="user-o" size={26} color="grey" />
-        </View>
-        <View>
-          <Input
-            id="email"
-            autoFocus={true}
-            placeholder="E-mail"
-            keyboardType="email-address"
-            required
-            email
-            autoCapitalize="none"
-            onInputChange={inputChangeHandler}
-            initialValue=""
-          />
-        </View>
-
-        <View style={styles.passwordIconContainer}>
-          <Ionicons name="key-outline" size={28} color="grey" />
-        </View>
-
-        <Input
-          id="password"
-          placeholder="Password"
-          keyboardType="default"
-          secureTextEntry
-          required
-          minLength={5}
-          autoCapitalize="none"
-          onInputChange={inputChangeHandler}
-        />
-
-        <View style={styles.loginButtonContainer}>
-          <Text style={styles.forgotPasswordText}>Forgot your password?</Text>
-          <MainButton style={styles.loginButton} onPress={userLoginAsync}>
-            LOGIN
-          </MainButton>
-        </View>
-      </View>
-    </View>
-  );
-};
+}
 
 // UserLoginScreen.navigationOptions = {
 //   headerTitle: "Login",
@@ -204,5 +162,3 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
 });
-
-export default UserLoginScreen;
