@@ -10,10 +10,12 @@ import usersReducer from "./store/reducers/users";
 import authReducer from "./store/reducers/auth";
 import { enableScreens } from "react-native-screens";
 import AppNavigator from "./navigation/AppNavigator";
-import firebase from "firebase/app";
+import firebase from "firebase";
+
 import ApiKeys from "./constants/ApiKeys";
 
-enableScreens(); //performance reasons
+enableScreens();
+//performance reasons
 
 // const rootReducer = combineReducers({
 //   users: usersReducer,
