@@ -1,5 +1,3 @@
-import * as firebase from "firebase";
-
 export default {
   FirebaseConfig: {
     apiKey: "AIzaSyB7hTq-te4Z7Wb6BN3KkQdGlMQXg8eOUTo",

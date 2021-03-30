@@ -3,8 +3,8 @@ import { Platform, SafeAreaView, Button, View } from "react-native";
 import { createStackNavigator } from "react-navigation-stack";
 import { DrawerNavigatorItem, createAppContainer } from "react-navigation";
 import { createDrawerNavigator, DrawerItem } from "react-navigation-drawer";
-
-import UserMap from "../screens/UserMap";
+import UserHome from "../screens/UserHome";
+import UserMap from "../screens/UserHome";
 import UserProfileScreen from "../screens/UserProfileScreen";
 import AboutUsScreen from "../screens/AboutUsScreen";
 import EditUserScreen from "../screens/EditUserScreen";
@@ -17,6 +17,9 @@ import { useDispatch } from "react-redux";
 import * as authActions from "../store/actions/auth";
 
 import CustomDrawerContent from "../components/navigation/CustomDrawerContent";
+import UserHomeContents from "../screens/user/UserHomeContents";
+import UserPickup from "../screens/user/UserPickup";
+
 const defaultNavOptions = {
   headerTitleAlign: "center",
   headerStyle: {
@@ -27,12 +30,15 @@ const defaultNavOptions = {
 
 const UserNavigator = createStackNavigator(
   {
-    Maps: {
-      screen: UserMap,
-      navigationOptions: {
-        headerTitle: "Maps",
-      },
-    },
+    //Home: { screen: UserHome },
+    Maps: { screen: UserHomeContents },
+    pickUpLocation: { screen: UserPickup },
+    // Maps: {
+    //   screen: UserMap,
+    //   navigationOptions: {
+    //     headerTitle: "Maps",
+    //   },
+    // },
   },
   {
     navigationOptions: {
@@ -44,7 +50,38 @@ const UserNavigator = createStackNavigator(
     defaultNavigationOptions: defaultNavOptions,
   }
 );
+// const customDrawerContentComponent = (props) => (
+//   <Container>
+//     <Header style={{ height: 200, backgroundColor: "#42A5F5" }}>
+//       <Body style={{ alignItems: "center", justifyContent: "center" }}>
+//         {/* <Image
+//           source={require("../Images/avatar.png")}
+//           style={{ width: 100, height: 100, borderRadius: 100 }}
+//         /> */}
+//         <Text style={{ color: "#ffffff", fontWeight: "bold", fontSize: 20 }}>
+//           {this.firstname + " " + this.lastname}
+//         </Text>
+//       </Body>
+//     </Header>
+//     <Content>
+//       <DrawerItems {...props} />
+//     </Content>
+//   </Container>
+// );
+//drawerNavigator
 
+// export const MyDrawerNav = createDrawerNavigator(
+//   {
+//     Home: UserNavigator,
+//   }
+// {
+//   initialRouteName: "Home",
+//   contentComponent: customDrawerContentComponent,
+//   drawerOpenRoute: "DrawerOpen",
+//   drawerCloseRoute: "DrawerClose",
+//   drawerToggleRoute: "DrawerToggle",
+// }
+//);
 //2nd stack
 const UserDrawer = createStackNavigator(
   {
@@ -84,12 +121,12 @@ const AboutUs = createStackNavigator(
     defaultNavigationOptions: defaultNavOptions,
   }
 );
-const UserMainNavigator = createDrawerNavigator(
+export const UserMainNavigator = createDrawerNavigator(
   {
     UserMaps: {
       screen: UserNavigator,
     },
-    Profile: UserDrawer,
+    //Profile: UserDrawer,
     AboutUs: AboutUs,
   },
 
@@ -97,32 +134,32 @@ const UserMainNavigator = createDrawerNavigator(
     contentOptions: {
       activeTintColor: Colors.purple,
     },
-    drawerContent: (props) => {
-      const dispatch = useDispatch();
-      return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
-          <SafeAreaView forceInset={{ top: "always", horizontal: "never" }}>
-            <DrawerItem {...props} />
-            <Button
-              title="Logout"
-              color={Colors.primary}
-              onPress={() => {
-                dispatch(authActions.logout());
-                // props.navigation.navigate('Auth');
-              }}
-            />
-          </SafeAreaView>
-        </View>
-      );
-      // {/* <Button
-      //   title="Logout"
-      //   color={Colors.darkGrey}
-      //   onPress={() => {
-      //     dispatch(authActions.logout());
-      //     props.navigation.navigate("Auth");
-      //   }}
-      // /> */
-    },
+    // drawerContent: (props) => {
+    //   const dispatch = useDispatch();
+    //   return (
+    //     <View style={{ flex: 1, paddingTop: 20 }}>
+    //       <SafeAreaView forceInset={{ top: "always", horizontal: "never" }}>
+    //         <DrawerItem {...props} />
+    //         <Button
+    //           title="Logout"
+    //           color={Colors.primary}
+    //           onPress={() => {
+    //             dispatch(authActions.logout());
+    //             // props.navigation.navigate('Auth');
+    //           }}
+    //         />
+    //       </SafeAreaView>
+    //     </View>
+    //   );
+    //   // {/* <Button
+    //   //   title="Logout"
+    //   //   color={Colors.darkGrey}
+    //   //   onPress={() => {
+    //   //     dispatch(authActions.logout());
+    //   //     props.navigation.navigate("Auth");
+    //   //   }}
+    //   // /> */
+    // },
   }
 );
 

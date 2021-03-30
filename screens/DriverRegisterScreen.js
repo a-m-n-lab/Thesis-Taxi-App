@@ -164,7 +164,7 @@ export default class DriverRegisterScreen extends React.Component {
                   () => {
                     Toast.show("Driver added successfully", Toast.SHORT);
                     this.setState({ color: "#ffffff" });
-                    this.props.navigation.navigate("App2");
+                    this.props.navigation.navigate("DriverLogin");
                   },
                   (error) => {
                     Toast.show(error.message, Toast.SHORT);

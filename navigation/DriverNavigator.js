@@ -1,19 +1,14 @@
-import React from "react";
 import { createStackNavigator } from "react-navigation-stack";
-
-import DriverPageScreen from "../screens/DriverPageScreen";
+import DriverHome from "../screens/DriverHome";
+//import DriverPageScreen from "../screens/DriverPageScreen";
 import DriverLogout from "../screens/DriverLogout";
-import { Platform, SafeAreaView, Button, View } from "react-native";
+import { Platform, View } from "react-native";
 import { createAppContainer } from "react-navigation";
 import { createDrawerNavigator, DrawerItem } from "react-navigation-drawer";
 
 import Colors from "../constants/Colors";
 
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { AntDesign } from "@expo/vector-icons";
-
-import { useDispatch } from "react-redux";
-import * as authActions from "../store/actions/auth";
+import DriverHomeContents from "../screens/driver/DriverHomeContents";
 
 const defaultNavOptions = {
   headerTitleAlign: "center",
@@ -25,8 +20,9 @@ const defaultNavOptions = {
 
 const DriverNavigator = createStackNavigator(
   {
+    DriverHomePage: { screen: DriverHome },
     DriversPage: {
-      screen: DriverPageScreen,
+      screen: DriverHomeContents,
       navigationOptions: {
         headerTitle: "Driver",
       },
@@ -40,6 +36,7 @@ const DriverMainNavigator = createDrawerNavigator(
     Driver: {
       screen: DriverNavigator,
     },
+    DriverHomeC: { screen: DriverHomeContents },
     Logout: { screen: DriverLogout },
   },
 

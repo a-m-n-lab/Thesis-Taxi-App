@@ -154,10 +154,10 @@ export default class AuthScreen extends React.Component {
           if (firebase.auth().currentUser) {
             userId = firebase.auth().currentUser.uid;
             if (userId) {
-              AsyncStorage.setItem("userId", userId);
+              AsyncStorage.setItem("RiderId", userId);
               firebase
                 .database()
-                .ref(`Users/${userId}/Details`)
+                .ref(`RiderIds/${userId}/Details`)
                 .set({
                   firstname: this.state.firstname,
                   lastname: this.state.lastname,
@@ -169,7 +169,7 @@ export default class AuthScreen extends React.Component {
                   () => {
                     Toast.show("User added successfully", Toast.SHORT);
 
-                    this.props.navigation.navigate("App1");
+                    this.props.navigation.navigate("UserLogin");
                   },
                   (error) => {
                     Toast.show(error.message, Toast.SHORT);

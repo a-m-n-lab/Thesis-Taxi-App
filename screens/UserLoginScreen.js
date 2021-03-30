@@ -1,15 +1,5 @@
 import React, { useReducer, useCallback, useState, useEffect } from "react";
-import {
-  Text,
-  View,
-  StyleSheet,
-  AsyncStorage,
-  TouchableOpacity,
-  TextInput,
-  KeyboardAvoidingView,
-  Image,
-  ActivityIndicator,
-} from "react-native";
+import { Text, View, StyleSheet, AsyncStorage } from "react-native";
 import Colors from "../constants/Colors";
 import Logo from "../components/Logo";
 
@@ -25,14 +15,12 @@ import Toast from "react-native-simple-toast";
 //import   firebase from 'react-native-firebase';
 import * as firebase from "firebase";
 
-export default class RiderLogin extends React.Component {
+export default class UserLoginScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       password: "",
       email: "",
-
-      color: "#ffffff",
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
