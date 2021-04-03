@@ -8,34 +8,6 @@ import { useSelector, useDispatch } from "react-redux";
 import * as userActions from "../store/actions/users";
 
 const EditUserScreen = (props) => {
-  const userId = props.navigation.getParam("id");
-
-  const editedUser = useSelector((state) =>
-    state.users.availableUsers.find((user) => user.id === userId)
-  );
-
-  // const userImage = useSelector((state) => state.users.availableUsers.imageUrl);
-  const dispatch = useDispatch();
-
-  const [image, setImage] = useState("");
-
-  const [firstName, setFirstName] = useState(
-    editedUser ? editedUser.firstName : ""
-  );
-  const [lastName, setLastName] = useState(
-    editedUser ? editedUser.lastName : ""
-  );
-  const [phone, setPhone] = useState(editedUser ? editedUser.phone : "");
-
-  const submitHandler = useCallback(() => {
-    if (editedUser) {
-      dispatch(userActions.editUser(userId, firstName, lastName, phone));
-    }
-  }, [dispatch, userId, image, firstName, lastName, phone]);
-
-  useEffect(() => {
-    props.navigation.setParams({ submit: submitHandler });
-  }, [submitHandler]);
   return (
     <View style={styles.form}>
       <View style={styles.input}>
@@ -45,25 +17,17 @@ const EditUserScreen = (props) => {
           onChangeText={(text) => setImage(text)}
         ></TextInput>
         <View></View> */}
-        <Text>First Name</Text>
-        <TextInput
-          value={firstName}
-          onChangeText={(text) => setFirstName(text)}
-        />
+        <Text>First Name: </Text>
+        <TextInput />
         <Text>Last Name</Text>
-        <TextInput
-          value={lastName}
-          onChangeText={(text) => setLastName(text)}
-        />
+        <TextInput />
         <Text>Phone</Text>
-        <TextInput value={phone} onChangeText={(text) => setPhone(text)} />
       </View>
     </View>
   );
 };
 
 EditUserScreen.navigationOptions = (navData) => {
-  const submitFn = navData.navigation.getParam("submit");
   return {
     headerTitle: "Edit",
     headerRight: () => (
@@ -74,7 +38,7 @@ EditUserScreen.navigationOptions = (navData) => {
           iconName={
             Platform.OS === "android" ? "md-checkmark" : "ios-checkmark"
           }
-          onPress={submitFn}
+          onPress={() => {}}
         />
       </HeaderButtons>
     ),

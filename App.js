@@ -18,11 +18,11 @@ import { Root } from "native-base";
 enableScreens();
 //performance reasons
 
-const rootReducer = combineReducers({
-  users: usersReducer,
-  auth: authReducer,
-});
-const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
+// const rootReducer = combineReducers({
+//   users: usersReducer,
+//   auth: authReducer,
+// });
+// const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 
 const fetchFonts = () => {
   return Font.loadAsync({
@@ -58,9 +58,9 @@ export default function App() {
 
   return (
     <Root>
-      <Provider store={store}>
-        <AppNavigator />
-      </Provider>
+      {/* <Provider store={store}> */}
+      <AppNavigator />
+      {/* </Provider> */}
     </Root>
   );
 }

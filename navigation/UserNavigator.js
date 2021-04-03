@@ -57,6 +57,7 @@ const UserDrawer = createStackNavigator(
   },
   {
     navigationOptions: {
+      title: "Edit your profile",
       drawerIcon: (drawerConfig) => (
         <MaterialCommunityIcons
           name="account-details"

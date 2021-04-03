@@ -7,11 +7,12 @@ import {
   View,
   Image,
 } from "react-native";
+import * as firebase from "firebase";
 //import RNRestart from "react-native-restart";
 
 // Immediately reload the React Native Bundle
 
-import { NavigationActions } from "react-navigation";
+import { NavigationActions, NavigationEvents } from "react-navigation";
 //import AuthLoadingScreen from "../main/AuthLoadingScreen";
 
 export default class UserLogout extends React.Component {
@@ -29,10 +30,18 @@ export default class UserLogout extends React.Component {
   //       />
   //     ),
   //   };
-
+  // signOutUser = async () => {
+  //   try {
+  //     await firebase.auth().signOut();
+  //     navigate("Welcome");
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
   componentDidMount() {
     AsyncStorage.clear();
-    Expo.Util.reload();
+    // navigation.navigate("Welcome");
+    // Expo.Updates.reload();
   }
   // Fetch the token from storage then navigate to our appropriate place
 
@@ -40,8 +49,8 @@ export default class UserLogout extends React.Component {
   render() {
     return (
       <View style={{ backgroundColor: "red" }}>
-        {/*<ActivityIndicator size="large"/>
-        <StatusBar barStyle="default" />*/}
+        <ActivityIndicator size="large" />
+        <StatusBar barStyle="default" />
       </View>
     );
   }

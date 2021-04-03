@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, Text } from "react-native";
+import { Image, Text, StyleSheet } from "react-native";
 import {
   Content,
   Container,
@@ -14,6 +14,10 @@ import {
   createDrawerNavigator,
   DrawerNavigatorItems,
 } from "react-navigation-drawer";
+import {
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+} from "react-native-gesture-handler";
 
 const CustomDrawerContentComponent = (props) => (
   <Container>
@@ -23,6 +27,14 @@ const CustomDrawerContentComponent = (props) => (
           source={require("../../assets/images/avatar.png")}
           style={{ width: 150, height: 150, borderRadius: 100 }}
         />
+        <TouchableOpacity
+          style={styles.profileText}
+          //onPress={props.onPress}
+          // onPress={props.navigation.navigate("UserProfile")}
+        >
+          <Text> Go to your profile</Text>
+        </TouchableOpacity>
+
         <Text style={{ color: "#ffffff", fontWeight: "bold", fontSize: 20 }}>
           {/* {this.firstname + " " + this.lastname} */}
         </Text>
@@ -33,5 +45,15 @@ const CustomDrawerContentComponent = (props) => (
     </Content>
   </Container>
 );
+
+const styles = StyleSheet.create({
+  profileText: {
+    width: 120,
+    height: 50,
+    backgroundColor: "#99aab5",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
 
 export default CustomDrawerContentComponent;
