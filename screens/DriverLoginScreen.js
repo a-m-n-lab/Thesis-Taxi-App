@@ -11,8 +11,8 @@ import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import * as firebase from "firebase";
 import ApiKeys from "../constants/ApiKeys";
-import Toast from "react-native-simple-toast";
-
+//import Toast from "react-native-simple-toast";
+import Toast, { DURATION } from "react-native-easy-toast";
 export default class DriverLogin extends React.Component {
   constructor(props) {
     super(props);
@@ -71,6 +71,7 @@ export default class DriverLogin extends React.Component {
             </MainButton>
           </View>
         </View>
+        <Toast ref={(toast) => (this.toast = toast)} />
       </View>
     );
   }
@@ -79,15 +80,15 @@ export default class DriverLogin extends React.Component {
 
     let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     if (this.state.email.trim() === "") {
-      Toast.show("email input must be filled!", Toast.SHORT, Toast.TOP);
+      this.toast.show("email input must be filled!", 500);
       return;
     }
     if (this.state.password.length == "") {
-      Toast.show("password must be filled!", Toast.SHORT, Toast.TOP);
+      this.toast.show("password must be filled!", 500);
       return;
     }
     if (reg.test(this.state.email) === false) {
-      Toast.show("INVALID EMAIL!", Toast.SHORT, Toast.TOP, ToastStyle);
+      this.toast.show("INVALID EMAIL!", 500);
       return;
     }
 
@@ -100,10 +101,10 @@ export default class DriverLogin extends React.Component {
           //AsyncStorage.setItem('userToken', 'rider');
           //create a rider node with:firstname,lastname,phone,profile
 
-          this.props.navigation.navigate("Driver");
+          this.props.navigation.navigate("DriversPage");
         },
         (error) => {
-          Toast.show("error:" + error.message, Toast.SHORT, Toast.TOP);
+          this.toast.show("error:" + error.message, 500);
         }
       );
   };
@@ -116,19 +117,19 @@ const styles = StyleSheet.create({
   },
   loginContainer: {
     padding: 15,
-    top: 60,
+    top: 10,
   },
   usernameIconContainer: {
     justifyContent: "center",
-    top: 40,
+    top: 30,
   },
   passwordIconContainer: {
     marginVertical: 15,
-    top: 60,
+    top: 50,
   },
   loginButtonContainer: {
     left: 190,
-    top: 60,
+    top: 20,
     width: 150,
   },
   loginButton: {

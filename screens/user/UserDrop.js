@@ -19,20 +19,20 @@ import {
   Body,
 } from "native-base";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-
-const homePlace = {
-  description: "Home",
-  geometry: { location: { lat: 47.36828, lng: 24.67042 } },
-};
-const workPlace = {
-  description: "Work",
-  geometry: { location: { lat: 47.369401, lng: 24.673176 } },
-};
+import GooglePlacesInput from "../../components/GooglePlacesInput";
+// const homePlace = {
+//   description: "Home",
+//   geometry: { location: { lat: 47.36828, lng: 24.67042 } },
+// };
+// const workPlace = {
+//   description: "Work",
+//   geometry: { location: { lat: 47.369401, lng: 24.673176 } },
+// };
 export default class UserDrop extends React.Component {
   render() {
     return (
       <Container>
-        {/* <Header style={{ backgroundColor: "#42A5F5", height: 75 }}>
+        <Header style={{ backgroundColor: "#42A5F5", height: 75 }}>
           <Left>
             <TouchableHighlight
               style={{
@@ -60,11 +60,29 @@ export default class UserDrop extends React.Component {
               PickUp
             </Text>
           </Body>
-        </Header> */}
+        </Header>
 
         <Content>
           <View style={{ justifyContent: "center" }}>
-            <GooglePlacesInput style={{ marginTop: 200 }} />
+            <GooglePlacesInput
+              placeholder="Search"
+              autoFocus={false}
+              onPress={(data, details = null) => {
+                console.log(data, details);
+              }}
+              getDefaultValue={() => ""}
+              query={{
+                key: "AIzaSyB7hTq-te4Z7Wb6BN3KkQdGlMQXg8eOUTo",
+                language: "en",
+                types: "geocode",
+              }}
+              debounce={200}
+              renderLeftButton={() => (
+                <Icon name="search" style={styles.searchIcon} />
+              )}
+              renderRightButton={() => <Text />}
+              style={{ marginTop: 200 }}
+            />
           </View>
         </Content>
       </Container>
@@ -82,53 +100,53 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
 });
-const GooglePlacesInput = () => {
-  return (
-    <GooglePlacesAutocomplete
-      placeholder="Search"
-      minLength={2}
-      autoFocus={false}
-      returnKeyType={"search"}
-      listViewDisplayed="auto"
-      fetchDetails={true}
-      renderDescription={(row) => row.description}
-      onPress={(data, details = null) => {
-        console.log(data, details);
-      }}
-      getDefaultValue={() => ""}
-      query={{
-        key: "AIzaSyB7hTq-te4Z7Wb6BN3KkQdGlMQXg8eOUTo",
-        language: "en",
-        types: "geocode",
-      }}
-      styles={{
-        textInputContainer: {
-          width: "100%",
-        },
-        description: {
-          fontWeight: "bold",
-        },
-        predefinedPlacesDescription: {
-          color: "#1faadb",
-        },
-      }}
-      currentLocation={true}
-      currentLocationLabel="Current location"
-      nearbyPlacesAPI="GooglePlacesSearch"
-      GoogleReverseGeocodingQuery={{}}
-      GooglePlacesSearchQuery={{
-        rankby: "distance",
-        types: "food",
-      }}
-      filterReverseGeocodingByTypes={[
-        "locality",
-        "administrative_area_level_3",
-      ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
-      /*predefinedPlaces={[homePlace, workPlace]}*/
+// const GooglePlacesInput = () => {
+//   return (
+//     <GooglePlacesAutocomplete
+//       placeholder="Search"
+//       minLength={2}
+//       autoFocus={false}
+//       returnKeyType={"search"}
+//       listViewDisplayed="auto"
+//       fetchDetails={true}
+//       renderDescription={(row) => row.description}
+//       onPress={(data, details = null) => {
+//         console.log(data, details);
+//       }}
+//       getDefaultValue={() => ""}
+//       query={{
+//         key: "AIzaSyB7hTq-te4Z7Wb6BN3KkQdGlMQXg8eOUTo",
+//         language: "en",
+//         types: "geocode",
+//       }}
+//       styles={{
+//         textInputContainer: {
+//           width: "100%",
+//         },
+//         description: {
+//           fontWeight: "bold",
+//         },
+//         predefinedPlacesDescription: {
+//           color: "#1faadb",
+//         },
+//       }}
+//       currentLocation={true}
+//       currentLocationLabel="Current location"
+//       nearbyPlacesAPI="GooglePlacesSearch"
+//       GoogleReverseGeocodingQuery={{}}
+//       GooglePlacesSearchQuery={{
+//         rankby: "distance",
+//         types: "food",
+//       }}
+//       filterReverseGeocodingByTypes={[
+//         "locality",
+//         "administrative_area_level_3",
+//       ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
+//       /*predefinedPlaces={[homePlace, workPlace]}*/
 
-      debounce={200}
-      renderLeftButton={() => <Icon name="search" style={styles.searchIcon} />}
-      renderRightButton={() => <Text />}
-    />
-  );
-};
+//       debounce={200}
+//       renderLeftButton={() => <Icon name="search" style={styles.searchIcon} />}
+//       renderRightButton={() => <Text />}
+//     />
+//   );
+// };

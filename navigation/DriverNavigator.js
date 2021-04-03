@@ -5,7 +5,7 @@ import DriverLogout from "../screens/DriverLogout";
 import { Platform, View } from "react-native";
 import { createAppContainer } from "react-navigation";
 import { createDrawerNavigator, DrawerItem } from "react-navigation-drawer";
-
+import CustomDrawerContentComponent from "../components/navigation/CustomDrawerContent";
 import Colors from "../constants/Colors";
 
 import DriverHomeContents from "../screens/driver/DriverHomeContents";
@@ -20,7 +20,7 @@ const defaultNavOptions = {
 
 const DriverNavigator = createStackNavigator(
   {
-    DriverHomePage: { screen: DriverHome },
+    //DriverHomePage: { screen: DriverHome },
     DriversPage: {
       screen: DriverHomeContents,
       navigationOptions: {
@@ -36,7 +36,6 @@ const DriverMainNavigator = createDrawerNavigator(
     Driver: {
       screen: DriverNavigator,
     },
-    DriverHomeC: { screen: DriverHomeContents },
     Logout: { screen: DriverLogout },
   },
 
@@ -44,6 +43,15 @@ const DriverMainNavigator = createDrawerNavigator(
     contentOptions: {
       activeTintColor: Colors.purple,
     },
+
+    // contentOptions: {
+    //   activeTintColor: Colors.purple,
+    // },
+    initialRouteName: "Driver",
+    contentComponent: CustomDrawerContentComponent,
+    drawerOpenRoute: "DrawerOpen",
+    drawerCloseRoute: "DrawerClose",
+    drawerToggleRoute: "DrawerToggle",
   }
 );
 export default createAppContainer(DriverMainNavigator);

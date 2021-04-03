@@ -1,9 +1,14 @@
 import React from "react";
-import { View, Text, StyleSheet, ImageBackground, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ImageBackground,
+  Image,
+  Dimensions,
+} from "react-native";
 import MainButton from "../components/MainButton";
 import Colors from "../constants/Colors";
-import { HeaderButtons, Item } from "react-navigation-header-buttons";
-import HeaderButton from "../components/HeaderButton";
 
 const WelcomeScreen = (props) => {
   return (
@@ -81,6 +86,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   buttonContainer: {
+    height: Dimensions.get("window").height / 2, //for smaller devices - so it will be half the screen
     width: "60%",
     top: 200,
   },

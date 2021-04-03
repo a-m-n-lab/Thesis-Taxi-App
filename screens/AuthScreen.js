@@ -3,7 +3,6 @@ import {
   StyleSheet,
   Text,
   View,
-  YellowBox,
   AsyncStorage,
   TouchableOpacity,
   TextInput,
@@ -13,6 +12,8 @@ import {
   ActivityIndicator,
   LogBox,
 } from "react-native";
+import { CheckBox } from "react-native-elements";
+
 import Colors from "../constants/Colors";
 import Logo from "../components/Logo";
 
@@ -22,10 +23,13 @@ import MainButton from "../components/MainButton";
 
 import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
-import Toast from "react-native-simple-toast";
+//import Toast from "react-native-simple-toast";
+
+import Toast, { DURATION } from "react-native-easy-toast";
 import * as firebase from "firebase";
 import ApiKeys from "../constants/ApiKeys";
-
+//import { YellowBox } from "react-native";
+LogBox.ignoreLogs(["Require cycle:"]);
 export default class AuthScreen extends React.Component {
   constructor(props) {
     super(props);
@@ -35,6 +39,7 @@ export default class AuthScreen extends React.Component {
       lastname: "",
       email: "",
       mobile: "",
+      promotional: false,
     };
     //firebase initialize
     if (!firebase.apps.length) {
@@ -45,13 +50,20 @@ export default class AuthScreen extends React.Component {
     this.authUnsubscriber = firebase.auth().onAuthStateChanged((authData) => {
       this.setState({ authData });
     });
-    YellowBox.ignoreWarnings(["Encountered an error loading page"]);
-    console.disableYellowBox = true;
+    LogBox.ignoreLogs(["Encountered an error loading page"]);
+    //console.disableYellowBox = true;
     //this.firestoreUnsubscriber = this.ref.onSnapshot(this.onCollectionUpdate)
+  }
+  componentWillUnmount() {
+    // fix Warning: Can't perform a React state update on an unmounted component
+    this.setState = (authData) => {
+      return;
+    };
   }
   render() {
     return (
       <View style={styles.registerContainer}>
+        <Toast ref={(toast) => (this.toast = toast)} />
         <Logo />
         <Subtitle>
           {` SIGN UP 
@@ -59,6 +71,7 @@ export default class AuthScreen extends React.Component {
         </Subtitle>
         <View style={styles.loginContainer}>
           <Input
+            autoFocus={true}
             id="firstname"
             autoFocus={true}
             placeholder="First-Name"
@@ -66,14 +79,12 @@ export default class AuthScreen extends React.Component {
           />
           <Input
             id="lastname"
-            autoFocus={true}
             placeholder="Last-Name"
             onChangeText={(lastname) => this.setState({ lastname })}
             initialValue=""
           />
           <Input
             id="phone"
-            autoFocus={true}
             placeholder="Phone"
             autoCapitalize="none"
             onChangeText={(mobile) => this.setState({ mobile })}
@@ -85,7 +96,6 @@ export default class AuthScreen extends React.Component {
           <View>
             <Input
               id="email"
-              autoFocus={true}
               placeholder="E-mail"
               keyboardType="email-address"
               required
@@ -111,9 +121,17 @@ export default class AuthScreen extends React.Component {
             onChangeText={(password) => this.setState({ password })}
           />
 
+          <CheckBox
+            title="Click here if you want to receive promotional offers"
+            // checkedIcon={<Image source={require("../checked.png")} />}
+            // uncheckedIcon={<Image source={require("../unchecked.png")} />}
+            checked={this.state.promotional}
+            onPress={() =>
+              this.setState({ promotional: !this.state.promotional })
+            }
+          />
           <View style={styles.loginButtonContainer}>
             <MainButton style={styles.loginButton} onPress={this._VerifyAsync}>
-              <MainButton onPress={() => {}}>Let's go </MainButton>
               SIGNUP
             </MainButton>
           </View>
@@ -131,16 +149,11 @@ export default class AuthScreen extends React.Component {
       this.state.lastname.trim() === "" ||
       this.state.password.length == ""
     ) {
-      Toast.show(
-        "All inputs must be filled!",
-        Toast.SHORT,
-        Toast.TOP,
-        ToastStyle
-      );
+      this.toast.show("All inputs must be filled!", 500);
       return;
     }
     if (reg.test(this.state.email) === false) {
-      Toast.show("INVALID EMAIL!", Toast.SHORT, Toast.TOP, ToastStyle);
+      this.toast.show("INVALID EMAIL!", 500);
       return;
     }
 
@@ -149,7 +162,7 @@ export default class AuthScreen extends React.Component {
       .createUserWithEmailAndPassword(this.state.email, this.state.password)
       .then(
         (authData) => {
-          //create a rider node with:firstname,lastname,phone,profile
+          //user node with:firstname,lastname,phone,profile, promotional
 
           if (firebase.auth().currentUser) {
             userId = firebase.auth().currentUser.uid;
@@ -163,16 +176,18 @@ export default class AuthScreen extends React.Component {
                   lastname: this.state.lastname,
                   email: this.state.email,
                   phone: this.state.mobile,
-                  profile_image: "default",
+                  //if ( promotional) then promotional: "yes"
+                  //profile_image: "default",
+                  promotional: this.state.promotional,
                 })
                 .then(
                   () => {
-                    Toast.show("User added successfully", Toast.SHORT);
+                    this.toast.show("User added successfully", 500);
 
                     this.props.navigation.navigate("UserLogin");
                   },
                   (error) => {
-                    Toast.show(error.message, Toast.SHORT);
+                    this.toast.show(error.message, 500);
                   }
                 );
             }
@@ -181,7 +196,7 @@ export default class AuthScreen extends React.Component {
           //this.props.navigation.navigate('App1');
         },
         (error) => {
-          Toast.show("error:" + error.message, Toast.SHORT, Toast.TOP);
+          this.toast.show("error:" + error.message, 500);
         }
       );
 
@@ -196,19 +211,19 @@ const styles = StyleSheet.create({
   },
   loginContainer: {
     padding: 15,
-    //top: 60,
+    top: 30,
   },
   usernameIconContainer: {
     justifyContent: "center",
-    //top: 40,
+    top: 40,
   },
   passwordIconContainer: {
     marginVertical: 15,
-    //top: 60,
+    top: 60,
   },
   loginButtonContainer: {
     left: 190,
-    //top: 60,
+    top: 20,
     width: 150,
   },
   loginButton: {
@@ -219,3 +234,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
+// const ToastStyle = {
+//   backgroundColor: "#4ADDFB",
+//   width: 300,
+//   height: Platform.OS === "ios" ? 50 : 100,
+//   color: "#ffffff",
+//   fontSize: 15,
+//   lineHeight: 2,
+//   lines: 4,
+//   borderRadius: 15,
+//   fontWeight: "bold",
+//   yOffset: 40,
+// };

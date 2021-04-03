@@ -1,7 +1,7 @@
 export default {
   FirebaseConfig: {
     apiKey: "AIzaSyB7hTq-te4Z7Wb6BN3KkQdGlMQXg8eOUTo",
-    authDomain: "reactnative-blink-app.firebaseapp.com",
+    authDomain: "reactnative-blink-app.europe-west1.firebaseapp.com",
     databaseURL: "https://reactnative-blink-app-default-rtdb.firebaseio.com",
     projectId: "reactnative-blink-app",
     storageBucket: "reactnative-blink-app.appspot.com",

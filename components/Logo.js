@@ -14,7 +14,7 @@ const Logo = (props) => {
 };
 
 const styles = StyleSheet.create({
-  logo: { left: 20, top: 30, width: 50, height: 50, alignItems: "center" },
+  logo: { left: 20, top: 30, width: 40, height: 40, alignItems: "center" },
   logoText: {
     top: 30,
     fontSize: 30,

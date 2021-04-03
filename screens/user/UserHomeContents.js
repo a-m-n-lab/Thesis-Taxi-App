@@ -9,10 +9,11 @@ import {
   Dimensions,
   AppRegistry,
   TextInput,
-  YellowBox,
   AppState,
   AsyncStorage,
   TouchableOpacity,
+  LogBox,
+  Platform,
 } from "react-native";
 import {
   Content,
@@ -24,20 +25,18 @@ import {
   Body,
   Card,
 } from "native-base";
+//import { YellowBox } from "react-native";
+
 import Colors from "../../constants/Colors";
 import Input from "../../components/Input";
 import MapView, { PROVIDER_GOOGLE, AnimatedRegion } from "react-native-maps";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import HeaderButton from "../../components/HeaderButton";
-//import GooglePlacesInput from "./RiderPlaceSearch";
+//import Toast from "react-native-simple-toast";
+import GooglePlacesInput from "../../components/GooglePlacesInput";
+import Toast, { DURATION } from "react-native-easy-toast";
 import * as firebase from "firebase";
 import ApiKeys from "../../constants/ApiKeys";
-
-//-----------------------------------------------------------------------------------//
-/*
-MAP COMPONENTS DEFINITION
-*/
-//-----------------------------------------------------------------------------------//
 
 let { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
@@ -70,7 +69,7 @@ export default class UserHomeContents extends React.Component {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
     }
   }
-  //------------NAVIGATION OPTION--------------------//
+
   static navigationOptions = {
     drawerIcon: ({ tintColor }) => (
       <Image
@@ -79,11 +78,13 @@ export default class UserHomeContents extends React.Component {
       />
     ),
   };
-  //-----------COMPONENTDIDMOUNT------------------//
+
   componentDidMount() {
     //this.isMounted = true;
+    LogBox.ignoreLogs(["Require cycle:"]);
 
     navigator.geolocation.getCurrentPosition(
+      //get current position
       (position) => {
         this.setState({
           region: {
@@ -95,7 +96,7 @@ export default class UserHomeContents extends React.Component {
         });
       },
       (error) => console.log(error.message),
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
     );
 
     this.watchID = navigator.geolocation.watchPosition(
@@ -109,7 +110,7 @@ export default class UserHomeContents extends React.Component {
           },
         });
       },
-      //error
+
       (error) => this.setState({ error: error.message }),
       {
         enableHighAccuracy: true,
@@ -121,15 +122,10 @@ export default class UserHomeContents extends React.Component {
 
     this._getDriverRequestDetails();
 
-    //
-    //desable the warnings in yellow box
-    YellowBox.ignoreWarnings(["Encountered an error loading page"]);
-    console.disableYellowBox = true;
+    LogBox.ignoreLogs(["Encountered an error loading page"]);
+    LogBox.ignoreAllLogs();
   }
 
-  //---------------------------------------------
-  //COMPONENT UPDATE
-  //---------------------------------------------
   componentDidUpdate(prevState) {
     // Typical usage (don't forget to compare props):
     if (this.state.region !== prevState.region) {
@@ -144,9 +140,9 @@ export default class UserHomeContents extends React.Component {
     //  this.isMounted = false;
     //  if(!this.state.isMounted){
     navigator.geolocation.clearWatch(this.watchID);
+    Toast.toastInstance = null;
     //  }
   }
-  //------------RENDER FUNCTION--------------------//
 
   render() {
     return (
@@ -194,7 +190,7 @@ export default class UserHomeContents extends React.Component {
             >
               <MapView.Marker coordinate={this.state.region} pinColor="#E91E63">
                 {/* <Image
-                  source={require("../Images/marker.png")}
+                  source={require("../../assets/images/user/pin.png")}
                   style={{ width: 100, height: 100, borderRadius: 100 }}
                 /> */}
               </MapView.Marker>
@@ -259,7 +255,7 @@ export default class UserHomeContents extends React.Component {
                   elevation: 10,
                 }}
               >
-                John
+                {/* John*/}
               </Text>
             </MapView>
           </View>
@@ -275,7 +271,7 @@ export default class UserHomeContents extends React.Component {
               underlineColorAndroid="#ffffff"
               selectionColor="#42A5F5"
               placeholderTextColor="#000000"
-              onFocus={() => this.props.navigation.navigate("pickUpLocation")}
+              onFocus={() => this.props.navigation.navigate("Address")}
             />
           </Card>
         </Content>
@@ -283,7 +279,7 @@ export default class UserHomeContents extends React.Component {
           {this.state.isConfirmButton ? (
             <TouchableOpacity
               style={styles.DoneButton}
-              onPress={() => this.props.navigation.navigate("pickUpLocation")}
+              onPress={() => this.props.navigation.navigate("Address")}
             >
               <Text style={{ color: "#ffffff", fontWeight: "bold" }}>
                 CONFIRM
@@ -293,15 +289,15 @@ export default class UserHomeContents extends React.Component {
           {!this.state.isModalVisible ? (
             <View
               style={{
-                width: 300,
+                width: 100,
                 height: 70,
                 backgroundColor: "#ffffff",
                 position: "absolute",
                 flexDirection: "row",
               }}
             >
-              {/* <Image
-                source={require("../Images/avatar.png")}
+              <Image
+                source={require("../../Images/avatar.png")}
                 style={{
                   width: 50,
                   height: 50,
@@ -309,7 +305,7 @@ export default class UserHomeContents extends React.Component {
                   marginTop: 10,
                   marginLeft: 7,
                 }}
-              /> */}
+              />
               <Text style={{ fontSize: 18, marginTop: 18, fontWeight: "bold" }}>
                 {UserHomeContents.Firstname + " " + UserHomeContents.Lastname}
               </Text>
@@ -430,7 +426,7 @@ UserHomeContents.navigationOptions = (navData) => {
     headerLeft: () => (
       <HeaderButtons HeaderButtonComponent={HeaderButton} color="white">
         <Item
-          color="white"
+          color={Platform.OS == "android" ? "white" : "black"}
           title="Menu"
           iconName="ios-menu"
           onPress={() => {

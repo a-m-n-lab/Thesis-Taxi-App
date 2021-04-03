@@ -10,6 +10,7 @@ import {
   Image,
   TouchableHighlight,
   KeyboardAvoidingView,
+  Alert,
 } from "react-native";
 import {
   Content,
@@ -24,7 +25,10 @@ import {
 } from "native-base";
 import Colors from "../../constants/Colors";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-import Toast from "react-native-simple-toast";
+import GooglePlacesInput from "../../components/GooglePlacesInput";
+import GooglePlacesDropOff from "../../components/GooglePlacesDropOff";
+//import Toast from "react-native-simple-toast";
+import Toast, { DURATION } from "react-native-easy-toast";
 import * as firebase from "firebase";
 import ApiKeys from "../../constants/ApiKeys";
 
@@ -75,7 +79,7 @@ export default class UserPickup extends React.Component {
             </TouchableHighlight>
           </Left>
           <Body>
-            {/* <Text
+            <Text
               style={{
                 color: "#ffffff",
                 fontSize: 20,
@@ -84,34 +88,91 @@ export default class UserPickup extends React.Component {
               }}
             >
               Locations
-            </Text> */}
-        {/* </Body>
+            </Text>
+          </Body>
         </Header> */}
         <KeyboardAvoidingView style={{ flex: 1 }}>
           <Content>
             <View style={{ width: 400, minHeight: 120, maxHeight: 120 }}>
-              <GooglePlacesInput />
+              <GooglePlacesInput
+                placeholder="From:"
+                minLength={2}
+                autoFocus={true}
+                renderDescription={(row) => row.description}
+                onPress={(data, details = null) => {
+                  console.log(data, details);
+                  //set pick up data from google auto complete
+                  (pickupName = data.description), // selected address
+                    (pickupLatitude = `${details.geometry.location.lat}`),
+                    (pickupLongitude = `${details.geometry.location.lng}`),
+                    //storing data
+                    (GooglePlacesInput.pickupLatitude = pickupLatitude),
+                    (GooglePlacesInput.pickupName = pickupName),
+                    (GooglePlacesInput.pickupLongitude = pickupLongitude);
+                }}
+                getDefaultValue={() => ""}
+                query={{
+                  key: "AIzaSyB7hTq-te4Z7Wb6BN3KkQdGlMQXg8eOUTo",
+                  language: "en",
+                  types: "geocode",
+                }}
+                styles={{
+                  textInputContainer: {
+                    width: "100%",
+                    backgroundColor: "#ffffff",
+                  },
+                  description: {
+                    fontWeight: "bold",
+                  },
+                  predefinedPlacesDescription: {
+                    color: "#2c2f33",
+                    height: 30,
+                  },
+                }}
+                currentLocation={true}
+                currentLocationLabel="Current location"
+                nearbyPlacesAPI="GooglePlacesSearch"
+                GoogleReverseGeocodingQuery={{}}
+                GooglePlacesSearchQuery={{
+                  rankby: "distance",
+                  types: "food",
+                }}
+                filterReverseGeocodingByTypes={[
+                  "locality",
+                  "administrative_area_level_3",
+                ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
+                predefinedPlaces={[homePlace, workPlace]}
+                debounce={200}
+                renderLeftButton={() => (
+                  <Image
+                    style={{
+                      width: 25,
+                      height: 25,
+                      marginTop: 10,
+                      marginLeft: 15,
+                    }}
+                    source={require("../../assets/images/user/from.png")}
+                  />
+                )}
+                renderRightButton={() => <Text />}
+              />
             </View>
             <View style={{ width: 400, minHeight: 120, maxHeight: 120 }}>
-              <GooglePlacesDropOff />
+              <GooglePlacesDropOff predefinedPlaces={[homePlace, workPlace]} />
             </View>
             <TouchableOpacity
-              style={styles.bookButton}
+              style={styles.requestContainer}
               onPress={this._validatePickUpAndDropOffLocations}
             >
-              <Text style={{ color: Colors.darkGrey, fontWeight: "bold" }}>
-                REQUEST
-              </Text>
+              <Text style={styles.requestText}>REQUEST</Text>
             </TouchableOpacity>
           </Content>
         </KeyboardAvoidingView>
+        <Toast ref={(toast) => (this.toast = toast)} />
       </Container>
     );
   }
 
-  //validate the google places auto complete
-
-  //====================================================================================================================
   _validatePickUpAndDropOffLocations = () => {
     // alert("good"+GooglePlacesInput.pickupLatitude);
     if (
@@ -119,7 +180,7 @@ export default class UserPickup extends React.Component {
       GooglePlacesInput.pickupLatitude == null ||
       GooglePlacesInput.pickupLongitude == null
     ) {
-      Toast.show("SET YOUR PICK UP LOCATION PLEASE", Toast.SHORT, Toast.TOP);
+      this.toast.show("SET YOUR PICK UP LOCATION PLEASE", 500);
       return;
     }
     if (
@@ -127,16 +188,14 @@ export default class UserPickup extends React.Component {
       GooglePlacesDropOff.dropOffLatitude == null ||
       GooglePlacesDropOff.dropOffLongitude == null
     ) {
-      Toast.show("SET YOUR DROP OFF LOCATION PLEASE", Toast.SHORT, Toast.TOP);
+      this.toast.show("SET YOUR DROP OFF LOCATION PLEASE", 500);
       return;
     }
-    Toast.show("Good", Toast.SHORT, Toast.TOP);
+    this.toast.show("Good", 500);
     this._getNearbyDrivers();
   };
-  //====================================================================================================================
 
-  //GET NEARBY DRIVERS
-  //====================================================================================================================
+  //------------------------------------------------------------------
   _getNearbyDrivers = () => {
     var DriverKeys = [];
     var counts = [];
@@ -159,10 +218,7 @@ export default class UserPickup extends React.Component {
       this._requestDriver(counts[randomIndex]);
     });
   };
-  //=======================================================================================================================
-  /* 
-    REQUEST DRIVERS 
-  */
+  //------------------------------------------------------------------
   _requestDriver = (driverID) => {
     /*firebase.database().ref('/Ride_Request/' +driverID).once('value').then(function(snapshot) {
           
@@ -193,16 +249,15 @@ export default class UserPickup extends React.Component {
           })
           .then(
             () => {
-              Toast.show("Driver requested successful", Toast.SHORT);
+              this.toast.show("Driver requested successful", 500);
             },
             (error) => {
-              Toast.show(error.message, Toast.SHORT);
+              this.toast.show(error.message, 500);
             }
           )
       )
       .catch((e) => console.log("err", e));
 
-    //store driver information
     AsyncStorage.getItem("riderId")
       .then((riderID) =>
         //riderId=result,
@@ -231,8 +286,76 @@ export default class UserPickup extends React.Component {
   };
 }
 
-//==========================================================================================================================
+//------------------------------------------------------------------
+// const GooglePlacesInput = () => {
+//   return (
+//     <GooglePlacesAutocomplete
+//       placeholder="From:"
+//       minLength={2}
+//       autoFocus={true}
+//       returnKeyType={"search"}
+//       listViewDisplayed="auto"
+//       fetchDetails={true}
+//       renderDescription={(row) => row.description}
+//       onPress={(data, details = null) => {
+//         console.log(data, details);
+//         //set pick up data from google auto complete
+//         (pickupName = data.description), // selected address
+//           (pickupLatitude = `${details.geometry.location.lat}`),
+//           (pickupLongitude = `${details.geometry.location.lng}`),
+//           //storing data
+//           (GooglePlacesInput.pickupLatitude = pickupLatitude),
+//           (GooglePlacesInput.pickupName = pickupName),
+//           (GooglePlacesInput.pickupLongitude = pickupLongitude);
+//       }}
+//       getDefaultValue={() => ""}
+//       query={{
+//         key: "AIzaSyB7hTq-te4Z7Wb6BN3KkQdGlMQXg8eOUTo",
+//         language: "en",
+//         types: "geocode",
+//       }}
+//       styles={{
+//         textInputContainer: {
+//           width: "100%",
+//           backgroundColor: "#ffffff",
+//         },
+//         description: {
+//           fontWeight: "bold",
+//         },
+//         predefinedPlacesDescription: {
+//           color: "#2c2f33",
+//           height: 30,
+//         },
+//       }}
+//       currentLocation={true}
+//       currentLocationLabel="Current location"
+//       nearbyPlacesAPI="GooglePlacesSearch"
+//       GoogleReverseGeocodingQuery={{}}
+//       GooglePlacesSearchQuery={{
+//         rankby: "distance",
+//         types: "food",
+//       }}
+//       filterReverseGeocodingByTypes={[
+//         "locality",
+//         "administrative_area_level_3",
+//       ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
+//       predefinedPlaces={[homePlace, workPlace]}
+//       debounce={200}
+//       renderLeftButton={() => (
+//         <Image
+//           style={{ width: 25, height: 25, marginTop: 10, marginLeft: 15 }}
+//           source={require("../../assets/images/user/from.png")}
+//         />
+//       )}
+//       renderRightButton={() => <Text />}
+//     />
+//   );
+// };
+
+//===========================================================================================================================
+
 const styles = StyleSheet.create({
+  requestText: {},
   containerView: {
     flex: 1,
     backgroundColor: "#ffffff",
@@ -245,146 +368,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginLeft: 8,
   },
-  bookButton: {
+  requestContainer: {
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#42A5F5",
+    backgroundColor: Colors.purple,
     height: 50,
     width: 350,
     marginLeft: 5,
   },
 });
-
-//===========================================================================================================================
-const GooglePlacesInput = () => {
-  return (
-    <GooglePlacesAutocomplete
-      placeholder="Pick Up Location"
-      minLength={2}
-      autoFocus={true}
-      returnKeyType={"search"}
-      listViewDisplayed="auto"
-      fetchDetails={true}
-      renderDescription={(row) => row.description}
-      onPress={(data, details = null) => {
-        console.log(data, details);
-        //set pick up data from google auto complete
-        (pickupName = data.description), // selected address
-          (pickupLatitude = `${details.geometry.location.lat}`),
-          (pickupLongitude = `${details.geometry.location.lng}`),
-          //storing data
-          (GooglePlacesInput.pickupLatitude = pickupLatitude),
-          (GooglePlacesInput.pickupName = pickupName),
-          (GooglePlacesInput.pickupLongitude = pickupLongitude);
-      }}
-      getDefaultValue={() => ""}
-      query={{
-        key: "AIzaSyANWRmdcfG4hksdtmVYxnqKCIsfW__rsVY",
-        language: "en",
-        types: "geocode",
-      }}
-      styles={{
-        textInputContainer: {
-          width: "100%",
-          backgroundColor: "#ffffff",
-        },
-        description: {
-          fontWeight: "bold",
-        },
-        predefinedPlacesDescription: {
-          color: "#ffffff",
-          height: 30,
-        },
-      }}
-      currentLocation={true}
-      currentLocationLabel="Current location"
-      nearbyPlacesAPI="GooglePlacesSearch"
-      GoogleReverseGeocodingQuery={{}}
-      GooglePlacesSearchQuery={{
-        rankby: "distance",
-        types: "food",
-      }}
-      filterReverseGeocodingByTypes={[
-        "locality",
-        "administrative_area_level_3",
-      ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
-      /*predefinedPlaces={[homePlace, workPlace]}*/
-
-      debounce={200}
-      renderLeftButton={() => (
-        <Image
-          style={{ width: 25, height: 25, marginTop: 10, marginLeft: 15 }}
-          source={require("../../assets/images/user/pickup.png")}
-        />
-      )}
-      renderRightButton={() => <Text />}
-    />
-  );
-};
-
-//===========================================================================================================================
-const GooglePlacesDropOff = () => {
-  return (
-    <GooglePlacesAutocomplete
-      placeholder="Drop Off Location"
-      minLength={2}
-      autoFocus={false}
-      returnKeyType={"search"}
-      listViewDisplayed="auto"
-      fetchDetails={true}
-      renderDescription={(row) => row.description}
-      onPress={(data, details = null) => {
-        //console.log(data, details);
-        //set drop off data from google auto complete
-
-        (dropOffName = data.description), // selected address
-          (dropOffLatitude = `${details.geometry.location.lat}`),
-          (dropOffLongitude = `${details.geometry.location.lng}`),
-          //storing data
-          (GooglePlacesDropOff.dropOffLatitude = dropOffLatitude),
-          (GooglePlacesDropOff.dropOffName = dropOffName),
-          (GooglePlacesDropOff.dropOffLongitude = dropOffLongitude);
-      }}
-      getDefaultValue={() => ""}
-      query={{
-        key: "AIzaSyANWRmdcfG4hksdtmVYxnqKCIsfW__rsVY",
-        language: "en",
-        types: "geocode",
-      }}
-      styles={{
-        textInputContainer: {
-          width: "100%",
-          backgroundColor: "#ffffff",
-        },
-        description: {
-          fontWeight: "bold",
-        },
-        predefinedPlacesDescription: {
-          color: "#ffffff",
-        },
-      }}
-      currentLocation={true}
-      currentLocationLabel="Current location"
-      nearbyPlacesAPI="GooglePlacesSearch"
-      GoogleReverseGeocodingQuery={{}}
-      GooglePlacesSearchQuery={{
-        rankby: "distance",
-        types: "food",
-      }}
-      filterReverseGeocodingByTypes={[
-        "locality",
-        "administrative_area_level_3",
-      ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
-      /*predefinedPlaces={[homePlace, workPlace]}*/
-
-      debounce={200}
-      renderLeftButton={() => (
-        <Image
-          style={{ width: 25, height: 25, marginTop: 10, marginLeft: 15 }}
-          source={require("../../assets/images/user/dropoff.png")}
-        />
-      )}
-      renderRightButton={() => <Text />}
-    />
-  );
-};

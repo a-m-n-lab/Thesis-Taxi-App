@@ -6,7 +6,7 @@ import {
   Button,
   AsyncStorage,
   Image,
-  YellowBox,
+  LogBox,
 } from "react-native";
 import {
   createDrawerNavigator,
@@ -14,25 +14,16 @@ import {
   createStackNavigator,
 } from "react-navigation";
 import DriverHomeContents from "./driver/DriverHomeContents";
+//import { YellowBox } from "react-native";
 
 //import RiderDriverScreenChoice from "../main/RiderDriverScreenChoice";
-import {
-  Content,
-  Container,
-  Header,
-  Left,
-  Icon,
-  Footer,
-  Body,
-} from "native-base";
-//import { createMaterialBottomTabNavigator } from "react-navigation-material-bottom-tabs";
 //import AuthLoadingScreen from "../main/AuthLoadingScreen";
 import * as firebase from "firebase";
 import ApiKeys from "../constants/ApiKeys";
 
 export default class DriverHome extends React.Component {
   static navigationOptions = {
-    header: null,
+    headerShown: false,
   };
 
   constructor(props) {
@@ -70,8 +61,8 @@ export default class DriverHome extends React.Component {
       )
       .catch((e) => console.log("err", e));
 
-    YellowBox.ignoreWarnings(["Encountered an error loading page"]);
-    console.disableYellowBox = true;
+    LogBox.ignoreLogs(["Encountered an error loading page"]);
+    LogBox.ignoreAllLogs(); // in ComponentDidMount
   }
   render() {
     return <View style={styles.container}>{/* <MyDrawerNav /> */}</View>;
@@ -81,63 +72,6 @@ export default class DriverHome extends React.Component {
     this.props.navigation.navigate("Auth");
   };
 }
-//
-// export const MyBottomTabNavigator = createMaterialBottomTabNavigator(
-//   {
-//     Home: { screen: DriverHomeContents },
-//     Vehicle: { screen: DriverVehicle },
-//     Settings: { screen: DriverSettings },
-//     Ratings: { screen: DriverRatings },
-//     Earnings: { screen: DriverEarnings },
-//     Licence: { screen: DriverLicence },
-//     //Logout:RiderDriverScreenChoice
-//   },
-//   {
-//     initialRouteName: "Home",
-//     activeTintColor: "#42A5F5",
-//     inactiveTintColor: "#ffffff",
-//     barStyle: { backgroundColor: "#ffffff" },
-//   }
-// );
-
-// const customDrawerContentComponent = (props) => (
-//   <Container>
-//     <Header style={{ height: 200, backgroundColor: "#42A5F5" }}>
-//       <Body style={{ alignItems: "center", justifyContent: "center" }}>
-//         <Image
-//           source={require("../Images/avatar.png")}
-//           style={{ width: 100, height: 100, borderRadius: 100 }}
-//         />
-//         <Text style={{ color: "#ffffff", fontWeight: "bold", fontSize: 20 }}>
-//           {this.firstname + " " + this.lastname}
-//         </Text>
-//       </Body>
-//     </Header>
-//     <Content>
-//       <DrawerItems {...props} />
-//     </Content>
-//   </Container>
-// );
-// //drawerNavigator
-// const MyDrawerNav = createDrawerNavigator(
-//   {
-//     Home: DriverHomeContents,
-//     Earnings: DriverEarnings,
-//     Settings: DriverSettings,
-//     Ratings: DriverRatings,
-//     Vehicle: DriverVehicle,
-//     Licence: DriverLicence,
-//     Logout: DriverLogout,
-//     //Logout:RiderDriverScreenChoice
-//   },
-//   {
-//     initialRouteName: "Home",
-//     contentComponent: customDrawerContentComponent,
-//     drawerOpenRoute: "DrawerOpen",
-//     drawerCloseRoute: "DrawerClose",
-//     drawerToggleRoute: "DrawerToggle",
-//   }
-// );
 
 //
 

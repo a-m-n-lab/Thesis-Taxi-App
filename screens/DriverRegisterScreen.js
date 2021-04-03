@@ -3,7 +3,6 @@ import {
   StyleSheet,
   Text,
   View,
-  YellowBox,
   AsyncStorage,
   TouchableOpacity,
   TextInput,
@@ -13,6 +12,8 @@ import {
   ActivityIndicator,
   LogBox,
 } from "react-native";
+//import { YellowBox } from "react-native";
+LogBox.ignoreLogs(["Require cycle:"]);
 import Colors from "../constants/Colors";
 import Logo from "../components/Logo";
 
@@ -22,7 +23,8 @@ import MainButton from "../components/MainButton";
 
 import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
-import Toast from "react-native-simple-toast";
+//import Toast from "react-native-simple-toast";
+import Toast, { DURATION } from "react-native-easy-toast";
 import * as firebase from "firebase";
 import ApiKeys from "../constants/ApiKeys";
 
@@ -46,8 +48,8 @@ export default class DriverRegisterScreen extends React.Component {
     this.authUnsubscriber = firebase.auth().onAuthStateChanged((authData) => {
       this.setState({ authData });
     });
-    YellowBox.ignoreWarnings(["Encountered an error loading page"]);
-    console.disableYellowBox = true;
+    LogBox.ignoreLogs(["Encountered an error loading page"]);
+    LogBox.ignoreAllLogs();
     //this.firestoreUnsubscriber = this.ref.onSnapshot(this.onCollectionUpdate)
   }
   render() {
@@ -118,6 +120,7 @@ export default class DriverRegisterScreen extends React.Component {
             </MainButton>
           </View>
         </View>
+        <Toast ref={(toast) => (this.toast = toast)} />
       </View>
     );
   }
@@ -158,7 +161,7 @@ export default class DriverRegisterScreen extends React.Component {
                   lastname: this.state.lastname,
                   email: this.state.email,
                   phone: this.state.mobile,
-                  profile_image: "default",
+                  // profile_image: "default",
                 })
                 .then(
                   () => {
@@ -193,7 +196,7 @@ const styles = StyleSheet.create({
   },
   loginContainer: {
     padding: 15,
-    top: 60,
+    top: 20,
   },
   usernameIconContainer: {
     justifyContent: "center",
@@ -205,7 +208,7 @@ const styles = StyleSheet.create({
   },
   loginButtonContainer: {
     left: 190,
-    top: 60,
+    top: 30,
     width: 150,
   },
   loginButton: {

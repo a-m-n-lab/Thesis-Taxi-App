@@ -1,16 +1,37 @@
-import { Button } from "react-native";
+import React from "react";
+import { Image, Text } from "react-native";
 import {
-  DrawerContentScrollView,
-  DrawerItemList,
+  Content,
+  Container,
+  Header,
+  Left,
+  Icon,
+  Footer,
+  Body,
+} from "native-base";
+import Colors from "../../constants/Colors";
+import {
+  createDrawerNavigator,
+  DrawerNavigatorItems,
 } from "react-navigation-drawer";
 
-function CustomDrawerContent(props) {
-  return (
-    <DrawerContentScrollView {...props}>
-      <DrawerItemList {...props} />
-      <DrawerItem label="Logout" onPress={() => {}} />
-    </DrawerContentScrollView>
-  );
-}
+const CustomDrawerContentComponent = (props) => (
+  <Container>
+    <Header style={{ height: 200, backgroundColor: Colors.purple }}>
+      <Body style={{ alignItems: "center", justifyContent: "center" }}>
+        <Image
+          source={require("../../assets/images/avatar.png")}
+          style={{ width: 150, height: 150, borderRadius: 100 }}
+        />
+        <Text style={{ color: "#ffffff", fontWeight: "bold", fontSize: 20 }}>
+          {/* {this.firstname + " " + this.lastname} */}
+        </Text>
+      </Body>
+    </Header>
+    <Content>
+      <DrawerNavigatorItems {...props} />
+    </Content>
+  </Container>
+);
 
-export default CustomDrawerContent;
+export default CustomDrawerContentComponent;

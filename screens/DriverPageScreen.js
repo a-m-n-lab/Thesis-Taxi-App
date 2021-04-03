@@ -6,11 +6,12 @@ import {
   Button,
   AsyncStorage,
   Image,
-  YellowBox,
+  LogBox,
 } from "react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import HeaderButton from "../components/HeaderButton";
-
+//import { YellowBox } from "react-native";
+LogBox.ignoreLogs(["Require cycle:"]);
 import {
   Content,
   Container,
@@ -61,7 +62,7 @@ export default class DriverPageScreen extends React.Component {
       )
       .catch((e) => console.log("err", e));
 
-    YellowBox.ignoreWarnings(["Encountered an error loading page"]);
+    LogBox.ignoreLogs(["Encountered an error loading page"]);
     console.disableYellowBox = true;
   }
   render() {

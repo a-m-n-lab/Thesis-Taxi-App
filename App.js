@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, LogBox } from "react-native";
 import * as Font from "expo-font";
 
 import AppLoading from "expo-app-loading";
@@ -13,6 +13,7 @@ import AppNavigator from "./navigation/AppNavigator";
 import firebase from "firebase";
 
 import ApiKeys from "./constants/ApiKeys";
+import { Root } from "native-base";
 
 enableScreens();
 //performance reasons
@@ -53,10 +54,14 @@ export default function App() {
     );
   }
 
+  LogBox.ignoreLogs(["Setting a timer"]);
+
   return (
-    <Provider store={store}>
-      <AppNavigator />
-    </Provider>
+    <Root>
+      <Provider store={store}>
+        <AppNavigator />
+      </Provider>
+    </Root>
   );
 }
 

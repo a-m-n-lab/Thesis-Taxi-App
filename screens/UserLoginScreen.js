@@ -11,8 +11,9 @@ import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 
 import ApiKeys from "../constants/ApiKeys";
-import Toast from "react-native-simple-toast";
-//import   firebase from 'react-native-firebase';
+//import Toast from "react-native-simple-toast";
+import Toast, { DURATION } from "react-native-easy-toast";
+
 import * as firebase from "firebase";
 
 export default class UserLoginScreen extends React.Component {
@@ -76,6 +77,7 @@ export default class UserLoginScreen extends React.Component {
             </MainButton>
           </View>
         </View>
+        <Toast ref={(toast) => (this.toast = toast)} />
       </View>
     );
   }
@@ -83,15 +85,15 @@ export default class UserLoginScreen extends React.Component {
   _signInAsync = async () => {
     let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     if (this.state.email.trim() === "") {
-      Toast.show("email input must be filled!", Toast.SHORT, Toast.TOP);
+      this.toast.show("email input must be filled!", 500);
       return;
     }
     if (this.state.password.length == "") {
-      Toast.show("password must be filled!", Toast.SHORT, Toast.TOP);
+      this.toast.show("password must be filled!", 500);
       return;
     }
     if (reg.test(this.state.email) === false) {
-      Toast.show("INVALID EMAIL!", Toast.SHORT, Toast.TOP, ToastStyle);
+      this.toast.show("INVALID EMAIL!", 500);
       return;
     }
 
@@ -105,7 +107,7 @@ export default class UserLoginScreen extends React.Component {
           this.props.navigation.navigate("Maps");
         },
         (error) => {
-          Toast.show("error:" + error.message, Toast.SHORT, Toast.TOP);
+          this.toast.show("error:" + error.message, 500);
           this.setState({ color: "#ffffff" });
         }
       );
@@ -123,24 +125,24 @@ const styles = StyleSheet.create({
   },
   loginContainer: {
     padding: 15,
-    top: 60,
+    top: 10,
   },
   usernameIconContainer: {
     justifyContent: "center",
-    top: 40,
+    top: 30,
   },
   passwordIconContainer: {
     marginVertical: 15,
-    top: 60,
+    top: 50,
   },
   loginButtonContainer: {
     flexDirection: "row",
-    top: 60,
+    top: 20,
     width: "100%",
   },
   forgotPasswordText: {
     color: "black",
-    top: 30,
+    top: 20,
     marginHorizontal: 30,
   },
   loginButton: {

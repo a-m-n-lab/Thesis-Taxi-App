@@ -9,11 +9,10 @@ import {
   TouchableOpacity,
   Dimensions,
   AppRegistry,
-  TextInput,
-  YellowBox,
   AppState,
   AsyncStorage,
   Alert,
+  LogBox,
 } from "react-native";
 import {
   Content,
@@ -26,17 +25,15 @@ import {
   Body,
   Card,
 } from "native-base";
+//import { YellowBox } from "react-native";
+LogBox.ignoreLogs(["Require cycle:"]);
 //import RiderPickUp from './RiderPickUp';
 ///import {createStackNavigator} from 'react-navigation';
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import * as firebase from "firebase";
 import ApiKeys from "../../constants/ApiKeys";
-
-//-----------------------------------------------------------------------------------//
-/*
-MAP COMPONENTS DEFINITION
-*/
-//-----------------------------------------------------------------------------------//
+import { HeaderButtons, Item } from "react-navigation-header-buttons";
+import HeaderButton from "../../components/HeaderButton";
 
 let { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
@@ -70,7 +67,6 @@ export default class DriverHomeContents extends React.Component {
   static RD_Distance;
   static RD_Price;
 
-  //------------CONSTRUCTOR--------------------  //
   constructor(props) {
     super(props);
     this.state = {
@@ -99,16 +95,7 @@ export default class DriverHomeContents extends React.Component {
       this.setState({ isModalVisible: true });
     }
   }
-  //------------NAVIGATION OPTION--------------------//
-  static navigationOptions = {
-    // drawerIcon: ({ tintColor }) => (
-    //   <Image
-    //     source={require("../Images/home.png")}
-    //     style={{ width: 25, height: 25 }}
-    //   />
-    // ),
-  };
-  //-----------COMPONENTDIDMOUNT------------------//
+
   componentDidMount() {
     //this.isMounted = true;
 
@@ -124,7 +111,7 @@ export default class DriverHomeContents extends React.Component {
         });
       },
       (error) => console.log(error.message),
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+      { enableHighAccuracy: false, timeout: 20000 }
     );
 
     /* this.watchID = navigator.geolocation.watchPosition(
@@ -145,14 +132,11 @@ export default class DriverHomeContents extends React.Component {
       );*/
 
     //
-    //desable the warnings in yellow box
-    YellowBox.ignoreWarnings(["Encountered an error loading page"]);
-    console.disableYellowBox = true;
+    //disable the warnings in yellow box
+    LogBox.ignoreLogs(["Encountered an error loading page"]);
+    //console.disableYellowBox = true;
   }
 
-  //---------------------------------------------
-  //COMPONENT UPDATE
-  //---------------------------------------------
   componentDidUpdate(prevState) {
     this._GetDriverRiderDistance(
       DriverHomeContents.RiderDropUpLatitude,
@@ -167,13 +151,11 @@ export default class DriverHomeContents extends React.Component {
     }
   }
 
-  //----------------------------------------------
-  //----------------------------------------------
-
   componentWillUnmount() {
     //  this.isMounted = false;
     //  if(!this.state.isMounted){
     navigator.geolocation.clearWatch(this.watchID);
+    Toast.toastInstance = null;
     //  }
   }
 
@@ -187,42 +169,9 @@ export default class DriverHomeContents extends React.Component {
     }
   }
 
-  //------------RENDER FUNCTION--------------------//
-
   render() {
     return (
       <Container>
-        <Header style={{ backgroundColor: "#42A5F5", height: 75 }}>
-          <Left>
-            <TouchableHighlight
-              style={{
-                width: 50,
-                height: 50,
-                borderRadius: 50,
-                alignItems: "center",
-                justifyContent: "center",
-                marginTop: 20,
-              }}
-              onPress={() => this.props.navigation.toggleDrawer()}
-            >
-              <Icon name="menu" style={{ color: "#ffffff" }} />
-            </TouchableHighlight>
-          </Left>
-          <Body>
-            <Text
-              style={{
-                color: "#ffffff",
-                fontSize: 20,
-                fontWeight: "bold",
-                marginTop: 20,
-              }}
-            >
-              Driving
-            </Text>
-          </Body>
-          <Right />
-        </Header>
-
         <Content>
           <View style={{ justifyContent: "center" }}>
             <MapView
@@ -239,11 +188,11 @@ export default class DriverHomeContents extends React.Component {
                 pinColor="#E91E63"
                 title={"Driver"}
               >
-                <Text style={styles.driverTitle}>Me,Driver</Text>
-                {/* <Image
-                  source={require("../Images/driver_car.png")}
-                  style={{ width: 100, height: 200 }}
-                /> */}
+                <Text style={styles.driverTitle}>The Driver</Text>
+                <Image
+                  source={require("../../assets/images/driver/car.png")}
+                  style={{ width: 50, height: 50 }}
+                />
               </MapView.Marker>
             </MapView>
 
@@ -474,7 +423,7 @@ export default class DriverHomeContents extends React.Component {
           .then(
             () => {},
             (error) => {
-              Toast.show(error.message, Toast.SHORT);
+              this.toast.show(error.message, 500);
             }
           )
       )
@@ -719,7 +668,7 @@ export default class DriverHomeContents extends React.Component {
           .then(
             () => {},
             (error) => {
-              Toast.show(error.message, Toast.SHORT);
+              this.toast.show(error.message, 500);
             }
           )
       )
@@ -774,7 +723,23 @@ export default class DriverHomeContents extends React.Component {
   };
 }
 
-//------------ STYLESHEET--------------------//
+DriverHomeContents.navigationOptions = (navData) => {
+  return {
+    headerLeft: () => (
+      <HeaderButtons HeaderButtonComponent={HeaderButton} color="white">
+        <Item
+          color={Platform.OS == "android" ? "white" : "black"}
+          title="Menu"
+          iconName="ios-menu"
+          onPress={() => {
+            navData.navigation.toggleDrawer();
+          }}
+        />
+      </HeaderButtons>
+    ),
+  };
+};
+
 const styles = StyleSheet.create({
   containerView: {
     flex: 1,

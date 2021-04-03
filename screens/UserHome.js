@@ -6,31 +6,23 @@ import {
   Button,
   AsyncStorage,
   Image,
-  YellowBox,
+  LogBox,
 } from "react-native";
 import { createDrawerNavigator, DrawerItem } from "react-navigation-drawer";
 
-import {
-  Content,
-  Container,
-  Header,
-  Left,
-  Icon,
-  Footer,
-  Body,
-} from "native-base";
 import { createStackNavigator } from "react-navigation-stack";
 import * as firebase from "firebase";
 import ApiKeys from "../constants/ApiKeys";
-import { HeaderButtons, Item } from "react-navigation-header-buttons";
-import HeaderButton from "../components/HeaderButton";
 import UserHomeContents from "./user/UserHomeContents";
 import UserPickup from "./user/UserPickup";
 import MyDrawerNav from "../navigation/UserNavigator";
-
+//import { YellowBox } from "react-native";
+LogBox.ignoreLogs(["Require cycle:"]);
+//LogBox,ignoreLogs  import {LogBox} from 'react-native'
+//LogBox.ignoreAllLogs(true);
 export default class UserHome extends React.Component {
   static navigationOptions = {
-    header: null,
+    headerShown: false,
   };
 
   constructor(props) {
@@ -74,8 +66,8 @@ export default class UserHome extends React.Component {
       )
       .catch((e) => console.log("err", e));
 
-    YellowBox.ignoreWarnings(["Encountered an error loading page"]);
-    console.disableYellowBox = true;
+    // YellowBox.ignoreWarnings(["Encountered an error loading page"]);
+    // console.disableYellowBox = true;
   }
   render() {
     return <View style={styles.container}>{/* <UserMainNavigator /> */}</View>;
@@ -86,8 +78,6 @@ export default class UserHome extends React.Component {
   };
 }
 
-//
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -95,15 +85,3 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
-
-// const styles = StyleSheet.create({
-//   backgroundImage: {
-//     flex: 1,
-//     justifyContent: "center",
-//     alignItems: "center",
-//   },
-//   container: {
-//     justifyContent: "center",
-//     alignItems: "center",
-//   },
-// });
