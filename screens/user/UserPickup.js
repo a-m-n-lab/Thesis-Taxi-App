@@ -34,16 +34,15 @@ import ApiKeys from "../../constants/ApiKeys";
 
 const homePlace = {
   description: "Home",
-  geometry: { location: { lat: 47.36828, lng: 24.67042 } },
+  geometry: { location: { lat: 48.8555, lng: 2.3181 } },
 };
 const workPlace = {
   description: "Work",
-  geometry: { location: { lat: 47.369401, lng: 24.673176 } },
+  geometry: { location: { lat: 48.8478, lng: 2.3202 } },
 };
 export default class UserPickup extends React.Component {
   static navigationOptions = {};
-  //=====================================================================================================================
-  //to make these variblas class mebers and be accessible everywhere
+  //------------------------------------------------------
   static pickupName;
   static pickupLatitude;
   static pickupLongitude;
@@ -52,7 +51,7 @@ export default class UserPickup extends React.Component {
   static dropOffLatitude;
   static dropOffLongitude;
 
-  //=====================================================================================================================
+  //------------------------------------------------------
   constructor(props) {
     super(props);
     if (!firebase.apps.length) {
@@ -62,35 +61,6 @@ export default class UserPickup extends React.Component {
   render() {
     return (
       <Container style={{ flex: 1 }}>
-        {/* <Header style={{ backgroundColor: "#42A5F5", height: 75 }}>
-          <Left>
-            <TouchableHighlight
-              style={{
-                width: 50,
-                height: 50,
-                borderRadius: 50,
-                alignItems: "center",
-                justifyContent: "center",
-                marginTop: 20,
-              }}
-              onPress={() => this.props.navigation.navigate("Main")}
-            >
-              <Icon name="arrow-back" style={{ color: "#ffffff" }} />
-            </TouchableHighlight>
-          </Left>
-          <Body>
-            <Text
-              style={{
-                color: "#ffffff",
-                fontSize: 20,
-                fontWeight: "bold",
-                marginTop: 20,
-              }}
-            >
-              Locations
-            </Text>
-          </Body>
-        </Header> */}
         <KeyboardAvoidingView style={{ flex: 1 }}>
           <Content>
             <View style={{ width: 400, minHeight: 120, maxHeight: 120 }}>
@@ -112,7 +82,7 @@ export default class UserPickup extends React.Component {
                 }}
                 getDefaultValue={() => ""}
                 query={{
-                  key: "AIzaSyB7hTq-te4Z7Wb6BN3KkQdGlMQXg8eOUTo",
+                  key: "AIzaSyCdiPwD9bgFbv7yBGA4qNIL236PVTKaqP8",
                   language: "en",
                   types: "geocode",
                 }}
@@ -285,74 +255,6 @@ export default class UserPickup extends React.Component {
       .catch((e) => console.log("err", e));
   };
 }
-
-//------------------------------------------------------------------
-// const GooglePlacesInput = () => {
-//   return (
-//     <GooglePlacesAutocomplete
-//       placeholder="From:"
-//       minLength={2}
-//       autoFocus={true}
-//       returnKeyType={"search"}
-//       listViewDisplayed="auto"
-//       fetchDetails={true}
-//       renderDescription={(row) => row.description}
-//       onPress={(data, details = null) => {
-//         console.log(data, details);
-//         //set pick up data from google auto complete
-//         (pickupName = data.description), // selected address
-//           (pickupLatitude = `${details.geometry.location.lat}`),
-//           (pickupLongitude = `${details.geometry.location.lng}`),
-//           //storing data
-//           (GooglePlacesInput.pickupLatitude = pickupLatitude),
-//           (GooglePlacesInput.pickupName = pickupName),
-//           (GooglePlacesInput.pickupLongitude = pickupLongitude);
-//       }}
-//       getDefaultValue={() => ""}
-//       query={{
-//         key: "AIzaSyB7hTq-te4Z7Wb6BN3KkQdGlMQXg8eOUTo",
-//         language: "en",
-//         types: "geocode",
-//       }}
-//       styles={{
-//         textInputContainer: {
-//           width: "100%",
-//           backgroundColor: "#ffffff",
-//         },
-//         description: {
-//           fontWeight: "bold",
-//         },
-//         predefinedPlacesDescription: {
-//           color: "#2c2f33",
-//           height: 30,
-//         },
-//       }}
-//       currentLocation={true}
-//       currentLocationLabel="Current location"
-//       nearbyPlacesAPI="GooglePlacesSearch"
-//       GoogleReverseGeocodingQuery={{}}
-//       GooglePlacesSearchQuery={{
-//         rankby: "distance",
-//         types: "food",
-//       }}
-//       filterReverseGeocodingByTypes={[
-//         "locality",
-//         "administrative_area_level_3",
-//       ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
-//       predefinedPlaces={[homePlace, workPlace]}
-//       debounce={200}
-//       renderLeftButton={() => (
-//         <Image
-//           style={{ width: 25, height: 25, marginTop: 10, marginLeft: 15 }}
-//           source={require("../../assets/images/user/from.png")}
-//         />
-//       )}
-//       renderRightButton={() => <Text />}
-//     />
-//   );
-// };
-
-//===========================================================================================================================
 
 const styles = StyleSheet.create({
   requestText: {},

@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
   subtitleContainer: {
     padding: 30,
     alignItems: "center",
-    top: 40,
+    top: 20,
   },
   subtitleText: { color: "#000", fontFamily: "Lato3", fontSize: 25 },
 });

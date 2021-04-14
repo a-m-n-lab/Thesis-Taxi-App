@@ -1,8 +1,10 @@
+import React from "react";
+import { Platform, SafeAreaView, Button, View, Image } from "react-native";
 import { createStackNavigator } from "react-navigation-stack";
 import DriverHome from "../screens/DriverHome";
 //import DriverPageScreen from "../screens/DriverPageScreen";
 import DriverLogout from "../screens/DriverLogout";
-import { Platform, View } from "react-native";
+
 import { createAppContainer } from "react-navigation";
 import { createDrawerNavigator, DrawerItem } from "react-navigation-drawer";
 import CustomDrawerContentComponent from "../components/navigation/CustomDrawerContent";
@@ -28,15 +30,44 @@ const DriverNavigator = createStackNavigator(
       },
     },
   },
-  { defaultNavigationOptions: defaultNavOptions }
+  {
+    navigationOptions: {
+      drawerIcon: (drawerConfig) => (
+        // <AntDesign name="login" size={24} color="black" />
+        <Image
+          source={require("../assets/images/user/profile.jpg")}
+          style={{ height: 24, width: 24 }}
+        />
+      ),
+      title: "Driver",
+    },
+    defaultNavigationOptions: defaultNavOptions,
+  }
 );
-
+const DriverLogOut = createStackNavigator(
+  {
+    Logo: { screen: DriverLogout },
+  },
+  {
+    navigationOptions: {
+      drawerIcon: (drawerConfig) => (
+        // <AntDesign name="login" size={24} color="black" />
+        <Image
+          source={require("../assets/images/user/logout.png")}
+          style={{ height: 24, width: 24 }}
+        />
+      ),
+      headerTitle: "Logout",
+    },
+    defaultNavigationOptions: defaultNavOptions,
+  }
+);
 const DriverMainNavigator = createDrawerNavigator(
   {
     Driver: {
       screen: DriverNavigator,
     },
-    Logout: { screen: DriverLogout },
+    Logout: { screen: DriverLogOut },
   },
 
   {

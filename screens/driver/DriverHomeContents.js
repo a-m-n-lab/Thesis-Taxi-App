@@ -25,8 +25,7 @@ import {
   Body,
   Card,
 } from "native-base";
-//import { YellowBox } from "react-native";
-LogBox.ignoreLogs(["Require cycle:"]);
+
 //import RiderPickUp from './RiderPickUp';
 ///import {createStackNavigator} from 'react-navigation';
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
@@ -64,6 +63,7 @@ export default class DriverHomeContents extends React.Component {
   static D_Firstname = "";
   static D_Lastname = "";
 
+  static RideDate;
   static RD_Distance;
   static RD_Price;
 
@@ -111,25 +111,34 @@ export default class DriverHomeContents extends React.Component {
         });
       },
       (error) => console.log(error.message),
-      { enableHighAccuracy: false, timeout: 20000 }
+      {
+        enableHighAccuracy: false, // allows you to get the most accurate location,
+        maximumAge: 10000, // (milliseconds) if a previous location exists in the cache, how old for it to be considered acceptable
+        //distanceFilter: 10, // (meters) how many meters the user has to move before a location update is triggered
+        timeout: 15000,
+      }
     );
 
-    /* this.watchID = navigator.geolocation.watchPosition(
-        (position )=> {
-          this.setState({
-            region: {
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-              latitudeDelta: LATITUDE_DELTA,
-              longitudeDelta: LONGITUDE_DELTA,
-            }
-          });
-        },
-        //error
-        (error) => this.setState({ error: error.message }),
-        { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000, distanceFilter: 10 },
+    this.watchID = navigator.geolocation.watchPosition(
+      (position) => {
+        this.setState({
+          region: {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            latitudeDelta: LATITUDE_DELTA,
+            longitudeDelta: LONGITUDE_DELTA,
+          },
+        });
+      },
 
-      );*/
+      (error) => this.setState({ error: error.message }),
+      {
+        enableHighAccuracy: false,
+        timeout: 20000,
+        maximumAge: 1000,
+        distanceFilter: 20,
+      }
+    );
 
     //
     //disable the warnings in yellow box
@@ -138,16 +147,16 @@ export default class DriverHomeContents extends React.Component {
   }
 
   componentDidUpdate(prevState) {
-    this._GetDriverRiderDistance(
+    this.GetDriverRiderDistance(
       DriverHomeContents.RiderDropUpLatitude,
       DriverHomeContents.RiderPickUpLongitude,
       DriverHomeContents.RiderDropUpLatitude,
-      DriverHomeContents.RiderDropUpLongitude
+      DriverHomeContents.RiderPickUpLongitude
     );
 
     // Typical usage (don't forget to compare props):
     if (this.state.region !== prevState.region) {
-      // AppState.addEventListener('change',this.storeUserLocation());
+      //AppState.addEventListener("change", this.storeUserLocation());
     }
   }
 
@@ -155,14 +164,14 @@ export default class DriverHomeContents extends React.Component {
     //  this.isMounted = false;
     //  if(!this.state.isMounted){
     navigator.geolocation.clearWatch(this.watchID);
-    Toast.toastInstance = null;
+    // Toast.toastInstance = null;
     //  }
   }
 
   componentDidUpdate(prevState) {
-    this._getRiderAcceptDetails();
+    this.getRiderAcceptDetails();
     //when a new request is added
-    this._getRiderRequestDetails();
+    this.getRiderRequestDetails();
     // Typical usage (don't forget to compare props):
     if (this.state.region !== prevState.region) {
       this.storeUserLocation();
@@ -185,14 +194,14 @@ export default class DriverHomeContents extends React.Component {
             >
               <MapView.Marker
                 coordinate={this.state.region}
-                pinColor="#E91E63"
+                pinColor="black"
                 title={"Driver"}
               >
-                <Text style={styles.driverTitle}>The Driver</Text>
-                <Image
+                <Text style={styles.driverText}>You are here</Text>
+                {/* <Image
                   source={require("../../assets/images/driver/car.png")}
                   style={{ width: 50, height: 50 }}
-                />
+                /> */}
               </MapView.Marker>
             </MapView>
 
@@ -218,25 +227,23 @@ export default class DriverHomeContents extends React.Component {
                       fontWeight: "bold",
                     }}
                   >
-                    {DriverHomeContents.Firstname +
+                    {/* {DriverHomeContents.Firstname +
                       "" +
-                      DriverHomeContents.Lastname}
+                      DriverHomeContents.Lastname} */}
                   </Text>
                 </View>
                 <View style={styles.riderLocationTitle}>
                   <Text style={{ fontSize: 14, color: "#636e72" }}>
-                    pickup:
+                    Pickup Location:
                   </Text>
-                  <Text style={{ fontSize: 14, color: "#636e72" }}>
-                    dropoff:
-                  </Text>
+                  <Text style={{ fontSize: 14, color: "black" }}>Dropoff:</Text>
                 </View>
                 <View style={styles.riderLocationValue}>
-                  <Text style={{ fontSize: 14, color: "#42A5F5" }}>
-                    {RiderPickUpName}
+                  <Text style={{ fontSize: 14, color: "#black" }}>
+                    {DriverHomeContents.RiderPickUpName}
                   </Text>
-                  <Text style={{ fontSize: 14, color: "#42A5F5" }}>
-                    {RiderDropUpName}
+                  <Text style={{ fontSize: 14, color: "#black" }}>
+                    {DriverHomeContents.RiderDropUpName}
                   </Text>
                 </View>
                 <View style={styles.riderPayments}>
@@ -257,17 +264,17 @@ export default class DriverHomeContents extends React.Component {
                   /> */}
                 </View>
                 <View style={styles.distancePriceView2}>
-                  <Text style={{ fontWeight: "bold", fontSize: 20 }}>5KM</Text>
+                  <Text style={{ fontWeight: "bold", fontSize: 20 }}>2Km</Text>
                   <Text
                     style={{ fontWeight: "bold", fontSize: 20, marginLeft: 7 }}
                   >
-                    UGX 15,000
+                    20 RON
                   </Text>
                 </View>
                 <View style={styles.AcceptDeclineView}>
                   <TouchableOpacity
                     style={styles.AcceptButton}
-                    onPress={this._AcceptRequest}
+                    onPress={this.AcceptRequest}
                   >
                     <Text style={{ color: "#ffffff", fontWeight: "bold" }}>
                       Accept
@@ -275,7 +282,7 @@ export default class DriverHomeContents extends React.Component {
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.DeclineButton}
-                    onPress={this._DeclineRequest}
+                    onPress={this.DeclineRequest}
                   >
                     <Text style={{ color: "#42A5F5", fontWeight: "bold" }}>
                       Decline
@@ -307,25 +314,21 @@ export default class DriverHomeContents extends React.Component {
                       fontWeight: "bold",
                     }}
                   >
-                    {DriverHomeContents.D_Firstname +
+                    {/* {DriverHomeContents.D_Firstname +
                       "" +
-                      DriverHomeContents.D_Lastname}
+                      DriverHomeContents.D_Lastname} */}
                   </Text>
                 </View>
                 <View style={styles.riderLocationTitle}>
-                  <Text style={{ fontSize: 14, color: "#636e72" }}>
-                    pickup:
-                  </Text>
-                  <Text style={{ fontSize: 14, color: "#636e72" }}>
-                    dropoff:
-                  </Text>
+                  <Text style={{ fontSize: 14 }}>pickup:</Text>
+                  <Text style={{ fontSize: 14 }}>dropoff:</Text>
                 </View>
                 <View style={styles.riderLocationValue}>
                   <Text style={{ fontSize: 14, color: "#42A5F5" }}>
-                    {D_RiderPickUpName}
+                    {DriverHomeContents.D_RiderPickUpName}
                   </Text>
                   <Text style={{ fontSize: 14, color: "#42A5F5" }}>
-                    {D_RiderDropUpName}
+                    {DriverHomeContents.D_RiderDropUpName}
                   </Text>
                 </View>
                 <View style={styles.riderPayments}>
@@ -346,18 +349,18 @@ export default class DriverHomeContents extends React.Component {
                   /> */}
                 </View>
                 <View style={styles.distancePriceView}>
-                  <Text style={{ fontWeight: "bold", fontSize: 20 }}>5KM</Text>
+                  <Text style={{ fontWeight: "bold", fontSize: 20 }}>2 Km</Text>
                   <Text
                     style={{ fontWeight: "bold", fontSize: 20, marginLeft: 7 }}
                   >
-                    UGX 15,000
+                    20 RON
                   </Text>
                 </View>
                 <View style={styles.AcceptDeclineView2}>
                   {this.state.isStartTripButtonVisible ? (
                     <TouchableOpacity
                       style={styles.DirverButton}
-                      onPress={this._StartTrip}
+                      onPress={this.StartTrip}
                     >
                       <Text style={{ color: "#ffffff", fontWeight: "bold" }}>
                         START TRIP
@@ -368,7 +371,7 @@ export default class DriverHomeContents extends React.Component {
                   {this.state.isStopTripButtonVisible ? (
                     <TouchableOpacity
                       style={styles.DirverButton}
-                      onPress={this._DoneTrip}
+                      onPress={this.DoneTrip}
                     >
                       <Text style={{ color: "#ffffff", fontWeight: "bold" }}>
                         Done
@@ -383,15 +386,16 @@ export default class DriverHomeContents extends React.Component {
       </Container>
     );
   }
-  _pickUpLocation = async () => {
+  pickUpLocation = async () => {
     //this.props.navigation.navigate('pickUpLocation');
     //alert(this.state.region.latitude);
   };
-  _StartTrip = async () => {
-    alert("start triping ");
+
+  StartTrip = async () => {
+    alert("Start your trip");
     Alert.alert(
       "Trip Confirm",
-      "Are you sure you want to drive",
+      "Are you sure you want to drive?",
       [
         //{text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
         {
@@ -399,14 +403,90 @@ export default class DriverHomeContents extends React.Component {
           onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
-        { text: "OK", onPress: this._StartDriving },
+        { text: "OK", onPress: this.StartDriving },
       ],
       { cancelable: false }
     );
   };
 
-  _StartDriving = async () => {
-    alert("ready to drive");
+  getRiderRequestDetails = () => {
+    AsyncStorage.getItem("driverId") //**driverId
+      .then((result) =>
+        firebase
+          .database()
+          .ref("Ride_Request/" + result)
+          .once("value")
+          .then(function (snapshot) {
+            if (snapshot.exists()) {
+              DriverHomeContents.RiderID = snapshot.child("riderID").val();
+              DriverHomeContents.RiderPickUpName = snapshot
+                .child("pickUpName")
+                .val();
+              DriverHomeContents.RiderDropUpName = snapshot
+                .child("dropOffName")
+                .val();
+              DriverHomeContents.RiderPickUpLatitude = snapshot
+                .child("pickupLatitude")
+                .val();
+              DriverHomeContents.RiderPickUpLongitude = snapshot
+                .child("pickupLongitude")
+                .val();
+              DriverHomeContents.RiderDropUpLatitude = snapshot
+                .child("dropOffLatitude")
+                .val();
+              DriverHomeContents.RiderDropUpLongitude = snapshot
+                .child("dropOffLongitude")
+                .val();
+              DriverHomeContents.RideDate =
+                firebase.database.ServerValue.TIMESTAMP;
+              // DriverHomeContents.RideDate =
+              //   firebase.database.ServerValue.TIMESTAMP;
+            }
+          })
+          .then(
+            () => {
+              console.log(
+                "fine ?" +
+                  DriverHomeContents.RiderDropUpName +
+                  " " +
+                  DriverHomeContents.RiderPickUpName
+              );
+              if (!DriverHomeContents.RiderID == "") {
+                this.setState({ isModalVisible: true });
+              }
+
+              firebase
+                .database()
+                .ref("RiderIds/" + DriverHomeContents.RiderID + "/Details")
+                .once("value")
+                .then(function (snapshot) {
+                  DriverHomeContents.Firstname = snapshot
+                    .child("firstname")
+                    .val();
+                  DriverHomeContents.Lastname = snapshot
+                    .child("lastname")
+                    .val();
+                })
+                .then(
+                  () => {
+                    console.log("fine" + DriverHomeContents.Firstname);
+                  },
+                  (error) => {
+                    // console.error("error"+error);
+                    // console.log("the user id:"+userId);
+                  }
+                );
+            },
+            (error) => {
+              console.error("error" + error);
+              //console.log("the user id:"+userId);
+            }
+          )
+      );
+  };
+
+  StartDriving = async () => {
+    alert("Are you ready to drive?");
 
     this.setState({ isStartTripButtonVisible: false });
     this.setState({ isStopTripButtonVisible: true });
@@ -416,8 +496,9 @@ export default class DriverHomeContents extends React.Component {
 
         firebase
           .database()
-          .ref("Ride_History/" + RiderID + "/")
+          .ref("Ride_History/" + DriverHomeContents.RiderID + "/")
           .set({
+            riderID: riderID, //added
             driverID: driverID,
           })
           .then(
@@ -438,13 +519,14 @@ export default class DriverHomeContents extends React.Component {
           .database()
           .ref("Ride_History/" + driverID + "/")
           .set({
-            riderID: RiderID,
-            riderpickname: RiderPickUpName,
-            riderdropname: RiderDropUpName,
-            riderpickuplatitude: RiderPickUpLatitude,
-            riderpickuplongitude: RiderPickUpLongitude,
-            riderDropofflatitude: RiderDropUpLatitude,
-            riderdropofflongitude: RiderDropUpLongitude,
+            riderID: DriverHomeContents.RiderID,
+            riderpickname: DriverHomeContents.RiderPickUpName,
+            riderdropname: DriverHomeContents.RiderDropUpName,
+            riderpickuplatitude: DriverHomeContents.RiderPickUpLatitude,
+            riderpickuplongitude: DriverHomeContents.RiderPickUpLongitude,
+            riderDropofflatitude: DriverHomeContents.RiderDropUpLatitude,
+            riderdropofflongitude: DriverHomeContents.RiderDropUpLongitude,
+            rideDate: DriverHomeContents.RideDate,
           })
           .then(
             () => {
@@ -457,28 +539,6 @@ export default class DriverHomeContents extends React.Component {
           )
       )
       .catch((e) => console.log("err", e));
-  };
-
-  _DoneTrip = () => {
-    //alert("done trip")
-  };
-
-  toRad = (Value) => {
-    return (Value * Math.PI) / 180;
-  };
-  _GetDriverRiderDistance = (lat1, lon1, lat2, lon2) => {
-    var R = 6371; // km
-    var dLat = this.toRad(lat2 - lat1);
-    var dLon = this.toRad(lon2 - lon1);
-    var lat1 = this.toRad(lat1);
-    var lat2 = this.toRad(lat2);
-
-    var a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    var d = R * c;
-    console.log("the distance is:" + d);
   };
 
   storeUserLocation() {
@@ -530,64 +590,8 @@ export default class DriverHomeContents extends React.Component {
 }*/
   }
 
-  _getRiderRequestDetails = () => {
-    AsyncStorage.getItem("driverId")
-      .then((result) =>
-        firebase
-          .database()
-          .ref("/Ride_Request/" + result)
-          .once("value")
-          .then(function (snapshot) {
-            if (snapshot.exists()) {
-              RiderID = snapshot.child("riderID").val();
-              RiderPickUpName = snapshot.child("pickUpName").val();
-              RiderDropUpName = snapshot.child("dropOffName").val();
-              RiderPickUpLatitude = snapshot.child("pickupLatitude").val();
-              RiderPickUpLongitude = snapshot.child("pickupLongitude").val();
-              RiderDropUpLatitude = snapshot.child("dropOffLatitude").val();
-              RiderDropUpLongitude = snapshot.child("dropOffLongitude").val();
-            }
-          })
-          .then(
-            () => {
-              console.log("fine" + RiderDropUpName + "" + RiderPickUpName);
-              if (!RiderID == "") {
-                this.setState({ isModalVisible: true });
-              }
-
-              firebase
-                .database()
-                .ref("/Riders/" + RiderID + "/Details")
-                .once("value")
-                .then(function (snapshot) {
-                  DriverHomeContents.Firstname = snapshot
-                    .child("firstname")
-                    .val();
-                  DriverHomeContents.Lastname = snapshot
-                    .child("lastname")
-                    .val();
-                })
-                .then(
-                  () => {
-                    //console.log("fine"+Firstname);
-                  },
-                  (error) => {
-                    // console.error("error"+error);
-                    // console.log("the user id:"+userId);
-                  }
-                );
-            },
-            (error) => {
-              console.error("error" + error);
-              //console.log("the user id:"+userId);
-            }
-          )
-      )
-      .catch((e) => console.log("err", e));
-  };
-
-  _getRiderAcceptDetails = () => {
-    AsyncStorage.getItem("driverId")
+  getRiderAcceptDetails = () => {
+    AsyncStorage.getItem("riderId") //**driverId */
       .then((result) =>
         firebase
           .database()
@@ -595,20 +599,24 @@ export default class DriverHomeContents extends React.Component {
           .once("value")
           .then(function (snapshot) {
             if (snapshot.exists()) {
-              D_RiderID = snapshot.child("riderID").val();
-              D_RiderPickUpName = snapshot.child("riderpickname").val();
-              D_RiderDropUpName = snapshot.child("riderdropname").val();
+              DriverHomeContents.D_RiderID = snapshot.child("riderID").val();
+              DriverHomeContents.D_RiderPickUpName = snapshot
+                .child("riderpickname")
+                .val();
+              DriverHomeContents.D_RiderDropUpName = snapshot
+                .child("riderdropname")
+                .val();
             }
           })
           .then(
             () => {
-              if (!D_RiderID == "") {
+              if (!DriverHomeContents.D_RiderID == "") {
                 this.setState({ isModal2Visible: true });
               }
 
               firebase
                 .database()
-                .ref("/Riders/" + D_RiderID + "/Details")
+                .ref("/RiderIds/" + DriverHomeContents.D_RiderID + "/Details")
                 .once("value")
                 .then(function (snapshot) {
                   DriverHomeContents.D_Firstname = snapshot
@@ -620,24 +628,24 @@ export default class DriverHomeContents extends React.Component {
                 })
                 .then(
                   () => {
-                    //console.log("fine"+Firstname);
+                    console.log("fine without prefix" + Firstname);
                   },
                   (error) => {
-                    // console.error("error"+error);
+                    console.error("error" + error);
                     // console.log("the user id:"+userId);
                   }
                 );
             },
             (error) => {
               console.error("error" + error);
-              //console.log("the user id:"+userId);
+              console.log("the user id:" + userId);
             }
           )
       )
       .catch((e) => console.log("err", e));
   };
 
-  _AcceptRequest = () => {
+  AcceptRequest = () => {
     //alert("accept");
 
     //store rider informations
@@ -650,11 +658,12 @@ export default class DriverHomeContents extends React.Component {
             .remove(),
         firebase
           .database()
-          .ref("/Ride_Request/" + RiderID)
+          .ref("/Ride_Request/" + DriverHomeContents.RiderID)
           .remove(),
         this.setState({ isModalVisible: false })
       )
       .catch((e) => console.log("err", e));
+
     AsyncStorage.getItem("driverId")
       .then((driverID) =>
         //riderId=result,
@@ -683,13 +692,14 @@ export default class DriverHomeContents extends React.Component {
           .database()
           .ref("Ride_Confirm/" + driverID + "/")
           .set({
-            riderID: RiderID,
-            riderpickname: RiderPickUpName,
-            riderdropname: RiderDropUpName,
-            riderpickuplatitude: RiderPickUpLatitude,
-            riderpickuplongitude: RiderPickUpLongitude,
-            riderDropofflatitude: RiderDropUpLatitude,
-            riderdropofflongitude: RiderDropUpLongitude,
+            riderID: DriverHomeContents.RiderID,
+            riderpickname: DriverHomeContents.RiderPickUpName,
+            riderdropname: DriverHomeContents.RiderDropUpName,
+            riderpickuplatitude: DriverHomeContents.RiderPickUpLatitude,
+            riderpickuplongitude: DriverHomeContents.RiderPickUpLongitude,
+            riderDropofflatitude: DriverHomeContents.RiderDropUpLatitude,
+            riderdropofflongitude: DriverHomeContents.RiderDropUpLongitude,
+            rideDate: DriverHomeContents.RideDate,
           })
           .then(
             () => {
@@ -703,7 +713,7 @@ export default class DriverHomeContents extends React.Component {
       )
       .catch((e) => console.log("err", e));
   };
-  _DeclineRequest = () => {
+  DeclineRequest = () => {
     //alert("decline");
 
     AsyncStorage.getItem("driverId")
@@ -715,7 +725,7 @@ export default class DriverHomeContents extends React.Component {
             .remove(),
         firebase
           .database()
-          .ref("/Ride_Request/" + RiderID)
+          .ref("/Ride_Request/" + DriverHomeContents.RiderID)
           .remove(),
         this.setState({ isModalVisible: false })
       )
@@ -740,6 +750,28 @@ DriverHomeContents.navigationOptions = (navData) => {
   };
 };
 
+DoneTrip = () => {
+  //alert("done trip")
+};
+
+toRad = (Value) => {
+  return (Value * Math.PI) / 180;
+};
+GetDriverRiderDistance = (lat1, lon1, lat2, lon2) => {
+  //haversine formula
+  var R = 6371; // Earth's radius
+  var dLat = this.toRad(lat2 - lat1);
+  var dLon = this.toRad(lon2 - lon1);
+  var lat1 = this.toRad(lat1);
+  var lat2 = this.toRad(lat2);
+
+  var a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  var d = R * c;
+  console.log("the distance is:" + d);
+};
 const styles = StyleSheet.create({
   containerView: {
     flex: 1,
@@ -760,7 +792,7 @@ const styles = StyleSheet.create({
     width: 350,
     height: 180,
     position: "absolute",
-    top: 380,
+    // top: 380,
     left: 3,
     borderRadius: 5,
     elevation: 8,
@@ -829,13 +861,12 @@ const styles = StyleSheet.create({
     marginLeft: 200,
     flexDirection: "row",
   },
-  driverTitle: {
+  driverText: {
     position: "absolute",
-    top: 60,
-    left: 13,
+
     elevation: 10,
     fontWeight: "bold",
-    color: "cyan",
+    color: "black",
     fontSize: 18,
   },
   DirverButton: {

@@ -26,9 +26,10 @@ const GooglePlacesDropOff = (props) => {
       }}
       getDefaultValue={() => ""}
       query={{
-        key: "AIzaSyB7hTq-te4Z7Wb6BN3KkQdGlMQXg8eOUTo",
+        key: "AIzaSyCdiPwD9bgFbv7yBGA4qNIL236PVTKaqP8",
         language: "en",
         types: "geocode",
+        radius: 100,
       }}
       styles={{
         textInputContainer: {

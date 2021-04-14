@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   LogBox,
 } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { CheckBox } from "react-native-elements";
 
 import Colors from "../constants/Colors";
@@ -40,6 +41,7 @@ export default class AuthScreen extends React.Component {
       email: "",
       mobile: "",
       promotional: false,
+      isDriver: false,
     };
     //firebase initialize
     if (!firebase.apps.length) {
@@ -65,24 +67,43 @@ export default class AuthScreen extends React.Component {
       <View style={styles.registerContainer}>
         <Toast ref={(toast) => (this.toast = toast)} />
         <Logo />
-        <Subtitle>
+        {/* <Subtitle>
           {` SIGN UP 
 - PASSENGER- `}
-        </Subtitle>
-        <View style={styles.loginContainer}>
-          <Input
-            autoFocus={true}
-            id="firstname"
-            autoFocus={true}
-            placeholder="First-Name"
-            onChangeText={(firstname) => this.setState({ firstname })}
-          />
-          <Input
-            id="lastname"
-            placeholder="Last-Name"
-            onChangeText={(lastname) => this.setState({ lastname })}
-            initialValue=""
-          />
+        </Subtitle> */}
+
+        <View style={styles.registerContainer}>
+          <View style={styles.firstNameIconContainer}>
+            <FontAwesome name="user-o" size={26} color="black" />
+          </View>
+          <View style={styles.firstNameTextContainer}>
+            <TextInput
+              style={{
+                left: 10,
+                height: 45,
+              }}
+              autoFocus={true}
+              id="firstname"
+              autoFocus={true}
+              placeholder="First-Name"
+              onChangeText={(firstname) => this.setState({ firstname })}
+            />
+            <View style={styles.verticalLine}></View>
+            <TextInput
+              style={{
+                right: 60,
+                height: 45,
+              }}
+              id="lastname"
+              placeholder="Last-Name"
+              onChangeText={(lastname) => this.setState({ lastname })}
+              initialValue=""
+            />
+          </View>
+          <View style={styles.phoneIconContainer}>
+            <Ionicons name="call-outline" size={26} color="black" />
+          </View>
+
           <Input
             id="phone"
             placeholder="Phone"
@@ -90,8 +111,8 @@ export default class AuthScreen extends React.Component {
             onChangeText={(mobile) => this.setState({ mobile })}
             initialValue=""
           />
-          <View style={styles.usernameIconContainer}>
-            <FontAwesome name="user-o" size={26} color="grey" />
+          <View style={styles.emailIconContainer}>
+            <Feather name="at-sign" size={26} color="black" />
           </View>
           <View>
             <Input
@@ -107,20 +128,20 @@ export default class AuthScreen extends React.Component {
           </View>
 
           <View style={styles.passwordIconContainer}>
-            <Ionicons name="key-outline" size={28} color="grey" />
+            <Ionicons name="key-outline" size={26} color="black" />
           </View>
-
-          <Input
-            id="password"
-            placeholder="Password"
-            keyboardType="default"
-            secureTextEntry
-            required
-            minLength={5}
-            autoCapitalize="none"
-            onChangeText={(password) => this.setState({ password })}
-          />
-
+          <View style={styles.passwordTextContainer}>
+            <Input
+              id="password"
+              placeholder="Password"
+              keyboardType="default"
+              secureTextEntry
+              required
+              minLength={5}
+              autoCapitalize="none"
+              onChangeText={(password) => this.setState({ password })}
+            />
+          </View>
           <CheckBox
             title="Click here if you want to receive promotional offers"
             // checkedIcon={<Image source={require("../checked.png")} />}
@@ -130,8 +151,11 @@ export default class AuthScreen extends React.Component {
               this.setState({ promotional: !this.state.promotional })
             }
           />
-          <View style={styles.loginButtonContainer}>
-            <MainButton style={styles.loginButton} onPress={this._VerifyAsync}>
+          <View style={styles.registerButtonContainer}>
+            <MainButton
+              style={styles.registerButton}
+              onPress={this._VerifyAsync}
+            >
               SIGNUP
             </MainButton>
           </View>
@@ -179,6 +203,8 @@ export default class AuthScreen extends React.Component {
                   //if ( promotional) then promotional: "yes"
                   //profile_image: "default",
                   promotional: this.state.promotional,
+                  currentDate: firebase.database.ServerValue.TIMESTAMP,
+                  driver: this.state.isDriver,
                 })
                 .then(
                   () => {
@@ -208,25 +234,44 @@ const styles = StyleSheet.create({
   registerContainer: {
     flex: 1,
     backgroundColor: "white",
-  },
-  loginContainer: {
     padding: 15,
-    top: 30,
   },
-  usernameIconContainer: {
+  registerationContainer: {
+    backgroundColor: "white",
+    //top: 10,
+  },
+  firstNameIconContainer: {
     justifyContent: "center",
     top: 40,
   },
+  firstNameTextContainer: {
+    flexDirection: "row",
+    width: 150,
+    justifyContent: "space-between",
+    left: 35,
+    borderBottomColor: Colors.grey,
+    borderBottomWidth: 1,
+    width: 300,
+    alignItems: "center",
+  },
+  verticalLine: {
+    height: "90%",
+    width: 1,
+    backgroundColor: Colors.grey,
+  },
+  phoneIconContainer: { top: 40 },
+  emailIconContainer: { top: 40 },
   passwordIconContainer: {
     marginVertical: 15,
-    top: 60,
+    top: 30,
   },
-  loginButtonContainer: {
+  passwordTextContainer: { bottom: 30 },
+  registerButtonContainer: {
     left: 190,
-    top: 20,
+    //top: 20,
     width: 150,
   },
-  loginButton: {
+  registerButton: {
     color: "white",
     backgroundColor: Colors.darkGrey,
     width: 150,

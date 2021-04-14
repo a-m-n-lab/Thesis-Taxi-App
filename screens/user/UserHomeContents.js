@@ -3,28 +3,17 @@ import {
   StyleSheet,
   Text,
   View,
-  Button,
   Image,
-  TouchableHighlight,
   Dimensions,
   AppRegistry,
   TextInput,
-  AppState,
   AsyncStorage,
   TouchableOpacity,
   LogBox,
   Platform,
+  AppState,
 } from "react-native";
-import {
-  Content,
-  Container,
-  Header,
-  Left,
-  Icon,
-  Footer,
-  Body,
-  Card,
-} from "native-base";
+import { Content, Container, Footer, Card } from "native-base";
 //import { YellowBox } from "react-native";
 
 import Colors from "../../constants/Colors";
@@ -42,16 +31,15 @@ let { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
 const LATITUDE = 0;
 const LONGITUDE = 0;
-const LATITUDE_DELTA = 0.0922;
+const LATITUDE_DELTA = 0.095;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
-//-----------------------------------------------------------------------------------//
 
 export default class UserHomeContents extends React.Component {
   static navigationOptions = {};
   static DriverID;
   static Firstname = "";
   static Lastname = "";
-  //------------CONSTRUCTOR--------------------  //
+
   constructor(props) {
     super(props);
     this.state = {
@@ -70,15 +58,6 @@ export default class UserHomeContents extends React.Component {
     }
   }
 
-  static navigationOptions = {
-    drawerIcon: ({ tintColor }) => (
-      <Image
-        source={require("../../assets/images/driver/home.png")}
-        style={{ width: 25, height: 25 }}
-      />
-    ),
-  };
-
   componentDidMount() {
     //this.isMounted = true;
     LogBox.ignoreLogs(["Require cycle:"]);
@@ -96,7 +75,7 @@ export default class UserHomeContents extends React.Component {
         });
       },
       (error) => console.log(error.message),
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      { enableHighAccuracy: false, timeout: 15000, maximumAge: 10000 }
     );
 
     this.watchID = navigator.geolocation.watchPosition(
@@ -113,10 +92,10 @@ export default class UserHomeContents extends React.Component {
 
       (error) => this.setState({ error: error.message }),
       {
-        enableHighAccuracy: true,
+        enableHighAccuracy: false,
         timeout: 20000,
         maximumAge: 1000,
-        distanceFilter: 10,
+        distanceFilter: 20,
       }
     );
 
@@ -127,9 +106,11 @@ export default class UserHomeContents extends React.Component {
   }
 
   componentDidUpdate(prevState) {
+    //this._getRiderAcceptDetails();
     // Typical usage (don't forget to compare props):
     if (this.state.region !== prevState.region) {
-      // AppState.addEventListener('change',this.storeUserLocation());
+      this.storeUserLocation();
+      // AppState.addEventListener("change", this.storeUserLocation());
     }
   }
 
@@ -140,7 +121,7 @@ export default class UserHomeContents extends React.Component {
     //  this.isMounted = false;
     //  if(!this.state.isMounted){
     navigator.geolocation.clearWatch(this.watchID);
-    Toast.toastInstance = null;
+    //Toast.toastInstance = null;
     //  }
   }
 
@@ -188,15 +169,15 @@ export default class UserHomeContents extends React.Component {
               onRegionChange={(region) => this.setState({ region })}
               onRegionChangeComplete={(region) => this.setState({ region })}
             >
-              <MapView.Marker coordinate={this.state.region} pinColor="#E91E63">
+              <MapView.Marker coordinate={this.state.region} pinColor="black">
                 {/* <Image
                   source={require("../../assets/images/user/pin.png")}
                   style={{ width: 100, height: 100, borderRadius: 100 }}
                 /> */}
               </MapView.Marker>
 
-              {/* <Image
-                source={require("../Images/driver_car.png")}
+              <Image
+                source={require("../../assets/images/driver/car.png")}
                 style={{
                   width: 30,
                   height: 60,
@@ -204,7 +185,7 @@ export default class UserHomeContents extends React.Component {
                   top: 150,
                   left: 100,
                 }}
-              /> */}
+              />
               <Text
                 style={{
                   width: 30,
@@ -215,16 +196,17 @@ export default class UserHomeContents extends React.Component {
                   elevation: 10,
                 }}
               ></Text>
-              {/* <Image
-                source={require("../Images/driver_car.png")}
+
+              <Image
+                source={require("../../assets/images/driver/car.png")}
                 style={{
                   width: 30,
                   height: 60,
                   position: "absolute",
                   top: 150,
-                  left: 250,
+                  left: 100,
                 }}
-              /> */}
+              />
               <Text
                 style={{
                   width: 30,
@@ -275,7 +257,7 @@ export default class UserHomeContents extends React.Component {
             />
           </Card>
         </Content>
-        <Footer style={styles.footer}>
+        <Footer style={styles.footerContainer}>
           {this.state.isConfirmButton ? (
             <TouchableOpacity
               style={styles.DoneButton}
@@ -290,7 +272,7 @@ export default class UserHomeContents extends React.Component {
             <View
               style={{
                 width: 100,
-                height: 70,
+                height: 90,
                 backgroundColor: "#ffffff",
                 position: "absolute",
                 flexDirection: "row",
@@ -309,10 +291,7 @@ export default class UserHomeContents extends React.Component {
               <Text style={{ fontSize: 18, marginTop: 18, fontWeight: "bold" }}>
                 {UserHomeContents.Firstname + " " + UserHomeContents.Lastname}
               </Text>
-              <Text style={{ fontSize: 18, marginTop: 18, color: "#42A5F5" }}>
-                {" "}
-                Accepted
-              </Text>
+              <Text style={{ fontSize: 18, color: "#42A5F5" }}>Accepted</Text>
             </View>
           ) : null}
         </Footer>
@@ -333,18 +312,18 @@ export default class UserHomeContents extends React.Component {
           .once("value")
           .then(function (snapshot) {
             if (snapshot.exists()) {
-              DriverID = snapshot.child("driverID").val();
+              UserHomeContents.DriverID = snapshot.child("driverID").val();
             }
           })
           .then(
             () => {
-              if (!DriverID == "") {
+              if (!UserHomeContents.DriverID == "") {
                 this.setState({ isModalVisible: true });
               }
 
               firebase
                 .database()
-                .ref("/Drivers/" + DriverID + "/Details")
+                .ref("/Drivers/" + UserHomeContents.DriverID + "/Details")
                 .once("value")
                 .then(function (snapshot) {
                   UserHomeContents.Firstname = snapshot
@@ -390,11 +369,11 @@ export default class UserHomeContents extends React.Component {
     //var userLongitude=this.state.region.longitude;
     //if(userLatitude>0 && userLongitude>0){
 
-    RiderID = firebase.auth().currentUser.uid;
-    if (RiderID) {
+    UserHomeContents.RiderID = firebase.auth().currentUser.uid;
+    if (UserHomeContents.RiderID) {
       firebase
         .database()
-        .ref(`Riders/${RiderID}/RiderCurrentLocation/`)
+        .ref(`RiderIds/${UserHomeContents.RiderID}/RiderCurrentLocation/`)
         .set({
           latitude: this.state.region.latitude,
           longitude: this.state.region.longitude,
@@ -406,15 +385,18 @@ export default class UserHomeContents extends React.Component {
             console.log(
               "latitude:" +
                 this.state.region.latitude +
-                "   longitude:" +
-                this.state.region.latitude
+                "longitude:" +
+                this.state.region.longitude
             );
           },
           (error) => {
             //Toast.show(error.message,Toast.SHORT);
             console.log("error with location:" + error);
           }
-        );
+        )
+        .catch((e) => {
+          console.log("err", e);
+        });
     }
 
     // }
@@ -443,9 +425,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.purple,
   },
-  footer: {
+  footerContainer: {
     backgroundColor: "white",
-    height: 80,
+    height: 185,
   },
   map: {
     height: 490,

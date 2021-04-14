@@ -1,28 +1,17 @@
 import React from "react";
-import {
-  View,
-  StyleSheet,
-  Platform,
-  Text,
-  Input,
-  AsyncStorage,
-  LogBox,
-} from "react-native";
+import { View, StyleSheet, Platform, Text } from "react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
-import HeaderButton from "../components/HeaderButton";
+import HeaderButton from "../../components/HeaderButton";
 import * as firebase from "firebase";
-import ApiKeys from "../constants/ApiKeys";
+import ApiKeys from "../../constants/ApiKeys";
 import { Card } from "native-base";
-//import Card from "../components/Card";
-export default class UserProfileScreen extends React.Component {
+
+export default class UserHistory extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      userId: "",
-      email: "",
-      firstname: "",
-      lastname: "",
-      phone: "",
+      pickupname: "",
+      dropname: "",
       date: "",
     };
     if (!firebase.apps.length) {
@@ -35,25 +24,22 @@ export default class UserProfileScreen extends React.Component {
   }
   renderFunction = () => {
     userId = firebase.auth().currentUser.uid; //get the id first
+
     if (userId) {
-      AsyncStorage.setItem("RiderId", userId);
+      // AsyncStorage.setItem("RiderId", userId);
       firebase
         .database()
-        .ref("RiderIds/" + userId + "/Details") //use id to check details
+        .ref("Ride_Confirm/" + userId) //use id to check details
         .once(
           "value",
           function (snapshot) {
-            var email = snapshot.child("email").val();
-            var firstname = snapshot.child("firstname").val();
-            var lastname = snapshot.child("lastname").val();
-            var phone = snapshot.child("phone").val();
-            var date = snapshot.child("currentDate").val();
-            //console.log(snapshot.val());
+            var pickupname = snapshot.child("riderpickname").val();
+            var dropname = snapshot.child("riderdropname").val();
+            var date = snapshot.child("rideDate").val();
+            console.log(snapshot.val());
             this.setState({
-              email,
-              firstname,
-              lastname,
-              phone,
+              pickupname,
+              dropname,
               date,
             });
           }.bind(this)
@@ -64,32 +50,34 @@ export default class UserProfileScreen extends React.Component {
     // fix Warning: Can't perform a React state update on an unmounted component
   }
   render() {
+    var myDate = new Date((this.state.date / 1000) * 1000);
+    var hours = myDate.getHours();
+    var min = myDate.getMinutes(); //Current Minutes
+    //var sec = myDate.getSeconds();
+    var current = hours + ":" + min;
     return (
       <Card>
         <View style={styles.container}>
-          <Text style={styles.profileText}> Email: {this.state.email}</Text>
           <Text style={styles.profileText}>
-            First Name: {this.state.firstname}
+            PickUp: {this.state.pickupname}
           </Text>
+          <Text style={styles.profileText}>DropUp: {this.state.dropname}</Text>
           <Text style={styles.profileText}>
-            Last Name: {this.state.lastname}
-          </Text>
-          <Text style={styles.profileText}> Phone: {this.state.phone}</Text>
-          <Text style={styles.profileText}>
-            Registration Date:
+            Date:
             {new Date((this.state.date / 1000) * 1000).toLocaleDateString(
               "ro-RO"
             )}
           </Text>
+          <Text>Hours : {current}</Text>
         </View>
       </Card>
     );
   }
 }
 
-UserProfileScreen.navigationOptions = (navData) => {
+UserHistory.navigationOptions = (navData) => {
   return {
-    headerTitle: "User Profile",
+    headerTitle: "History",
     headerLeft: () => (
       <HeaderButtons HeaderButtonComponent={HeaderButton}>
         <Item
@@ -99,16 +87,6 @@ UserProfileScreen.navigationOptions = (navData) => {
           onPress={() => {
             navData.navigation.toggleDrawer();
           }}
-        />
-      </HeaderButtons>
-    ),
-    headerRight: () => (
-      <HeaderButtons HeaderButtonComponent={HeaderButton}>
-        <Item
-          color={Platform.OS === "android" ? "white" : "black"}
-          title="Edit"
-          iconName="create-outline"
-          onPress={() => navData.navigation.navigate("EditProfile")}
         />
       </HeaderButtons>
     ),

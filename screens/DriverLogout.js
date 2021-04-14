@@ -6,13 +6,18 @@ import {
   StyleSheet,
   View,
   Image,
+  Alert,
+  Text,
+  Card,
 } from "react-native";
-//import RNRestart from 'react-native-restart';
+import * as firebase from "firebase";
+import Colors from "../constants/Colors";
+//import RNRestart from "react-native-restart";
 
 // Immediately reload the React Native Bundle
 
-// import { NavigationActions } from 'react-navigation';
-// import AuthLoadingScreen from '../main/AuthLoadingScreen';
+import { NavigationActions, NavigationEvents } from "react-navigation";
+import MainButton from "../components/MainButton";
 
 export default class DriverLogout extends React.Component {
   constructor(props) {
@@ -21,28 +26,66 @@ export default class DriverLogout extends React.Component {
 
     // RNRestart.Restart();
   }
-  static navigationOptions = {
-    drawerIcon: () => (
-      <Image
-        source={require("../assets/images/logout.png")}
-        style={{ width: 25, height: 25 }}
-      />
-    ),
-  };
-
+  //   static navigationOptions = {
+  //     drawerIcon: ({ tintColor }) => (
+  //       <Image
+  //         source={require("../assetsImages/logout.png")}
+  //         style={{ width: 25, height: 25 }}
+  //       />
+  //     ),
+  //   };
+  // signOutUser = async () => {
+  //   try {
+  //     await firebase.auth().signOut();
+  //     navigate("Welcome");
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
   componentDidMount() {
     AsyncStorage.clear();
-    // Expo.Util.reload();
+    // navigation.navigate("Welcome");
+    // Expo.Updates.reload();
   }
   // Fetch the token from storage then navigate to our appropriate place
 
-  // Render any loading content that you like here
   render() {
+    logoutAlertHandler = () => {
+      Alert.alert("Logout", "Are you sure you want to logout?", [
+        {
+          text: "Cancel",
+          //style: "cancel",
+          onPress: () => this.props.navigation.navigate("DriversPage"),
+        },
+        { text: "Yes", onPress: signOutHandler },
+      ]);
+    };
+    signOutHandler = () => {
+      firebase
+        .auth()
+        .signOut()
+        .then(() => this.props.navigation.navigate("Welcome"));
+    };
     return (
-      <View style={{ backgroundColor: "red" }}>
-        {/*<ActivityIndicator size="large"/>
-        <StatusBar barStyle="default" />*/}
+      <View style={{ backgroundColor: "white" }}>
+        <View>
+          <Text>
+            Press here if you want to log out from your passenger account
+          </Text>
+        </View>
+        <View style={{}}>
+          <MainButton style={styles.logoutButton} onPress={logoutAlertHandler}>
+            LOGOUT
+          </MainButton>
+        </View>
       </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  logoutButton: {
+    color: "white",
+    backgroundColor: Colors.darkGrey,
+  },
+});

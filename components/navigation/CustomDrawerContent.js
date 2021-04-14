@@ -21,19 +21,12 @@ import {
 
 const CustomDrawerContentComponent = (props) => (
   <Container>
-    <Header style={{ height: 200, backgroundColor: Colors.purple }}>
+    <Header style={{ height: 200, backgroundColor: "black" }}>
       <Body style={{ alignItems: "center", justifyContent: "center" }}>
         <Image
           source={require("../../assets/images/avatar.png")}
           style={{ width: 150, height: 150, borderRadius: 100 }}
         />
-        <TouchableOpacity
-          style={styles.profileText}
-          //onPress={props.onPress}
-          // onPress={props.navigation.navigate("UserProfile")}
-        >
-          <Text> Go to your profile</Text>
-        </TouchableOpacity>
 
         <Text style={{ color: "#ffffff", fontWeight: "bold", fontSize: 20 }}>
           {/* {this.firstname + " " + this.lastname} */}

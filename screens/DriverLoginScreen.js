@@ -1,12 +1,12 @@
 import React from "react";
-import { View, StyleSheet, AsyncStorage } from "react-native";
+import { View, StyleSheet, AsyncStorage, Dimensions } from "react-native";
 import Colors from "../constants/Colors";
 import Logo from "../components/Logo";
 
 import Subtitle from "../components/Subtitle";
 import Input from "../components/Input";
 import MainButton from "../components/MainButton";
-
+import Card from "../components/Card";
 import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import * as firebase from "firebase";
@@ -19,6 +19,7 @@ export default class DriverLogin extends React.Component {
     this.state = {
       password: "",
       email: "",
+      isDriver: false,
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
@@ -28,49 +29,55 @@ export default class DriverLogin extends React.Component {
     return (
       <View style={styles.driverLoginContainer}>
         <Logo />
-        <Subtitle>
+        {/* <Subtitle>
           {` LOG IN 
 - DRIVER - `}
-        </Subtitle>
-        <View style={styles.loginContainer}>
-          <View style={styles.usernameIconContainer}>
-            <FontAwesome name="user-o" size={26} color="grey" />
-          </View>
-          <View>
+        </Subtitle> */}
+        <Card style={styles.cardContainer}>
+          <View style={styles.loginContainer}>
+            <View style={styles.usernameIconContainer}>
+              <FontAwesome name="user-o" size={26} color="grey" />
+            </View>
+            <View>
+              <Input
+                style={{ right: 65 }}
+                id="email"
+                autoFocus={true}
+                placeholder="E-mail"
+                keyboardType="email-address"
+                required
+                email
+                autoCapitalize="none"
+                onChangeText={(email) => this.setState({ email })}
+                initialValue=""
+              />
+            </View>
+
+            <View style={styles.passwordIconContainer}>
+              <Ionicons name="key-outline" size={28} color="grey" />
+            </View>
+
             <Input
-              id="email"
-              autoFocus={true}
-              placeholder="E-mail"
-              keyboardType="email-address"
+              id="password"
+              placeholder="Password"
+              keyboardType="default"
+              secureTextEntry
               required
-              email
+              minLength={5}
+              onChangeText={(password) => this.setState({ password })}
               autoCapitalize="none"
-              onChangeText={(email) => this.setState({ email })}
-              initialValue=""
             />
-          </View>
 
-          <View style={styles.passwordIconContainer}>
-            <Ionicons name="key-outline" size={28} color="grey" />
+            <View style={styles.loginButtonContainer}>
+              <MainButton
+                style={styles.loginButton}
+                onPress={this._signInAsync}
+              >
+                LOGIN
+              </MainButton>
+            </View>
           </View>
-
-          <Input
-            id="password"
-            placeholder="Password"
-            keyboardType="default"
-            secureTextEntry
-            required
-            minLength={5}
-            onChangeText={(password) => this.setState({ password })}
-            autoCapitalize="none"
-          />
-
-          <View style={styles.loginButtonContainer}>
-            <MainButton style={styles.loginButton} onPress={this._signInAsync}>
-              LOGIN
-            </MainButton>
-          </View>
-        </View>
+        </Card>
         <Toast ref={(toast) => (this.toast = toast)} />
       </View>
     );
@@ -98,8 +105,6 @@ export default class DriverLogin extends React.Component {
       .then(
         () => {
           AsyncStorage.setItem("driverId", firebase.auth().currentUser.uid);
-          //AsyncStorage.setItem('userToken', 'rider');
-          //create a rider node with:firstname,lastname,phone,profile
 
           this.props.navigation.navigate("DriversPage");
         },
@@ -108,6 +113,91 @@ export default class DriverLogin extends React.Component {
         }
       );
   };
+  getDriverRole = () => {
+    AsyncStorage.getItem("driverId") //**driverId
+      .then((result) =>
+        firebase
+          .database()
+          .ref("Drivers/" + result + "/Details")
+          .on("value", (snapshot) => {
+            if (snapshot.exists()) {
+              var isDriver = snapshot.child("driver").val();
+
+              console.log("Is user a driver?" + isDriver);
+              console.log(snapshot.val());
+              if (isDriver) {
+                this.goToMaps();
+              }
+            } else {
+              Alert.alert("Alert", "This user is not registered as a Driver", [
+                {
+                  text: "Cancel",
+                  onPress: () => console.log("Cancel Pressed"),
+                  style: "cancel",
+                },
+              ]);
+            }
+          })
+      );
+  };
+
+  goToDriver = () => {
+    this.props.navigation.navigate("DriversPage");
+  };
+  // getDriverRole = () => {
+  //   AsyncStorage.getItem("driverId") //**driverId
+  //     .then(
+  //       (result) =>
+  //         firebase
+  //           .database()
+  //           .ref("Drivers/" + result + "/Details")
+  //           .once("value", function (snapshot) {
+  //             if (snapshot.exists()) {
+  //               var isDriver = snapshot.child("driver").val();
+  //               // this.setState({ isDriver: isDriverD });
+  //               console.log("Is user a driver? " + isDriver);
+  //               console.log(snapshot.val());
+  //             }
+  //           })
+  //       // .then(
+  //       //   () => {
+  //       //     if (!isRider) {
+  //       //       this.props.navigation.navigate("Maps");
+  //       //     } else {
+  //       //       this.props.navigation.navigate("DriversPage");
+  //       //     }
+  //       //   }
+
+  //       // .once("value")
+  //       // .then((snapshot) => {
+  //       //   var isRider = snapshot.child("driver").val();
+
+  //       //   //this.setState({ isDriver: isDriverD });
+  //       //   console.log("fine" + isRider);
+  //       //   //     console.log(snapshot.val());
+  //       // })
+  //       // .ref("Drivers/" + result + "/Details")
+  //       // .once("value", function (snapshot) {
+  //       //   if (snapshot.exists()) {
+  //       //     var isDriverD = snapshot.child("driver").val();
+
+  //       //     this.setState({ isDriver: isDriverD });
+  //       //     console.log("fine" + isDriver);
+  //       //     console.log(snapshot.val());
+  //       //   }
+  //       // })
+  //       // .then(() => {
+  //       //   if (!isDriverD == "") {
+  //       //     if (this.state.isDriver) {
+  //       //       this.props.navigation.navigate("DriversPage");
+  //       //     } else {
+  //       //       this.props.navigation.navigate("Maps");
+  //       //     }
+  //       //   }
+  //       // })
+  //       // )
+  //     );
+  // };
 }
 
 const styles = StyleSheet.create({
@@ -116,8 +206,15 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   loginContainer: {
-    padding: 15,
     top: 10,
+  },
+  cardContainer: {
+    width: 380,
+    alignItems: "center",
+    alignSelf: "center",
+    top: Dimensions.get("window").height / 7,
+    paddingBottom: 30,
+    paddingRight: 35,
   },
   usernameIconContainer: {
     justifyContent: "center",
@@ -129,14 +226,13 @@ const styles = StyleSheet.create({
   },
   loginButtonContainer: {
     left: 190,
-    top: 20,
-    width: 150,
+    top: 10,
   },
   loginButton: {
     color: "white",
     backgroundColor: Colors.darkGrey,
     width: 150,
     alignItems: "center",
-    justifyContent: "center",
+    //justifyContent: "center",
   },
 });

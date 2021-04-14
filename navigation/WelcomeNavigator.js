@@ -23,7 +23,12 @@ const WelcomeNavigator = createStackNavigator(
         headerShown: false,
       },
     },
-    UserSignup: { screen: AuthScreen },
+    UserSignup: {
+      screen: AuthScreen,
+      navigationOptions: {
+        headerTitle: "Passenger Registration",
+      },
+    },
     UserLogin: { screen: UserLoginScreen },
     DriverSignup: { screen: DriverRegisterScreen },
     DriverLogin: { screen: DriverLoginScreen },

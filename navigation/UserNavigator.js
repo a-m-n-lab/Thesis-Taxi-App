@@ -12,7 +12,7 @@ import Colors from "../constants/Colors";
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-
+import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch } from "react-redux";
 import * as authActions from "../store/actions/auth";
 
@@ -20,6 +20,8 @@ import CustomDrawerContentComponent from "../components/navigation/CustomDrawerC
 import UserHomeContents from "../screens/user/UserHomeContents";
 import UserPickup from "../screens/user/UserPickup";
 import UserLogout from "../screens/user/UserLogout";
+import UserPayment from "../screens/user/UserPayment";
+import UserHistory from "../screens/user/UserHistory";
 
 const defaultNavOptions = {
   headerTitleAlign: "center",
@@ -31,7 +33,7 @@ const defaultNavOptions = {
 
 const UserNavigator = createStackNavigator(
   {
-    Home: { screen: UserHome },
+    //Home: { screen: UserHome },
     Maps: { screen: UserHomeContents },
     Address: { screen: UserPickup },
   },
@@ -40,11 +42,11 @@ const UserNavigator = createStackNavigator(
       drawerIcon: (drawerConfig) => (
         // <AntDesign name="login" size={24} color="black" />
         <Image
-          source={require("../assets/images/user/user.png")}
+          source={require("../assets/images/user/profile.jpg")}
           style={{ height: 24, width: 24 }}
         />
       ),
-      headerTitle: "Driver",
+      title: "Maps",
     },
     defaultNavigationOptions: defaultNavOptions,
   }
@@ -59,12 +61,51 @@ const UserDrawer = createStackNavigator(
     navigationOptions: {
       title: "Edit your profile",
       drawerIcon: (drawerConfig) => (
-        <MaterialCommunityIcons
-          name="account-details"
-          size={24}
-          color="black" //"drawerConfig.tintColor"
+        <Image
+          source={require("../assets/images/user/edit.png")}
+          style={{ width: 25, height: 25 }}
         />
       ),
+    },
+    defaultNavigationOptions: defaultNavOptions,
+  }
+);
+const UserPaymentStack = createStackNavigator(
+  {
+    Pay: { screen: UserPayment },
+  },
+  {
+    navigationOptions: {
+      drawerIcon: (drawerConfig) => (
+        <Image
+          source={require("../assets/images/user/payment.png")}
+          style={{ width: 35, height: 35 }}
+        />
+        // <MaterialIcons name="payment" size={24} color="black" />
+      ),
+      title: "Payment",
+    },
+    defaultNavigationOptions: defaultNavOptions,
+  }
+);
+const UsersHistory = createStackNavigator(
+  {
+    UserHistory,
+  },
+  {
+    navigationOptions: {
+      drawerIcon: (drawerConfig) => (
+        <Image
+          source={require("../assets/images/user/history.png")}
+          style={{ width: 24, height: 24 }}
+        />
+        // <MaterialCommunityIcons
+        //   name="information-outline"
+        //   size={24}
+        //   color="black" //"drawerConfig.tintColor"
+        // />
+      ),
+      headerTitle: "History",
     },
     defaultNavigationOptions: defaultNavOptions,
   }
@@ -106,7 +147,7 @@ const UserLogOut = createStackNavigator(
           style={{ height: 24, width: 24 }}
         />
       ),
-      headerTitle: "Driver",
+      headerTitle: "Logout",
     },
     defaultNavigationOptions: defaultNavOptions,
   }
@@ -115,20 +156,27 @@ export const UserMainNavigator = createDrawerNavigator(
   {
     UserMaps: {
       screen: UserNavigator,
+      navigationOptions: {
+        headerTitle: "Maps",
+      },
     },
     Profile: UserDrawer,
+    Payment: UserPaymentStack,
+    History: UsersHistory,
     AboutUs: AboutUs,
     Logout: { screen: UserLogOut },
   },
   {
-    // contentOptions: {
-    //   activeTintColor: Colors.purple,
-    // },
+    contentOptions: {
+      activeTintColor: Colors.purple,
+    },
+
     initialRouteName: "UserMaps",
     contentComponent: CustomDrawerContentComponent,
     drawerOpenRoute: "DrawerOpen",
     drawerCloseRoute: "DrawerClose",
     drawerToggleRoute: "DrawerToggle",
+    drawerBackgroundColor: "black",
   }
 );
 
