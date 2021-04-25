@@ -1,17 +1,12 @@
 import React from "react";
 import {
   StyleSheet,
-  Text,
   View,
-  AsyncStorage,
-  TouchableOpacity,
   TextInput,
-  KeyboardAvoidingView,
-  Image,
-  Platform,
-  ActivityIndicator,
   LogBox,
+  AsyncStorage,
 } from "react-native";
+//import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Feather } from "@expo/vector-icons";
 import { CheckBox } from "react-native-elements";
 
@@ -24,7 +19,6 @@ import MainButton from "../components/MainButton";
 
 import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
-//import Toast from "react-native-simple-toast";
 
 import Toast, { DURATION } from "react-native-easy-toast";
 import * as firebase from "firebase";
@@ -108,6 +102,7 @@ export default class AuthScreen extends React.Component {
             id="phone"
             placeholder="Phone"
             autoCapitalize="none"
+            keyboardType="number-pad"
             onChangeText={(mobile) => this.setState({ mobile })}
             initialValue=""
           />
@@ -279,15 +274,3 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
-// const ToastStyle = {
-//   backgroundColor: "#4ADDFB",
-//   width: 300,
-//   height: Platform.OS === "ios" ? 50 : 100,
-//   color: "#ffffff",
-//   fontSize: 15,
-//   lineHeight: 2,
-//   lines: 4,
-//   borderRadius: 15,
-//   fontWeight: "bold",
-//   yOffset: 40,
-// };

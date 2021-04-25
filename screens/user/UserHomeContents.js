@@ -31,7 +31,7 @@ let { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
 const LATITUDE = 0;
 const LONGITUDE = 0;
-const LATITUDE_DELTA = 0.095;
+const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 export default class UserHomeContents extends React.Component {
@@ -105,10 +105,10 @@ export default class UserHomeContents extends React.Component {
     LogBox.ignoreAllLogs();
   }
 
-  componentDidUpdate(prevState) {
-    //this._getRiderAcceptDetails();
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    // this._getRiderAcceptDetails();
     // Typical usage (don't forget to compare props):
-    if (this.state.region !== prevState.region) {
+    if (this.state.region !== prevProps.region) {
       this.storeUserLocation();
       // AppState.addEventListener("change", this.storeUserLocation());
     }
@@ -128,36 +128,6 @@ export default class UserHomeContents extends React.Component {
   render() {
     return (
       <Container>
-        {/* <Header style={{ backgroundColor: "#42A5F5", height: 75 }}>
-          <Left>
-            <TouchableHighlight
-              style={{
-                width: 50,
-                height: 50,
-                borderRadius: 50,
-                alignItems: "center",
-                justifyContent: "center",
-                marginTop: 20,
-              }}
-              onPress={() => this.props.navigation.toggleDrawer()}
-            >
-              <Icon name="menu" style={{ color: "#ffffff" }} />
-            </TouchableHighlight>
-          </Left>
-          <Body>
-            <Text
-              style={{
-                color: "#ffffff",
-                fontSize: 20,
-                fontWeight: "bold",
-                marginTop: 20,
-              }}
-            >
-              UserHomeContents
-            </Text>
-          </Body>
-        </Header> */}
-
         <Content>
           <View style={{ justifyContent: "center" }}>
             <MapView
@@ -249,7 +219,6 @@ export default class UserHomeContents extends React.Component {
             <TextInput
               style={styles.pickup}
               placeholder="Where to?"
-              //onChangeText={(password)=>this.setState({password})}
               underlineColorAndroid="#ffffff"
               selectionColor="#42A5F5"
               placeholderTextColor="#000000"
@@ -268,7 +237,7 @@ export default class UserHomeContents extends React.Component {
               </Text>
             </TouchableOpacity>
           ) : null}
-          {!this.state.isModalVisible ? (
+          {this.state.isModalVisible ? ( //!this.state.isModalVisible
             <View
               style={{
                 width: 100,
@@ -308,7 +277,7 @@ export default class UserHomeContents extends React.Component {
       .then((result) =>
         firebase
           .database()
-          .ref("/Ride_Request/" + result)
+          .ref("Ride_Request/" + result)
           .once("value")
           .then(function (snapshot) {
             if (snapshot.exists()) {
@@ -323,7 +292,7 @@ export default class UserHomeContents extends React.Component {
 
               firebase
                 .database()
-                .ref("/Drivers/" + UserHomeContents.DriverID + "/Details")
+                .ref("Drivers/" + UserHomeContents.DriverID + "/Details")
                 .once("value")
                 .then(function (snapshot) {
                   UserHomeContents.Firstname = snapshot
@@ -349,6 +318,7 @@ export default class UserHomeContents extends React.Component {
       )
       .catch((e) => console.log("err", e));
 
+    AsyncStorage.getItem("riderId");
     firebase
       .database()
       .ref("/Ride_confirm/" + result)
@@ -358,9 +328,7 @@ export default class UserHomeContents extends React.Component {
           this.setState({ isModalVisible: true });
         }
       })
-      .then(() => {
-        console.log("");
-      })
+      .then(() => {})
       .catch((e) => console.log("err", e));
   };
 

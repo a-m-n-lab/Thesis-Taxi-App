@@ -20,14 +20,14 @@ import {
 } from "native-base";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import GooglePlacesInput from "../../components/GooglePlacesInput";
-// const homePlace = {
-//   description: "Home",
-//   geometry: { location: { lat: 48.8555, lng: 2.3181 } },
-// };
-// const workPlace = {
-//   description: "Work",
-//   geometry: { location: { lat: 48.8478, lng: 2.3202 } },
-// };
+const homePlace = {
+  description: "Home",
+  geometry: { location: { lat: 48.8555, lng: 2.3181 } },
+};
+const workPlace = {
+  description: "Work",
+  geometry: { location: { lat: 48.8478, lng: 2.3202 } },
+};
 export default class UserDrop extends React.Component {
   render() {
     return (

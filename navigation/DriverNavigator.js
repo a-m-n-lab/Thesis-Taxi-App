@@ -4,7 +4,7 @@ import { createStackNavigator } from "react-navigation-stack";
 import DriverHome from "../screens/DriverHome";
 //import DriverPageScreen from "../screens/DriverPageScreen";
 import DriverLogout from "../screens/DriverLogout";
-
+import DriverHistory from "../screens/driver/DriverHistory";
 import { createAppContainer } from "react-navigation";
 import { createDrawerNavigator, DrawerItem } from "react-navigation-drawer";
 import CustomDrawerContentComponent from "../components/navigation/CustomDrawerContent";
@@ -44,6 +44,28 @@ const DriverNavigator = createStackNavigator(
     defaultNavigationOptions: defaultNavOptions,
   }
 );
+const DriversHistory = createStackNavigator(
+  {
+    DriverHistory,
+  },
+  {
+    navigationOptions: {
+      drawerIcon: (drawerConfig) => (
+        <Image
+          source={require("../assets/images/user/history.png")}
+          style={{ width: 24, height: 24 }}
+        />
+        // <MaterialCommunityIcons
+        //   name="information-outline"
+        //   size={24}
+        //   color="black" //"drawerConfig.tintColor"
+        // />
+      ),
+      headerTitle: "History",
+    },
+    defaultNavigationOptions: defaultNavOptions,
+  }
+);
 const DriverLogOut = createStackNavigator(
   {
     Logo: { screen: DriverLogout },
@@ -67,6 +89,7 @@ const DriverMainNavigator = createDrawerNavigator(
     Driver: {
       screen: DriverNavigator,
     },
+    History: DriversHistory,
     Logout: { screen: DriverLogOut },
   },
 

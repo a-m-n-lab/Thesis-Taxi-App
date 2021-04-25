@@ -181,9 +181,6 @@ export default class UserPickup extends React.Component {
       }
 
       randomIndex = Math.floor(Math.random() * DriverKeys.length);
-      //console.log(counts[randomIndex]);
-
-      //request the driver
 
       this._requestDriver(counts[randomIndex]);
     });
@@ -236,6 +233,7 @@ export default class UserPickup extends React.Component {
           .database()
           .ref("Ride_Request/" + driverID + "/")
           .set({
+            date: firebase.database.ServerValue.TIMESTAMP,
             riderID: riderID,
             pickUpName: GooglePlacesInput.pickupName,
             dropOffName: GooglePlacesDropOff.dropOffName,

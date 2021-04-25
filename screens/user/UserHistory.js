@@ -13,6 +13,7 @@ export default class UserHistory extends React.Component {
       pickupname: "",
       dropname: "",
       date: "",
+      driverId: "",
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
@@ -25,26 +26,39 @@ export default class UserHistory extends React.Component {
   renderFunction = () => {
     userId = firebase.auth().currentUser.uid; //get the id first
 
-    if (userId) {
-      // AsyncStorage.setItem("RiderId", userId);
-      firebase
-        .database()
-        .ref("Ride_Confirm/" + userId) //use id to check details
-        .once(
-          "value",
-          function (snapshot) {
-            var pickupname = snapshot.child("riderpickname").val();
-            var dropname = snapshot.child("riderdropname").val();
-            var date = snapshot.child("rideDate").val();
-            console.log(snapshot.val());
-            this.setState({
-              pickupname,
-              dropname,
-              date,
-            });
-          }.bind(this)
-        );
-    }
+    //if (userId) {
+    // AsyncStorage.setItem("RiderId", userId);
+    firebase
+      .database()
+      .ref("Ride_History" + userId) //use id to check details
+      .once(
+        "value",
+        function (snapshot) {
+          var driverId = snapshot.child("driverID").val();
+          console.log(snapshot.val());
+          this.setState({
+            driverId: driverId,
+          });
+        }.bind(this)
+      );
+    firebase
+      .database()
+      .ref("Ride_History" + driverId) //use id to check details
+      .once(
+        "value",
+        function (snapshot) {
+          var pickupname = snapshot.child("dropOffName").val();
+          var dropname = snapshot.child("pickUpName").val();
+          // var date = snapshot.child("rideDate").val();
+          console.log(snapshot.val());
+          this.setState({
+            pickupname,
+            dropname,
+            // date,
+          });
+        }.bind(this)
+      );
+    // }
   };
   componentWillUnmount() {
     // fix Warning: Can't perform a React state update on an unmounted component

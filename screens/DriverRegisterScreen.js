@@ -6,10 +6,6 @@ import {
   AsyncStorage,
   TouchableOpacity,
   TextInput,
-  KeyboardAvoidingView,
-  Image,
-  Platform,
-  ActivityIndicator,
   LogBox,
 } from "react-native";
 //import { YellowBox } from "react-native";
@@ -17,7 +13,7 @@ LogBox.ignoreLogs(["Require cycle:"]);
 import Colors from "../constants/Colors";
 import Logo from "../components/Logo";
 import { Feather } from "@expo/vector-icons";
-import Subtitle from "../components/Subtitle";
+//import Subtitle from "../components/Subtitle";
 import Input from "../components/Input";
 import MainButton from "../components/MainButton";
 
@@ -99,6 +95,7 @@ export default class DriverRegisterScreen extends React.Component {
             id="phone"
             placeholder="Phone"
             autoCapitalize="none"
+            keyboardType="number-pad"
             onChangeText={(mobile) => this.setState({ mobile })}
             initialValue=""
           />

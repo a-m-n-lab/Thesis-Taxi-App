@@ -1,5 +1,11 @@
 import React from "react";
-import { View, StyleSheet, AsyncStorage, Dimensions } from "react-native";
+import {
+  View,
+  StyleSheet,
+  AsyncStorage,
+  Dimensions,
+  Alert,
+} from "react-native";
 import Colors from "../constants/Colors";
 import Logo from "../components/Logo";
 
@@ -19,7 +25,6 @@ export default class DriverLogin extends React.Component {
     this.state = {
       password: "",
       email: "",
-      isDriver: false,
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
@@ -105,13 +110,12 @@ export default class DriverLogin extends React.Component {
       .then(
         () => {
           AsyncStorage.setItem("driverId", firebase.auth().currentUser.uid);
-
-          this.props.navigation.navigate("DriversPage");
         },
         (error) => {
           this.toast.show("error:" + error.message, 500);
         }
       );
+    this.getDriverRole();
   };
   getDriverRole = () => {
     AsyncStorage.getItem("driverId") //**driverId
@@ -122,11 +126,10 @@ export default class DriverLogin extends React.Component {
           .on("value", (snapshot) => {
             if (snapshot.exists()) {
               var isDriver = snapshot.child("driver").val();
-
               console.log("Is user a driver?" + isDriver);
               console.log(snapshot.val());
               if (isDriver) {
-                this.goToMaps();
+                this.props.navigation.navigate("DriversPage");
               }
             } else {
               Alert.alert("Alert", "This user is not registered as a Driver", [

@@ -1,4 +1,4 @@
-import React, { useReducer, useCallback, useState, useEffect } from "react";
+import React from "react";
 import {
   Text,
   View,
@@ -7,6 +7,7 @@ import {
   Dimensions,
   Alert,
 } from "react-native";
+
 import Colors from "../constants/Colors";
 import Logo from "../components/Logo";
 
@@ -135,7 +136,6 @@ export default class UserLoginScreen extends React.Component {
           .on("value", (snapshot) => {
             if (snapshot.exists()) {
               var isRider = snapshot.child("driver").val();
-
               console.log("Is user a driver?" + isRider);
               console.log(snapshot.val());
               if (!isRider) {
