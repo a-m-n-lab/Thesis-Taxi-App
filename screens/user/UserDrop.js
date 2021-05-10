@@ -22,11 +22,11 @@ import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplet
 import GooglePlacesInput from "../../components/GooglePlacesInput";
 const homePlace = {
   description: "Home",
-  geometry: { location: { lat: 48.8555, lng: 2.3181 } },
+  geometry: { location: { lat: 47.368816531416826, lng: 24.67733126020572 } },
 };
 const workPlace = {
   description: "Work",
-  geometry: { location: { lat: 48.8478, lng: 2.3202 } },
+  geometry: { location: { lat: 47.374934475629715, lng: 24.659682324481643 } },
 };
 export default class UserDrop extends React.Component {
   render() {
@@ -43,7 +43,7 @@ export default class UserDrop extends React.Component {
                 justifyContent: "center",
                 marginTop: 20,
               }}
-              onPress={() => this.props.navigation.navigate("Home")}
+              onPress={() => this.props.navigation.navigate("")} // Home
             >
               <Icon name="arrow-back" style={{ color: "#ffffff" }} />
             </TouchableHighlight>

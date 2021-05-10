@@ -1,13 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, LogBox } from "react-native";
 import * as Font from "expo-font";
-
 import AppLoading from "expo-app-loading";
-import { createStore, combineReducers, applyMiddleware } from "redux";
-import ReduxThunk from "redux-thunk";
-import { Provider } from "react-redux";
-import usersReducer from "./store/reducers/users";
-import authReducer from "./store/reducers/auth";
 import { enableScreens } from "react-native-screens";
 import AppNavigator from "./navigation/AppNavigator";
 import firebase from "firebase";

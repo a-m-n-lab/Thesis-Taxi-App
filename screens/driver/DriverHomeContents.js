@@ -9,12 +9,12 @@ import {
   AsyncStorage,
   Alert,
   LogBox,
+  Image,
 } from "react-native";
 import { Content, Container, Card } from "native-base";
 import Toast, { DURATION } from "react-native-easy-toast";
-//import RiderPickUp from './RiderPickUp';
-///import {createStackNavigator} from 'react-navigation';
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
+import MapViewDirections from "react-native-maps-directions";
 import * as firebase from "firebase";
 import ApiKeys from "../../constants/ApiKeys";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
@@ -26,7 +26,6 @@ const LATITUDE = 0;
 const LONGITUDE = 0;
 const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
-//-----------------------------------------------------------------------------------//
 
 export default class DriverHomeContents extends React.Component {
   static RiderPickUpName = "";
@@ -68,6 +67,10 @@ export default class DriverHomeContents extends React.Component {
       isStartTripButtonVisible: true,
       isStopTripButtonVisible: false,
       isMounted: false,
+      requests: false,
+      hasTripStarted: false,
+      originData: [],
+      destinationData: [],
     };
     this.callFunc = this.callFunc.bind(this);
 
@@ -127,8 +130,11 @@ export default class DriverHomeContents extends React.Component {
       }
     );
     this.getRiderAcceptDetails();
-    //when a new request is added
+
     this.getRiderRequestDetails();
+
+    //when a new request is added
+
     //
     //disable the warnings in yellow box
     LogBox.ignoreLogs(["Encountered an error loading page"]);
@@ -143,8 +149,7 @@ export default class DriverHomeContents extends React.Component {
       // DriverHomeContents.RiderDropUpLatitude,
       // DriverHomeContents.RiderPickUpLatitude,
     );
-    // console.log("distance is:" + distance);
-    //console.disableYellowBox = true;
+
     DriverHomeContents.RD_Price = this.calculatePrice();
   }
 
@@ -186,31 +191,32 @@ export default class DriverHomeContents extends React.Component {
               onRegionChangeComplete={(region) => this.setState({ region })}
             >
               <MapView.Marker
+                image={require("../../assets/images/driver/pickup_pin.png")}
                 coordinate={this.state.region}
                 pinColor="black"
                 title={"Driver"}
+                tracksViewChanges={false}
               >
-                <Text style={styles.driverText}>You are here</Text>
-                {/* <Image
-                  source={require("../../assets/images/driver/car.png")}
-                  style={{ width: 50, height: 50 }}
-                /> */}
+                {/* <Text style={styles.driverText}>You are here</Text> */}
               </MapView.Marker>
+              {/* {this.state.hasTripStarted ? (
+                <MapViewDirections
+                  origin={this.state.region}
+                  destination={this.state.destinationData[0]}
+                  // destination={"47.37351522874672, 24.68141547075786"}
+                  // }
+                  // destination={[
+                  //   { latitude: 48.8478, longitude: 2.3202 }, // optional
+                  // ]}
+                  apikey="AIzaSyCdiPwD9bgFbv7yBGA4qNIL236PVTKaqP8" // insert your API Key here
+                  strokeWidth={4}
+                  strokeColor="blue"
+                />
+              ) : null} */}
             </MapView>
-
             {this.state.isModalVisible ? (
               <Card style={styles.MainAcceptView}>
                 <View style={styles.RiderDetails}>
-                  {/* <Image
-                    source={require("../Images/avatar.png")}
-                    style={{
-                      width: 50,
-                      height: 50,
-                      borderRadius: 50,
-                      marginTop: 20,
-                      marginLeft: 7,
-                    }}
-                  /> */}
                   <Text
                     style={{
                       marginTop: 20,
@@ -245,16 +251,6 @@ export default class DriverHomeContents extends React.Component {
                   >
                     {DriverHomeContents.PaymentMode}
                   </Text>
-                  {/* <Image
-                    source={require("../Images/cash.png")}
-                    style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: 10,
-                      marginTop: 20,
-                      marginLeft: 7,
-                    }}
-                  /> */}
                 </View>
                 <View style={styles.distancePriceView2}>
                   <Text style={{ fontWeight: "bold", fontSize: 20 }}>
@@ -264,7 +260,7 @@ export default class DriverHomeContents extends React.Component {
                   <Text
                     style={{ fontWeight: "bold", fontSize: 20, marginLeft: 7 }}
                   >
-                    Price: {DriverHomeContents.RD_Price}
+                    Price: {DriverHomeContents.RD_Price} RON
                   </Text>
                 </View>
                 <View style={styles.AcceptDeclineView}>
@@ -287,20 +283,10 @@ export default class DriverHomeContents extends React.Component {
                 </View>
               </Card>
             ) : null}
-
-            {this.state.isModal2Visible ? (
+            {/* This is the first card showing*/}
+            {this.state.isModal2Visible && this.state.requests ? ( //if requests are available
               <Card style={styles.MainAcceptView}>
                 <View style={styles.RiderDetails}>
-                  {/* <Image
-                    source={require("../Images/avatar.png")}
-                    style={{
-                      width: 50,
-                      height: 50,
-                      borderRadius: 50,
-                      marginTop: 20,
-                      marginLeft: 7,
-                    }}
-                  /> */}
                   <Text
                     style={{
                       marginTop: 20,
@@ -333,26 +319,14 @@ export default class DriverHomeContents extends React.Component {
                   >
                     {DriverHomeContents.PaymentMode}
                   </Text>
-                  {/* <Image
-                    source={require("../Images/cash.png")}
-                    style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: 10,
-                      marginTop: 20,
-                      marginLeft: 7,
-                    }}
-                  /> */}
                 </View>
                 <View style={styles.distancePriceView}>
-                  <Text style={{ fontWeight: "bold", fontSize: 20 }}>
+                  <Text style={{ fontSize: 20 }}>
                     Distance :{DriverHomeContents.RD_Distance.toFixed(2)}
                     KM
                   </Text>
-                  <Text
-                    style={{ fontWeight: "bold", fontSize: 20, marginLeft: 7 }}
-                  >
-                    {DriverHomeContents.RD_Price}
+                  <Text style={{ fontSize: 20, marginLeft: 7 }}>
+                    Price: {DriverHomeContents.RD_Price} RON
                   </Text>
                 </View>
                 <View style={styles.AcceptDeclineView2}>
@@ -387,6 +361,15 @@ export default class DriverHomeContents extends React.Component {
                 </View>
               </Card>
             ) : null}
+            {/* (
+              <Card style={styles.MainAcceptView}>
+                <View style={styles.RiderDetails}>
+                  <Text style={{ color: "blue", fontWeight: "bold" }}>
+                    There are no requests for you
+                  </Text>
+                </View>
+              </Card>
+            ) */}
           </View>
         </Content>
       </Container>
@@ -412,9 +395,11 @@ export default class DriverHomeContents extends React.Component {
       ],
       { cancelable: false }
     );
+
+    // this.setState({ hasTripStarted: true });
   };
   StartDriving = async () => {
-    alert("Are you ready to drive?");
+    //alert("Are you ready to drive?");
 
     this.setState({ isStartTripButtonVisible: false });
     this.setState({ isStopTripButtonVisible: true });
@@ -425,7 +410,7 @@ export default class DriverHomeContents extends React.Component {
         firebase
           .database()
           .ref("Ride_History/" + DriverHomeContents.RiderID + "/") //
-          .set({
+          .push({
             riderID: DriverHomeContents.RiderID, //added
             driverID: driverID,
           })
@@ -440,42 +425,43 @@ export default class DriverHomeContents extends React.Component {
 
     //store driver information
     AsyncStorage.getItem("driverId")
-      .then((
-        result // driverID***
-      ) =>
-        //riderId=result,
+      .then(
+        (
+          result // driverID***
+        ) =>
+          //riderId=result,
 
-        firebase
-          .database()
-          .ref("Ride_History/" + result + "/") // driverID***
-          .push({
-            riderID: DriverHomeContents.RiderID,
-            riderpickname: DriverHomeContents.RiderPickUpName,
-            riderdropname: DriverHomeContents.RiderDropUpName,
-            riderpickuplatitude: DriverHomeContents.RiderPickUpLatitude,
-            riderpickuplongitude: DriverHomeContents.RiderPickUpLongitude,
-            riderDropofflatitude: DriverHomeContents.RiderDropUpLatitude,
-            riderdropofflongitude: DriverHomeContents.RiderDropUpLongitude,
-            rideDate: DriverHomeContents.RideDate,
-            rideDistance: DriverHomeContents.RD_Distance,
-            ridePrice: DriverHomeContents.RD_Price,
-          })
-          .then(
-            () => {
-              this.setState({ isModal2Visible: false });
-            },
-            (error) => {
-              //Toast.show(error.message,Toast.SHORT);
-              console.error("error:" + error);
-            }
-          )
+          firebase
+            .database()
+            .ref("Ride_History/" + result + "/") // driverID***
+            .push({
+              riderID: DriverHomeContents.RiderID,
+              riderpickname: DriverHomeContents.RiderPickUpName,
+              riderdropname: DriverHomeContents.RiderDropUpName,
+              riderpickuplatitude: DriverHomeContents.RiderPickUpLatitude,
+              riderpickuplongitude: DriverHomeContents.RiderPickUpLongitude,
+              riderDropofflatitude: DriverHomeContents.RiderDropUpLatitude,
+              riderdropofflongitude: DriverHomeContents.RiderDropUpLongitude,
+              rideDate: DriverHomeContents.RideDate,
+              rideDistance: DriverHomeContents.RD_Distance,
+              ridePrice: DriverHomeContents.RD_Price,
+            })
+            .then(
+              () => {
+                this.setState({ isModal2Visible: false });
+              },
+              (error) => {
+                //Toast.show(error.message,Toast.SHORT);
+                console.error("error:" + error);
+              }
+            )
       )
       .catch((e) => console.log("err", e));
   };
 
   getRiderRequestDetails = () => {
     driverId = firebase.auth().currentUser.uid;
-    // AsyncStorage.getItem("driverId") //**driverId
+    AsyncStorage.setItem("driverId", driverId); //**driverId
     //   .then((result) =>
     firebase
       .database()
@@ -507,13 +493,27 @@ export default class DriverHomeContents extends React.Component {
           //   firebase.database.ServerValue.TIMESTAMP;
         } else {
           this.toast.show("No ride requests", 500);
-          // this.setState({ isModal2Visible: false });
+
           // this.setState({ isModalVisible: false });
         }
       })
 
       .then(
         () => {
+          let latLongObj = {
+            latitude: parseFloat(DriverHomeContents.RiderPickUpLatitude),
+            longitude: parseFloat(DriverHomeContents.RiderPickUpLongitude),
+          };
+          this.setState({
+            destinationData: [latLongObj],
+          });
+          let latLongObj1 = {
+            latitude: parseFloat(DriverHomeContents.RiderDropUpLatitude),
+            longitude: parseFloat(DriverHomeContents.RiderDropUpLongitude),
+          };
+          this.setState({
+            originData: [latLongObj1],
+          });
           console.log(
             "Drop Address: " +
               DriverHomeContents.RiderDropUpName +
@@ -523,6 +523,7 @@ export default class DriverHomeContents extends React.Component {
           );
           if (!DriverHomeContents.RiderID == "") {
             this.setState({ isModalVisible: true });
+            //this.setState({ requests: true });
           }
 
           firebase
@@ -561,7 +562,7 @@ export default class DriverHomeContents extends React.Component {
 
   getRiderAcceptDetails = () => {
     driverId = firebase.auth().currentUser.uid;
-    // AsyncStorage.getItem("driverId") //**driverId */
+    AsyncStorage.setItem("driverId", driverId); //**driverId */
 
     firebase
       .database()
@@ -583,7 +584,7 @@ export default class DriverHomeContents extends React.Component {
           console.log(
             "this is RiderID's ID " + " " + DriverHomeContents.D_RiderID
           );
-          if (!DriverHomeContents.D_RiderID == "") {
+          if (!DriverHomeContents.D_RiderPickUpName == "") {
             this.setState({ isModal2Visible: true });
           }
 
@@ -619,12 +620,12 @@ export default class DriverHomeContents extends React.Component {
   AcceptRequest = () => {
     //store driver information
     AsyncStorage.getItem("driverId")
-      .then((driverID) =>
+      .then((driverId) =>
         //riderId=result,
 
         firebase
           .database()
-          .ref("Ride_Confirm/" + driverID + "/")
+          .ref("Ride_Confirm/" + driverId + "/")
           .set({
             riderID: DriverHomeContents.RiderID,
             riderpickname: DriverHomeContents.RiderPickUpName,

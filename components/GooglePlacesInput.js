@@ -5,31 +5,43 @@ import { Icon } from "native-base";
 
 const homePlace = {
   description: "Home",
-  geometry: { location: { lat: 48.8555, lng: 2.3181 } },
+  geometry: { location: { lat: 47.368816531416826, lng: 24.67733126020572 } },
 };
 const workPlace = {
   description: "Work",
-  geometry: { location: { lat: 48.8478, lng: 2.3202 } },
+  geometry: { location: { lat: 47.374934475629715, lng: 24.659682324481643 } },
 };
 
 const GooglePlacesInput = (props) => {
   return (
     <GooglePlacesAutocomplete
       {...props}
-      placeholder={props.placeholder}
+      placeholder="From:"
       minLength={2}
-      autoFocus={props.autoFocus}
+      autoFocus={true}
       returnKeyType={"search"}
       listViewDisplayed="auto"
       fetchDetails={true}
       renderDescription={(row) => row.description}
-      onPress={props.onPress}
+      onPress={(data, details = null) => {
+        console.log(data, details);
+        //set pick up data from google auto complete
+        (pickupName = data.description), // selected address
+          (pickupLatitude = `${details.geometry.location.lat}`),
+          (pickupLongitude = `${details.geometry.location.lng}`),
+          //storing data
+          (GooglePlacesInput.pickupLatitude = pickupLatitude),
+          (GooglePlacesInput.pickupName = pickupName),
+          (GooglePlacesInput.pickupLongitude = pickupLongitude);
+      }}
       getDefaultValue={() => ""}
       query={{
         key: "AIzaSyCdiPwD9bgFbv7yBGA4qNIL236PVTKaqP8",
         language: "en",
         types: "geocode",
         radius: 2000,
+        location: "47.368816531416826 24.67733126020572 ",
+        strictbounds: true,
       }}
       styles={{
         textInputContainer: {
@@ -56,7 +68,17 @@ const GooglePlacesInput = (props) => {
       ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
       predefinedPlaces={[homePlace, workPlace]}
       debounce={200}
-      renderLeftButton={props.renderLeftButton}
+      renderLeftButton={() => (
+        <Image
+          style={{
+            width: 25,
+            height: 25,
+            marginTop: 10,
+            marginLeft: 15,
+          }}
+          source={require("../assets/images/user/from.png")}
+        />
+      )}
       renderRightButton={() => <Text />}
     />
   );

@@ -3,7 +3,7 @@ import { Platform, SafeAreaView, Button, View, Image } from "react-native";
 import { createStackNavigator } from "react-navigation-stack";
 import { DrawerNavigatorItem, createAppContainer } from "react-navigation";
 import { createDrawerNavigator, DrawerItem } from "react-navigation-drawer";
-import UserHome from "../screens/UserHome";
+//import UserHome from "../screens/UserHome";
 import UserMap from "../screens/UserHome";
 import UserProfileScreen from "../screens/UserProfileScreen";
 import AboutUsScreen from "../screens/AboutUsScreen";

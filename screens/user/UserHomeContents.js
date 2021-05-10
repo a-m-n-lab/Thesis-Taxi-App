@@ -14,11 +14,10 @@ import {
   AppState,
 } from "react-native";
 import { Content, Container, Footer, Card } from "native-base";
-//import { YellowBox } from "react-native";
-
 import Colors from "../../constants/Colors";
 import Input from "../../components/Input";
 import MapView, { PROVIDER_GOOGLE, AnimatedRegion } from "react-native-maps";
+import MapViewDirections from "react-native-maps-directions";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import HeaderButton from "../../components/HeaderButton";
 //import Toast from "react-native-simple-toast";
@@ -52,6 +51,7 @@ export default class UserHomeContents extends React.Component {
       isModalVisible: false,
       isConfirmButton: false,
       isMounted: false,
+      coordonates: [],
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
@@ -99,7 +99,7 @@ export default class UserHomeContents extends React.Component {
       }
     );
 
-    this._getDriverRequestDetails();
+    this.getDriverRequestDetails();
 
     LogBox.ignoreLogs(["Encountered an error loading page"]);
     LogBox.ignoreAllLogs();
@@ -113,9 +113,6 @@ export default class UserHomeContents extends React.Component {
       // AppState.addEventListener("change", this.storeUserLocation());
     }
   }
-
-  //----------------------------------------------
-  //----------------------------------------------
 
   componentWillUnmount() {
     //  this.isMounted = false;
@@ -139,90 +136,48 @@ export default class UserHomeContents extends React.Component {
               onRegionChange={(region) => this.setState({ region })}
               onRegionChangeComplete={(region) => this.setState({ region })}
             >
-              <MapView.Marker coordinate={this.state.region} pinColor="black">
-                {/* <Image
-                  source={require("../../assets/images/user/pin.png")}
-                  style={{ width: 100, height: 100, borderRadius: 100 }}
-                /> */}
+              <MapView.Marker
+                // image={require("../../assets/images/user/passeneger.png")}
+                coordinate={this.state.region}
+                pinColor="black"
+                tracksViewChanges={true}
+              >
+                <Image
+                  source={require("../../assets/images/user/passenger.png")}
+                  style={{ width: 50, height: 50 }}
+                  resizeMode="contain"
+                />
               </MapView.Marker>
 
-              <Image
-                source={require("../../assets/images/driver/car.png")}
-                style={{
-                  width: 30,
-                  height: 60,
-                  position: "absolute",
-                  top: 150,
-                  left: 100,
-                }}
+              <MapViewDirections
+                origin={this.state.coordonates[0]} // optional
+                destination={this.state.coordonates[1]} // optional
+                // destination={[
+                //   { latitude: 48.8478, longitude: 2.3202 }, // optional
+                // ]}
+                apikey="AIzaSyCdiPwD9bgFbv7yBGA4qNIL236PVTKaqP8" // insert your API Key here
+                strokeWidth={4}
+                strokeColor="blue"
               />
-              <Text
-                style={{
-                  width: 30,
-                  height: 60,
-                  position: "absolute",
-                  top: 150,
-                  left: 100,
-                  elevation: 10,
-                }}
-              ></Text>
-
-              <Image
-                source={require("../../assets/images/driver/car.png")}
-                style={{
-                  width: 30,
-                  height: 60,
-                  position: "absolute",
-                  top: 150,
-                  left: 100,
-                }}
-              />
-              <Text
-                style={{
-                  width: 30,
-                  height: 60,
-                  position: "absolute",
-                  top: 150,
-                  left: 250,
-                  elevation: 10,
-                }}
-              ></Text>
-              {/* <Image
-                source={require("../Images/driver_car.png")}
-                style={{
-                  width: 30,
-                  height: 60,
-                  position: "absolute",
-                  top: 250,
-                  left: 170,
-                }}
-              /> */}
-              <Text
-                style={{
-                  width: 30,
-                  height: 60,
-                  position: "absolute",
-                  top: 150,
-                  left: 250,
-                  elevation: 10,
-                }}
-              >
-                {/* John*/}
-              </Text>
+              {/* {[
+                { latitude: 48.8555, longitude: 2.3181 }, // optional
+                ...this.state.region,
+                { latitude: 48.8478, longitude: 2.3202 }, // optional
+              ]} */}
             </MapView>
           </View>
           <Card style={styles.searchBoxView}>
-            {/* <Image
-              style={styles.pickupImage}
-              source={require("../Images/pickup.png")}
-            /> */}
             <TextInput
               style={styles.pickup}
               placeholder="Where to?"
               underlineColorAndroid="#ffffff"
               selectionColor="#42A5F5"
               placeholderTextColor="#000000"
-              onFocus={() => this.props.navigation.navigate("Address")}
+              onFocus={() =>
+                this.props.navigation.navigate("Address", {
+                  returnData: this.returnData.bind(this),
+                })
+              }
             />
           </Card>
         </Content>
@@ -268,11 +223,16 @@ export default class UserHomeContents extends React.Component {
     );
   }
 
-  _pickUpLocation = async () => {
+  returnData(coord) {
+    this.setState({ coordonates: coord }, () => {
+      console.log(this.state.coordonates);
+    });
+  }
+  pickUpLocation = async () => {
     //this.props.navigation.navigate('pickUpLocation');
     //alert(this.state.region.latitude);
   };
-  _getDriverRequestDetails = async () => {
+  getDriverRequestDetails = async () => {
     AsyncStorage.getItem("riderId")
       .then((result) =>
         firebase

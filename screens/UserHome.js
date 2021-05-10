@@ -16,10 +16,9 @@ import ApiKeys from "../constants/ApiKeys";
 import UserHomeContents from "./user/UserHomeContents";
 import UserPickup from "./user/UserPickup";
 import MyDrawerNav from "../navigation/UserNavigator";
-//import { YellowBox } from "react-native";
+
 LogBox.ignoreLogs(["Require cycle:"]);
-//LogBox,ignoreLogs  import {LogBox} from 'react-native'
-//LogBox.ignoreAllLogs(true);
+
 export default class UserHome extends React.Component {
   static navigationOptions = {
     headerShown: false,
@@ -72,10 +71,10 @@ export default class UserHome extends React.Component {
   render() {
     return <View style={styles.container}>{/* <UserMainNavigator /> */}</View>;
   }
-  _signOutAsync = async () => {
-    await AsyncStorage.clear();
-    this.props.navigation.navigate("Welcome");
-  };
+  // _signOutAsync = async () => {
+  //   await AsyncStorage.clear();
+  //   this.props.navigation.navigate("Welcome");
+  // };
 }
 
 const styles = StyleSheet.create({

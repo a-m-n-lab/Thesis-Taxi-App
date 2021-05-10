@@ -56,7 +56,7 @@ export default class DriverPageScreen extends React.Component {
             },
             (error) => {
               console.error("error" + error);
-              console.log("the user id:" + userId);
+              console.log("the user " + userId);
             }
           )
       )

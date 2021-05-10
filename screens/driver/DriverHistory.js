@@ -58,6 +58,7 @@ export default class DriverHistory extends React.Component {
             this.setState({
               order: order,
             });
+            console.log(order);
             return false;
           });
         });

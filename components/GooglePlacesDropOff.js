@@ -13,9 +13,7 @@ const GooglePlacesDropOff = (props) => {
       fetchDetails={true}
       renderDescription={(row) => row.description}
       onPress={(data, details = null) => {
-        //console.log(data, details);
-        //set drop off data from google auto complete
-
+        console.log(data, details);
         (dropOffName = data.description), // selected address
           (dropOffLatitude = `${details.geometry.location.lat}`),
           (dropOffLongitude = `${details.geometry.location.lng}`),
@@ -29,7 +27,9 @@ const GooglePlacesDropOff = (props) => {
         key: "AIzaSyCdiPwD9bgFbv7yBGA4qNIL236PVTKaqP8",
         language: "en",
         types: "geocode",
-        radius: 100,
+        radius: 2000,
+        location: "47.374934475629715, 24.659682324481643",
+        strictbounds: true,
       }}
       styles={{
         textInputContainer: {
