@@ -51,7 +51,7 @@ const GooglePlacesInput = (props) => {
           fontWeight: "bold",
         },
         predefinedPlacesDescription: {
-          color: "#1faadb",
+          color: "#2c2f33",
         },
       }}
       currentLocation={true}
@@ -68,17 +68,7 @@ const GooglePlacesInput = (props) => {
       ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
       predefinedPlaces={[homePlace, workPlace]}
       debounce={200}
-      renderLeftButton={() => (
-        <Image
-          style={{
-            width: 25,
-            height: 25,
-            marginTop: 10,
-            marginLeft: 15,
-          }}
-          source={require("../assets/images/user/from.png")}
-        />
-      )}
+      renderLeftButton={() => <View style={styles.fromDot}></View>}
       renderRightButton={() => <Text />}
     />
   );
@@ -88,6 +78,19 @@ const styles = StyleSheet.create({
   searchIcon: {
     color: "#42A5F5",
     marginTop: 8,
+    marginLeft: 10,
+  },
+  fromToContainer: {
+    alignItems: "center",
+    width: 12,
+    padding: 8,
+  },
+  fromDot: {
+    top: 15,
+    width: 12,
+    height: 12,
+    borderRadius: 12,
+    backgroundColor: "#000",
     marginLeft: 10,
   },
 });

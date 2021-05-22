@@ -11,26 +11,32 @@ import {
   TouchableOpacity,
   LogBox,
   Platform,
-  AppState,
 } from "react-native";
 import { Content, Container, Footer, Card } from "native-base";
 import Colors from "../../constants/Colors";
-import Input from "../../components/Input";
-import MapView, { PROVIDER_GOOGLE, AnimatedRegion } from "react-native-maps";
+import MapView, {
+  PROVIDER_GOOGLE,
+  AnimatedRegion,
+  Animated,
+  Callout,
+} from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import HeaderButton from "../../components/HeaderButton";
 //import Toast from "react-native-simple-toast";
-import GooglePlacesInput from "../../components/GooglePlacesInput";
-import Toast, { DURATION } from "react-native-easy-toast";
+import customMapStyle from "../driver/customMapStyle.json";
+import marker from "../../assets/images/user/marker3.png";
 import * as firebase from "firebase";
 import ApiKeys from "../../constants/ApiKeys";
+import fromIcon from "../../assets/images/to4.png";
+import toIcon from "../../assets/images/to2.png";
+import MapButton from "../../components/userprofile/MapButton";
 
 let { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
 const LATITUDE = 0;
 const LONGITUDE = 0;
-const LATITUDE_DELTA = 0.0922;
+const LATITUDE_DELTA = 0.1322;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 export default class UserHomeContents extends React.Component {
@@ -38,7 +44,8 @@ export default class UserHomeContents extends React.Component {
   static DriverID;
   static Firstname = "";
   static Lastname = "";
-
+  static longitude = "";
+  static latitude = "";
   constructor(props) {
     super(props);
     this.state = {
@@ -48,10 +55,12 @@ export default class UserHomeContents extends React.Component {
         latitudeDelta: LATITUDE_DELTA,
         longitudeDelta: LONGITUDE_DELTA,
       },
+      addressName: "",
       isModalVisible: false,
       isConfirmButton: false,
       isMounted: false,
       coordonates: [],
+      ready: true,
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
@@ -65,6 +74,28 @@ export default class UserHomeContents extends React.Component {
     navigator.geolocation.getCurrentPosition(
       //get current position
       (position) => {
+        getMyData = async () => {
+          return fetch(
+            "https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyCdiPwD9bgFbv7yBGA4qNIL236PVTKaqP8&address=" +
+              position.coords.latitude +
+              "," +
+              position.coords.longitude
+          )
+            .then((response) => response.json())
+            .then((responseJson) => {
+              responseJson = responseJson["results"][0].formatted_address;
+              return responseJson;
+            })
+            .catch((err) => console.error(err));
+        };
+
+        // const getData = async () => { const response = await fetch(someUrl, {}, {}); return response;}
+        getMyData().then((myCoordonates) => {
+          this.setState({
+            addressName: myCoordonates,
+          });
+        });
+        console.log(this.state.addressName);
         this.setState({
           region: {
             latitude: position.coords.latitude,
@@ -121,6 +152,17 @@ export default class UserHomeContents extends React.Component {
     //Toast.toastInstance = null;
     //  }
   }
+  setRegion(region) {
+    if (this.state.ready) {
+      setTimeout(() => this.map.mapview.animateToRegion(region), 10);
+    }
+    //this.setState({ region });
+  }
+  onMapReady = (e) => {
+    if (!this.state.ready) {
+      this.setState({ ready: true });
+    }
+  };
 
   render() {
     return (
@@ -131,94 +173,126 @@ export default class UserHomeContents extends React.Component {
               provider={PROVIDER_GOOGLE}
               style={styles.map}
               showsUserLocation={true}
+              followUserLocation={true}
               showsBuildings={true}
+              onMapReady={this.onMapReady}
+              showsPointsOfInterest={true}
+              zoomEnabled
+              zoomControlEnabled={true}
+              //showsTraffic={true}
               region={this.state.region}
               onRegionChange={(region) => this.setState({ region })}
               onRegionChangeComplete={(region) => this.setState({ region })}
+              customMapStyle={customMapStyle}
             >
+              {/* <Animated
+                region={this.state.region}
+                onRegionChange={this.onRegionChange}
+              /> */}
               <MapView.Marker
+                image={marker}
                 // image={require("../../assets/images/user/passeneger.png")}
                 coordinate={this.state.region}
-                pinColor="black"
                 tracksViewChanges={true}
               >
-                <Image
-                  source={require("../../assets/images/user/passenger.png")}
-                  style={{ width: 50, height: 50 }}
-                  resizeMode="contain"
-                />
+                <Callout tooltip>
+                  <View>
+                    <View style={styles.bubble}>
+                      <Text style={styles.name}>{this.state.addressName}</Text>
+                      {/* <Text>{UserHomeContents.longitude}</Text> */}
+                    </View>
+                    <View style={styles.arrowBorder}></View>
+                    <View style={styles.arrow}></View>
+                  </View>
+                </Callout>
               </MapView.Marker>
-
-              <MapViewDirections
-                origin={this.state.coordonates[0]} // optional
-                destination={this.state.coordonates[1]} // optional
-                // destination={[
-                //   { latitude: 48.8478, longitude: 2.3202 }, // optional
-                // ]}
-                apikey="AIzaSyCdiPwD9bgFbv7yBGA4qNIL236PVTKaqP8" // insert your API Key here
-                strokeWidth={4}
-                strokeColor="blue"
-              />
+              {this.state.coordonates ? (
+                <MapViewDirections
+                  origin={this.state.coordonates[0]} // optional
+                  destination={this.state.coordonates[1]} // optional
+                  // destination={[
+                  //   { latitude: 48.8478, longitude: 2.3202 }, // optional
+                  // ]}
+                  apikey="AIzaSyCdiPwD9bgFbv7yBGA4qNIL236PVTKaqP8" // insert your API Key here
+                  strokeWidth={4}
+                  strokeColor="#bc13fe"
+                />
+              ) : null}
               {/* {[
                 { latitude: 48.8555, longitude: 2.3181 }, // optional
                 ...this.state.region,
                 { latitude: 48.8478, longitude: 2.3202 }, // optional
               ]} */}
+              <MapView.Marker
+                image={toIcon}
+                coordinate={this.state.coordonates[0]}
+              />
+              <MapView.Marker
+                image={fromIcon}
+                coordinate={this.state.coordonates[1]}
+              />
             </MapView>
           </View>
           <Card style={styles.searchBoxView}>
-            <TextInput
-              style={styles.pickup}
-              placeholder="Where to?"
-              underlineColorAndroid="#ffffff"
-              selectionColor="#42A5F5"
-              placeholderTextColor="#000000"
-              onFocus={() =>
-                this.props.navigation.navigate("Address", {
-                  returnData: this.returnData.bind(this),
-                })
-              }
-            />
-          </Card>
-        </Content>
-        <Footer style={styles.footerContainer}>
-          {this.state.isConfirmButton ? (
-            <TouchableOpacity
-              style={styles.DoneButton}
-              onPress={() => this.props.navigation.navigate("Address")}
-            >
-              <Text style={{ color: "#ffffff", fontWeight: "bold" }}>
-                CONFIRM
-              </Text>
-            </TouchableOpacity>
-          ) : null}
-          {this.state.isModalVisible ? ( //!this.state.isModalVisible
-            <View
-              style={{
-                width: 100,
-                height: 90,
-                backgroundColor: "#ffffff",
-                position: "absolute",
-                flexDirection: "row",
-              }}
-            >
-              <Image
-                source={require("../../Images/avatar.png")}
-                style={{
-                  width: 50,
-                  height: 50,
-                  borderRadius: 50,
-                  marginTop: 10,
-                  marginLeft: 7,
-                }}
+            <Text style={styles.fromText}> From: {this.state.addressName}</Text>
+            <View style={{ flexDirection: "row" }}>
+              <View style={styles.greenDot}></View>
+              <TextInput
+                style={styles.pickupText}
+                placeholder="Where to?"
+                underlineColorAndroid="#ffffff"
+                selectionColor="#42A5F5"
+                placeholderTextColor="#000000"
+                onFocus={() =>
+                  this.props.navigation.navigate("Address", {
+                    returnData: this.returnData.bind(this),
+                  })
+                }
               />
-              <Text style={{ fontSize: 18, marginTop: 18, fontWeight: "bold" }}>
-                {UserHomeContents.Firstname + " " + UserHomeContents.Lastname}
-              </Text>
-              <Text style={{ fontSize: 18, color: "#42A5F5" }}>Accepted</Text>
             </View>
-          ) : null}
-        </Footer>
+          </Card>
+
+          <Footer style={styles.footerContainer}>
+            {this.state.isConfirmButton ? (
+              <TouchableOpacity
+                style={styles.DoneButton}
+                onPress={() => this.props.navigation.navigate("Address")}
+              >
+                <Text style={{ color: "#ffffff", fontWeight: "bold" }}>
+                  CONFIRM
+                </Text>
+              </TouchableOpacity>
+            ) : null}
+            {this.state.isModalVisible ? ( //!this.state.isModalVisible
+              <View
+                style={{
+                  width: 100,
+                  height: 90,
+                  backgroundColor: "#ffffff",
+                  position: "absolute",
+                  flexDirection: "row",
+                }}
+              >
+                <Image
+                  source={require("../../Images/avatar.png")}
+                  style={{
+                    width: 50,
+                    height: 50,
+                    borderRadius: 50,
+                    marginTop: 10,
+                    marginLeft: 7,
+                  }}
+                />
+                <Text
+                  style={{ fontSize: 18, marginTop: 18, fontWeight: "bold" }}
+                >
+                  {UserHomeContents.Firstname + " " + UserHomeContents.Lastname}
+                </Text>
+                <Text style={{ fontSize: 18, color: "#42A5F5" }}>Accepted</Text>
+              </View>
+            ) : null}
+          </Footer>
+        </Content>
       </Container>
     );
   }
@@ -281,7 +355,7 @@ export default class UserHomeContents extends React.Component {
     AsyncStorage.getItem("riderId");
     firebase
       .database()
-      .ref("/Ride_confirm/" + result)
+      .ref("Ride_confirm/" + result)
       .once("value")
       .then(function (snapshot) {
         if (snapshot.exists()) {
@@ -310,6 +384,8 @@ export default class UserHomeContents extends React.Component {
           () => {
             //firebase.database().ref(`Payments/${RiderID}/PaymentsHistory`);
             //Toast.show("payments updated successfully",Toast.SHORT);
+            UserHomeContents.latitude = this.state.region.latitude;
+            UserHomeContents.longitude = this.state.region.longitude;
             console.log(
               "latitude:" +
                 this.state.region.latitude +
@@ -358,18 +434,21 @@ const styles = StyleSheet.create({
     height: 185,
   },
   map: {
-    height: 490,
+    height: 700,
     marginTop: 0,
   },
   searchBoxView: {
-    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: "white",
-    width: 320,
-    minHeight: 50,
+    width: "70%",
+    minHeight: 55,
     position: "absolute",
-    top: 10,
-    left: 20,
-    borderRadius: 5,
+    top: 550,
+    alignSelf: "center",
+    borderWidth: 1,
+    borderColor: "#fff",
+    borderRadius: 45,
     elevation: 5,
   },
   searchIcon: {
@@ -400,6 +479,49 @@ const styles = StyleSheet.create({
     width: 350,
     marginTop: 5,
     marginLeft: 3,
+  },
+  bubble: {
+    alignSelf: "flex-start",
+    backgroundColor: "white",
+    borderRadius: 6,
+    borderColor: "#ccc",
+    borderWidth: 0.5,
+    padding: 15,
+    width: 150,
+  },
+  name: {
+    fontSize: 15,
+    marginBottom: 5,
+  },
+  arrow: {
+    backgroundColor: "transparent",
+    borderColor: "transparent",
+    borderTopColor: "white",
+    borderWidth: 16,
+    alignSelf: "center",
+    marginTop: -32,
+  },
+  arrowBorder: {
+    backgroundColor: "transparent",
+    borderColor: "transparent",
+    borderTopColor: "#007a87",
+    borderWidth: 16,
+    alignSelf: "center",
+    marginTop: -0.5,
+  },
+  fromText: {
+    fontSize: 10,
+  },
+  pickupText: {
+    fontSize: 18,
+  },
+  greenDot: {
+    top: 5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#bc13fe",
+    marginRight: 10,
   },
 });
 AppRegistry.registerComponent("UserHomeContents", () => UserHomeContents);

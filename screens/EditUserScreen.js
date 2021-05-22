@@ -7,6 +7,7 @@ import {
   Button,
   ImageBackground,
   Image,
+  TextInput,
 } from "react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import Input from "../components/Input";
@@ -15,6 +16,7 @@ import HeaderButton from "../components/HeaderButton";
 import Colors from "../constants/Colors";
 import * as firebase from "firebase";
 import ApiKeys from "../constants/ApiKeys";
+import Toast, { DURATION } from "react-native-easy-toast";
 import { Card, Row } from "native-base";
 //import Card from "../components/Card";
 export default class EditUserScreen extends React.Component {
@@ -24,6 +26,7 @@ export default class EditUserScreen extends React.Component {
       firstname: "",
       lastname: "",
       phone: "",
+      email: "",
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
@@ -47,11 +50,12 @@ export default class EditUserScreen extends React.Component {
             var firstname = snapshot.child("firstname").val();
             var lastname = snapshot.child("lastname").val();
             var phone = snapshot.child("phone").val();
-
+            var email = snapshot.child("email").val();
             this.setState({
               firstname,
               lastname,
               phone,
+              email,
             });
           }.bind(this)
         );
@@ -68,8 +72,10 @@ export default class EditUserScreen extends React.Component {
           lastname: this.state.lastname,
           phone: this.state.phone,
         });
-      console.log("SaveF");
+      this.toast.show("Profile updated", 800);
     }
+
+    this.props.navigation.goBack();
   };
 
   handleChange = (inputText) => {};
@@ -78,61 +84,105 @@ export default class EditUserScreen extends React.Component {
   }
   render() {
     return (
-      <Card>
+      <View style={{ backgroundColor: "white", flex: 1 }}>
+        <Toast ref={(toast) => (this.toast = toast)} />
+        <Image
+          style={{
+            top: 30,
+            width: 100,
+            height: 100,
+            borderRadius: 400 / 2,
+            alignSelf: "center",
+          }}
+          source={require("../assets/images/user/user.jpg")}
+        />
         <View style={styles.container}>
-          <Text style={styles.profileText}>First Name:</Text>
-          <View style={styles.inputContainer}>
-            <Input
+          <View style={styles.firstname}>
+            <Text style={styles.profileText}>First Name:</Text>
+            <TextInput
+              style={styles.textInput}
               autoFocus
               onChangeText={(text) => this.setState({ firstname: text })}
             >
               {this.state.firstname}
-            </Input>
+            </TextInput>
           </View>
-          <Text style={styles.profileText}> Last Name:</Text>
-          <Input onChangeText={(text) => this.setState({ lastname: text })}>
-            {this.state.lastname}
-          </Input>
-          <Text style={styles.profileText}> Phone: </Text>
-          <Input onChangeText={(text) => this.setState({ phone: text })}>
-            {this.state.phone}
-          </Input>
-          <View>
+
+          <View style={styles.lastname}>
+            <Text style={styles.profileText}> Last Name:</Text>
+            <TextInput
+              style={styles.textInput}
+              onChangeText={(text) => this.setState({ lastname: text })}
+            >
+              {this.state.lastname}
+            </TextInput>
+          </View>
+
+          <View style={styles.phone}>
+            <Text style={styles.profileText}> Phone: </Text>
+            <TextInput
+              style={styles.textInput}
+              onChangeText={(text) => this.setState({ phone: text })}
+            >
+              {this.state.phone}
+            </TextInput>
+          </View>
+
+          <View style={styles.email}>
+            <Text style={styles.emailText}> Email: </Text>
+            <Text style={styles.emailStyle}>{this.state.email}</Text>
+          </View>
+          <View style={{ top: 150 }}>
             <MainButton style={styles.saveButton} onPress={this.saveFunction}>
               Save
             </MainButton>
           </View>
         </View>
-      </Card>
+      </View>
     );
   }
 }
 
 EditUserScreen.navigationOptions = (navData) => {
   return {
-    headerTitle: "Edit Screen",
+    headerTitle: "Edit Profile",
 
-    headerRight: () => (
-      <HeaderButtons HeaderButtonComponent={HeaderButton}>
-        <Item
-          color={Platform.OS === "android" ? "white" : "black"}
-          title="Edit"
-          iconName="save-outline"
-          //onPress={() =>saveFunction()}
-        />
-      </HeaderButtons>
-    ),
+    // headerRight: () => (
+    //   <HeaderButtons HeaderButtonComponent={HeaderButton}>
+    //     <Item
+    //       color={Platform.OS === "android" ? "white" : "black"}
+    //       title="Edit"
+    //       iconName="save-outline"
+    //       //onPress={() =>saveFunction()}
+    //     />
+    //   </HeaderButtons>
+    // ),
   };
 };
 const styles = StyleSheet.create({
   container: {
+    top: 50,
     justifyContent: "center",
     alignItems: "center",
   },
+  textInput: { width: 300, top: 5, fontFamily: "Lato3" },
   profileText: {
-    fontSize: 30,
+    right: 2,
+    fontSize: 15,
+    fontFamily: "Lato3",
   },
-  inputContainer: {},
+  emailText: { fontSize: 15, color: "grey", right: 3, fontFamily: "Lato3" },
+  emailStyle: { fontSize: 15, color: "grey", fontFamily: "Lato3" },
+  firstname: { padding: 15, top: 20, backgroundColor: "#f3f4f6" },
+  lastname: { padding: 15, top: 40, backgroundColor: "#f3f4f6" },
+  phone: { padding: 15, top: 60, backgroundColor: "#f3f4f6" },
+  email: {
+    color: "grey",
+    width: 330,
+    padding: 15,
+    top: 80,
+    backgroundColor: "#f3f4f6",
+  },
   saveButton: {
     color: "white",
     backgroundColor: Colors.darkGrey,

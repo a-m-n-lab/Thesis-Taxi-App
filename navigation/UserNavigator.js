@@ -1,5 +1,12 @@
 import React from "react";
-import { Platform, SafeAreaView, Button, View, Image } from "react-native";
+import {
+  Platform,
+  SafeAreaView,
+  Button,
+  View,
+  Image,
+  Switch,
+} from "react-native";
 import { createStackNavigator } from "react-navigation-stack";
 import { DrawerNavigatorItem, createAppContainer } from "react-navigation";
 import { createDrawerNavigator, DrawerItem } from "react-navigation-drawer";
@@ -10,12 +17,7 @@ import AboutUsScreen from "../screens/AboutUsScreen";
 import EditUserScreen from "../screens/EditUserScreen";
 import Colors from "../constants/Colors";
 
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { AntDesign } from "@expo/vector-icons";
-import { MaterialIcons } from "@expo/vector-icons";
-import { useDispatch } from "react-redux";
-import * as authActions from "../store/actions/auth";
-
+import CustomDrawerSwitchComponent from "../components/navigation/CustomDrawerSwitchComponent";
 import CustomDrawerContentComponent from "../components/navigation/CustomDrawerContent";
 import UserHomeContents from "../screens/user/UserHomeContents";
 import UserPickup from "../screens/user/UserPickup";
@@ -28,6 +30,9 @@ const defaultNavOptions = {
   headerStyle: {
     backgroundColor: Platform.OS === "android" ? "black" : "white",
   },
+  navigationOptions: {
+    headerShown: false,
+  },
   headerTintColor: Platform.OS === "android" ? "white" : "black",
 };
 
@@ -38,15 +43,21 @@ const UserNavigator = createStackNavigator(
     Address: { screen: UserPickup },
   },
   {
+    // headerMode: "none",
     navigationOptions: {
+      // headerShown: false,
       drawerIcon: (drawerConfig) => (
         // <AntDesign name="login" size={24} color="black" />
         <Image
-          source={require("../assets/images/user/profile.jpg")}
+          source={require("../assets/images/navigation/home.png")}
           style={{ height: 24, width: 24 }}
         />
       ),
       title: "Maps",
+      // headerMode: 'none',
+      // navigationOptions: {
+      //     headerVisible: false,
+      // }
     },
     defaultNavigationOptions: defaultNavOptions,
   }
@@ -59,13 +70,14 @@ const UserDrawer = createStackNavigator(
   },
   {
     navigationOptions: {
-      title: "Edit your profile",
+      //title: "Edit your profile",
       drawerIcon: (drawerConfig) => (
         <Image
-          source={require("../assets/images/user/edit.png")}
-          style={{ width: 25, height: 25 }}
+          source={require("../assets/images/navigation/edit.png")}
+          style={{ width: 24, height: 25 }}
         />
       ),
+      title: "Edit your profile",
     },
     defaultNavigationOptions: defaultNavOptions,
   }
@@ -78,8 +90,8 @@ const UserPaymentStack = createStackNavigator(
     navigationOptions: {
       drawerIcon: (drawerConfig) => (
         <Image
-          source={require("../assets/images/user/payment.png")}
-          style={{ width: 35, height: 35 }}
+          source={require("../assets/images/navigation/payment.png")}
+          style={{ width: 24, height: 24 }}
         />
         // <MaterialIcons name="payment" size={24} color="black" />
       ),
@@ -96,7 +108,7 @@ const UsersHistory = createStackNavigator(
     navigationOptions: {
       drawerIcon: (drawerConfig) => (
         <Image
-          source={require("../assets/images/user/history.png")}
+          source={require("../assets/images/navigation/history.png")}
           style={{ width: 24, height: 24 }}
         />
         // <MaterialCommunityIcons
@@ -120,7 +132,7 @@ const AboutUs = createStackNavigator(
     navigationOptions: {
       drawerIcon: (drawerConfig) => (
         <Image
-          source={require("../assets/images/user/info.jpg")}
+          source={require("../assets/images/navigation/info.png")}
           style={{ width: 24, height: 24 }}
         />
         // <MaterialCommunityIcons
@@ -143,7 +155,7 @@ const UserLogOut = createStackNavigator(
       drawerIcon: (drawerConfig) => (
         // <AntDesign name="login" size={24} color="black" />
         <Image
-          source={require("../assets/images/user/logout.png")}
+          source={require("../assets/images/navigation/logout.png")}
           style={{ height: 24, width: 24 }}
         />
       ),
@@ -152,13 +164,11 @@ const UserLogOut = createStackNavigator(
     defaultNavigationOptions: defaultNavOptions,
   }
 );
+
 export const UserMainNavigator = createDrawerNavigator(
   {
     UserMaps: {
       screen: UserNavigator,
-      navigationOptions: {
-        headerTitle: "Maps",
-      },
     },
     Profile: UserDrawer,
     Payment: UserPaymentStack,
@@ -168,15 +178,18 @@ export const UserMainNavigator = createDrawerNavigator(
   },
   {
     contentOptions: {
-      activeTintColor: Colors.purple,
+      activeTintColor: "#c984f5",
     },
 
     initialRouteName: "UserMaps",
+    // contentComponent: CustomDrawerSwitchComponent,
     contentComponent: CustomDrawerContentComponent,
     drawerOpenRoute: "DrawerOpen",
     drawerCloseRoute: "DrawerClose",
     drawerToggleRoute: "DrawerToggle",
     drawerBackgroundColor: "black",
+    drawerPosition: "left",
+    drawerBackgroundColor: "#0000FF",
   }
 );
 

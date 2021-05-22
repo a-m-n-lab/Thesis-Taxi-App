@@ -52,7 +52,7 @@ const DriversHistory = createStackNavigator(
     navigationOptions: {
       drawerIcon: (drawerConfig) => (
         <Image
-          source={require("../assets/images/user/history.png")}
+          source={require("../assets/images/navigation/history.png")}
           style={{ width: 24, height: 24 }}
         />
         // <MaterialCommunityIcons
@@ -75,7 +75,7 @@ const DriverLogOut = createStackNavigator(
       drawerIcon: (drawerConfig) => (
         // <AntDesign name="login" size={24} color="black" />
         <Image
-          source={require("../assets/images/user/logout.png")}
+          source={require("../assets/images/navigation/logout.png")}
           style={{ height: 24, width: 24 }}
         />
       ),

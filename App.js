@@ -5,18 +5,11 @@ import AppLoading from "expo-app-loading";
 import { enableScreens } from "react-native-screens";
 import AppNavigator from "./navigation/AppNavigator";
 import firebase from "firebase";
-
 import ApiKeys from "./constants/ApiKeys";
 import { Root } from "native-base";
-
+import { ThemeProvider } from "./Themes/dark";
 enableScreens();
 //performance reasons
-
-// const rootReducer = combineReducers({
-//   users: usersReducer,
-//   auth: authReducer,
-// });
-// const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 
 const fetchFonts = () => {
   return Font.loadAsync({
@@ -51,11 +44,13 @@ export default function App() {
   LogBox.ignoreLogs(["Setting a timer"]);
 
   return (
-    <Root>
-      {/* <Provider store={store}> */}
-      <AppNavigator />
-      {/* </Provider> */}
-    </Root>
+    <ThemeProvider>
+      <Root>
+        {/* <Provider store={store}> */}
+        <AppNavigator />
+        {/* </Provider> */}
+      </Root>
+    </ThemeProvider>
   );
 }
 

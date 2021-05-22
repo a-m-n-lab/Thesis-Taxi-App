@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, Text } from "react-native";
+import { Text, StyleSheet, View } from "react-native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
 const GooglePlacesDropOff = (props) => {
@@ -57,15 +57,19 @@ const GooglePlacesDropOff = (props) => {
       ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
       predefinedPlaces={props.predefinedPlaces}
       debounce={200}
-      renderLeftButton={() => (
-        <Image
-          style={{ width: 25, height: 25, marginTop: 10, marginLeft: 15 }}
-          source={require("../assets/images/user/drop.png")}
-        />
-      )}
+      renderLeftButton={() => <View style={styles.toDot}></View>}
       renderRightButton={() => <Text />}
     />
   );
 };
 
+const styles = StyleSheet.create({
+  toDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 12,
+    backgroundColor: "#bc13fe",
+    marginLeft: 10,
+  },
+});
 export default GooglePlacesDropOff;

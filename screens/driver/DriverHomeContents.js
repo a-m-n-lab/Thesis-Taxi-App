@@ -7,9 +7,7 @@ import {
   Dimensions,
   AppRegistry,
   AsyncStorage,
-  Alert,
   LogBox,
-  Image,
 } from "react-native";
 import { Content, Container, Card } from "native-base";
 import Toast, { DURATION } from "react-native-easy-toast";
@@ -130,8 +128,10 @@ export default class DriverHomeContents extends React.Component {
       }
     );
     this.getRiderAcceptDetails();
+    console.log("getRider called");
 
     this.getRiderRequestDetails();
+    console.log("getRiderRequestDetails called");
 
     //when a new request is added
 
@@ -186,7 +186,7 @@ export default class DriverHomeContents extends React.Component {
               style={styles.map}
               showsUserLocation={true}
               region={this.state.region}
-              showsUserLocation={true}
+              //showsUserLocation={true}
               onRegionChange={(region) => this.setState({ region })}
               onRegionChangeComplete={(region) => this.setState({ region })}
             >
@@ -199,9 +199,9 @@ export default class DriverHomeContents extends React.Component {
               >
                 {/* <Text style={styles.driverText}>You are here</Text> */}
               </MapView.Marker>
-              {/* {this.state.hasTripStarted ? (
+              {this.state.hasTripStarted ? (
                 <MapViewDirections
-                  origin={this.state.region}
+                  origin={this.state.originData[0]}
                   destination={this.state.destinationData[0]}
                   // destination={"47.37351522874672, 24.68141547075786"}
                   // }
@@ -212,7 +212,7 @@ export default class DriverHomeContents extends React.Component {
                   strokeWidth={4}
                   strokeColor="blue"
                 />
-              ) : null} */}
+              ) : null}
             </MapView>
             {this.state.isModalVisible ? (
               <Card style={styles.MainAcceptView}>
@@ -266,7 +266,7 @@ export default class DriverHomeContents extends React.Component {
                 <View style={styles.AcceptDeclineView}>
                   <TouchableOpacity
                     style={styles.AcceptButton}
-                    onPress={this.AcceptRequest}
+                    onPress={this.StartDriving}
                   >
                     <Text style={{ color: "#ffffff", fontWeight: "bold" }}>
                       Accept
@@ -283,84 +283,7 @@ export default class DriverHomeContents extends React.Component {
                 </View>
               </Card>
             ) : null}
-            {/* This is the first card showing*/}
-            {this.state.isModal2Visible && this.state.requests ? ( //if requests are available
-              <Card style={styles.MainAcceptView}>
-                <View style={styles.RiderDetails}>
-                  <Text
-                    style={{
-                      marginTop: 20,
-                      fontSize: 18,
-                      marginLeft: 15,
-                      color: "#636e72",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {/* {DriverHomeContents.D_Firstname +
-                      "" +
-                      DriverHomeContents.D_Lastname} */}
-                  </Text>
-                </View>
-                <View style={styles.riderLocationTitle}>
-                  <Text style={{ fontSize: 14 }}>Pickup:</Text>
-                  <Text style={{ fontSize: 14 }}>Dropoff:</Text>
-                </View>
-                <View style={styles.riderLocationValue}>
-                  <Text style={{ fontSize: 14, color: "#42A5F5" }}>
-                    {DriverHomeContents.RiderPickUpName} {/*D_RiderPickName*/}
-                  </Text>
-                  <Text style={{ fontSize: 14, color: "#42A5F5" }}>
-                    {DriverHomeContents.RiderDropUpName} {/*D_RiderDropUpName*/}
-                  </Text>
-                </View>
-                <View style={styles.riderPayments}>
-                  <Text
-                    style={{ marginTop: 20, fontSize: 15, fontWeight: "bold" }}
-                  >
-                    {DriverHomeContents.PaymentMode}
-                  </Text>
-                </View>
-                <View style={styles.distancePriceView}>
-                  <Text style={{ fontSize: 20 }}>
-                    Distance :{DriverHomeContents.RD_Distance.toFixed(2)}
-                    KM
-                  </Text>
-                  <Text style={{ fontSize: 20, marginLeft: 7 }}>
-                    Price: {DriverHomeContents.RD_Price} RON
-                  </Text>
-                </View>
-                <View style={styles.AcceptDeclineView2}>
-                  {this.state.isStartTripButtonVisible ? (
-                    <TouchableOpacity
-                      style={styles.DirverButton}
-                      onPress={this.StartTrip}
-                      //disabled={!this.isModal2Visible}
-                      // style={{
-                      //   backgroundColor: !this.isModal2Visible
-                      //     ? "grey"
-                      //     : "blue",
-                      //   padding: 15,
-                      // }}
-                    >
-                      <Text style={{ color: "#ffffff", fontWeight: "bold" }}>
-                        START TRIP
-                      </Text>
-                    </TouchableOpacity>
-                  ) : null}
 
-                  {this.state.isStopTripButtonVisible ? (
-                    <TouchableOpacity
-                      style={styles.DirverButton}
-                      onPress={this.DoneTrip}
-                    >
-                      <Text style={{ color: "#ffffff", fontWeight: "bold" }}>
-                        Done
-                      </Text>
-                    </TouchableOpacity>
-                  ) : null}
-                </View>
-              </Card>
-            ) : null}
             {/* (
               <Card style={styles.MainAcceptView}>
                 <View style={styles.RiderDetails}>
@@ -380,83 +303,136 @@ export default class DriverHomeContents extends React.Component {
     //alert(this.state.region.latitude);
   };
 
-  StartTrip = async () => {
-    Alert.alert(
-      "Trip Confirm",
-      "Are you sure you want to drive?",
-      [
-        //{text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-        {
-          text: "Cancel",
-          onPress: () => console.log("Cancel Pressed"),
-          style: "cancel",
-        },
-        { text: "OK", onPress: this.StartDriving },
-      ],
-      { cancelable: false }
-    );
+  AcceptRequest = () => {
+    //store driver information
+    driverId = firebase.auth().currentUser.uid;
 
-    // this.setState({ hasTripStarted: true });
+    //riderId=result,
+
+    firebase
+      .database()
+      .ref("Ride_Confirm/" + driverId + "/")
+      .set({
+        riderID: DriverHomeContents.RiderID,
+        riderpickname: DriverHomeContents.RiderPickUpName,
+        riderdropname: DriverHomeContents.RiderDropUpName,
+        riderpickuplatitude: DriverHomeContents.RiderPickUpLatitude,
+        riderpickuplongitude: DriverHomeContents.RiderPickUpLongitude,
+        riderDropofflatitude: DriverHomeContents.RiderDropUpLatitude,
+        riderdropofflongitude: DriverHomeContents.RiderDropUpLongitude,
+        rideDate: DriverHomeContents.RideDate,
+        //  rideDistance: DriverHomeContents.RD_Distance,
+        //  ridePrice: DriverHomeContents.RD_Price,
+      })
+      .then(
+        () => {
+          this.setState({ isModalVisible: false });
+          //  this.setState({ hasTripStarted: true });
+        },
+        (error) => {
+          //Toast.show(error.message,Toast.SHORT);
+          console.error("error:" + error);
+        }
+      );
+    // )
+    // .catch((e) => console.log("err", e));
+
+    // AsyncStorage.getItem("driverId")
+    //   .then(
+    //     (result) =>
+    firebase
+      .database()
+      .ref("Ride_Request/" + driverId)
+      .remove(),
+      firebase
+        .database()
+        .ref("Ride_Request/" + DriverHomeContents.RiderID)
+        .remove(),
+      this.setState({ isModalVisible: false });
+    // )
+    // .catch((e) => console.log("err", e));
+
+    // AsyncStorage.getItem("driverId")
+    //   .then((driverID) =>
+    //     //riderId=result,
+
+    firebase
+      .database()
+      .ref("Ride_Confirm/" + DriverHomeContents.RiderID)
+      .set({
+        driverID: driverId,
+        confirmed: true,
+      })
+      .then(
+        () => {},
+        (error) => {
+          this.toast.show(error.message, 500);
+        }
+      );
+    // )
+    // .catch((e) => console.log("err", e));
   };
+
   StartDriving = async () => {
     //alert("Are you ready to drive?");
 
     this.setState({ isStartTripButtonVisible: false });
     this.setState({ isStopTripButtonVisible: true });
-    AsyncStorage.getItem("driverId")
-      .then((driverID) =>
-        //riderId=result,s
+    // AsyncStorage.getItem("driverId")
+    //   .then((driverID) =>
+    //     //riderId=result,s
 
-        firebase
-          .database()
-          .ref("Ride_History/" + DriverHomeContents.RiderID + "/") //
-          .push({
-            riderID: DriverHomeContents.RiderID, //added
-            driverID: driverID,
-          })
-          .then(
-            () => {},
-            (error) => {
-              this.toast.show(error.message, 500);
-            }
-          )
-      )
-      .catch((e) => console.log("err", e));
+    firebase
+      .database()
+      .ref("Ride_History/" + DriverHomeContents.RiderID + "/") //
+      .push({
+        riderID: DriverHomeContents.RiderID, //added
+        driverID: driverId,
+      })
+      .then(
+        () => {},
+        (error) => {
+          this.toast.show(error.message, 500);
+        }
+      );
+    // )
+    // .catch((e) => console.log("err", e));
 
     //store driver information
-    AsyncStorage.getItem("driverId")
-      .then(
-        (
-          result // driverID***
-        ) =>
-          //riderId=result,
+    // AsyncStorage.getItem("driverId")
+    //   .then(
+    //     (
+    //       result // driverID***
+    //     ) =>
+    //       //riderId=result,
 
-          firebase
-            .database()
-            .ref("Ride_History/" + result + "/") // driverID***
-            .push({
-              riderID: DriverHomeContents.RiderID,
-              riderpickname: DriverHomeContents.RiderPickUpName,
-              riderdropname: DriverHomeContents.RiderDropUpName,
-              riderpickuplatitude: DriverHomeContents.RiderPickUpLatitude,
-              riderpickuplongitude: DriverHomeContents.RiderPickUpLongitude,
-              riderDropofflatitude: DriverHomeContents.RiderDropUpLatitude,
-              riderdropofflongitude: DriverHomeContents.RiderDropUpLongitude,
-              rideDate: DriverHomeContents.RideDate,
-              rideDistance: DriverHomeContents.RD_Distance,
-              ridePrice: DriverHomeContents.RD_Price,
-            })
-            .then(
-              () => {
-                this.setState({ isModal2Visible: false });
-              },
-              (error) => {
-                //Toast.show(error.message,Toast.SHORT);
-                console.error("error:" + error);
-              }
-            )
-      )
-      .catch((e) => console.log("err", e));
+    firebase
+      .database()
+      .ref("Ride_History/" + driverId + "/") // driverID***
+      .push({
+        riderID: DriverHomeContents.RiderID,
+        riderpickname: DriverHomeContents.RiderPickUpName,
+        riderdropname: DriverHomeContents.RiderDropUpName,
+        riderpickuplatitude: DriverHomeContents.RiderPickUpLatitude,
+        riderpickuplongitude: DriverHomeContents.RiderPickUpLongitude,
+        riderDropofflatitude: DriverHomeContents.RiderDropUpLatitude,
+        riderdropofflongitude: DriverHomeContents.RiderDropUpLongitude,
+        rideDate: DriverHomeContents.RideDate,
+        // rideDistance: DriverHomeContents.RD_Distance,
+        // ridePrice: DriverHomeContents.RD_Price,
+      })
+      .then(
+        () => {
+          this.setState({ isModal2Visible: false });
+        },
+        (error) => {
+          //Toast.show(error.message,Toast.SHORT);
+          console.error("error:" + error);
+        }
+      );
+    // )
+    // .catch((e) => console.log("err", e));
+    this.AcceptRequest();
   };
 
   getRiderRequestDetails = () => {
@@ -584,7 +560,8 @@ export default class DriverHomeContents extends React.Component {
           console.log(
             "this is RiderID's ID " + " " + DriverHomeContents.D_RiderID
           );
-          if (!DriverHomeContents.D_RiderPickUpName == "") {
+          console.log("this is Drivers' ID " + " " + driverId);
+          if (!DriverHomeContents.D_RiderID == "") {
             this.setState({ isModal2Visible: true });
           }
 
@@ -616,74 +593,6 @@ export default class DriverHomeContents extends React.Component {
           console.log("the user id:" + userId);
         }
       );
-  };
-  AcceptRequest = () => {
-    //store driver information
-    AsyncStorage.getItem("driverId")
-      .then((driverId) =>
-        //riderId=result,
-
-        firebase
-          .database()
-          .ref("Ride_Confirm/" + driverId + "/")
-          .set({
-            riderID: DriverHomeContents.RiderID,
-            riderpickname: DriverHomeContents.RiderPickUpName,
-            riderdropname: DriverHomeContents.RiderDropUpName,
-            riderpickuplatitude: DriverHomeContents.RiderPickUpLatitude,
-            riderpickuplongitude: DriverHomeContents.RiderPickUpLongitude,
-            riderDropofflatitude: DriverHomeContents.RiderDropUpLatitude,
-            riderdropofflongitude: DriverHomeContents.RiderDropUpLongitude,
-            rideDate: DriverHomeContents.RideDate,
-            rideDistance: DriverHomeContents.RD_Distance,
-            ridePrice: DriverHomeContents.RD_Price,
-          })
-          .then(
-            () => {
-              this.setState({ isModalVisible: false });
-            },
-            (error) => {
-              //Toast.show(error.message,Toast.SHORT);
-              console.error("error:" + error);
-            }
-          )
-      )
-      .catch((e) => console.log("err", e));
-
-    AsyncStorage.getItem("driverId")
-      .then(
-        (result) =>
-          firebase
-            .database()
-            .ref("Ride_Request/" + result)
-            .remove(),
-        firebase
-          .database()
-          .ref("Ride_Request/" + DriverHomeContents.RiderID)
-          .remove(),
-        this.setState({ isModalVisible: false })
-      )
-      .catch((e) => console.log("err", e));
-
-    AsyncStorage.getItem("driverId")
-      .then((driverID) =>
-        //riderId=result,
-
-        firebase
-          .database()
-          .ref("Ride_Confirm/" + DriverHomeContents.RiderID)
-          .set({
-            driverID: driverID,
-            confirmed: true,
-          })
-          .then(
-            () => {},
-            (error) => {
-              this.toast.show(error.message, 500);
-            }
-          )
-      )
-      .catch((e) => console.log("err", e));
   };
 
   storeUserLocation() {

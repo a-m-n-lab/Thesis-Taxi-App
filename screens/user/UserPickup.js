@@ -3,31 +3,18 @@ import {
   StyleSheet,
   Text,
   View,
-  Button,
   AsyncStorage,
-  createDrawerNavigator,
   TouchableOpacity,
-  Image,
-  TouchableHighlight,
   KeyboardAvoidingView,
   Alert,
 } from "react-native";
-import {
-  Content,
-  Container,
-  Header,
-  Left,
-  Icon,
-  Footer,
-  Body,
-  Card,
-  CardItem,
-} from "native-base";
+import { Content, Container } from "native-base";
 import Colors from "../../constants/Colors";
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+//import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import GooglePlacesInput from "../../components/GooglePlacesInput";
 import GooglePlacesDropOff from "../../components/GooglePlacesDropOff";
 //import Toast from "react-native-simple-toast";
+import DestinationCard from "../../components/userprofile/DestinationCard";
 import Toast, { DURATION } from "react-native-easy-toast";
 import * as firebase from "firebase";
 import ApiKeys from "../../constants/ApiKeys";
@@ -60,76 +47,18 @@ export default class UserPickup extends React.Component {
   }
   render() {
     return (
-      <Container style={{ flex: 1 }}>
+      <Container style={{ flex: 1, alignItems: "center" }}>
         <KeyboardAvoidingView style={{ flex: 1 }}>
-          <Content>
-            <View style={{ width: 400, minHeight: 120, maxHeight: 120 }}>
-              <GooglePlacesInput
-                // placeholder="From:"
-                // minLength={2}
-                // autoFocus={true}
-                // renderDescription={(row) => row.description}
-                // onPress={(data, details = null) => {
-                //   console.log(data, details);
-                //   //set pick up data from google auto complete
-                //   (pickupName = data.description), // selected address
-                //     (pickupLatitude = `${details.geometry.location.lat}`),
-                //     (pickupLongitude = `${details.geometry.location.lng}`),
-                //     //storing data
-                //     (GooglePlacesInput.pickupLatitude = pickupLatitude),
-                //     (GooglePlacesInput.pickupName = pickupName),
-                //     (GooglePlacesInput.pickupLongitude = pickupLongitude);
-                // }}
-                // getDefaultValue={() => ""}
-                // query={{
-                //   key: "AIzaSyCdiPwD9bgFbv7yBGA4qNIL236PVTKaqP8",
-                //   language: "en",
-                //   types: "geocode",
-                // }}
-                // styles={{
-                //   textInputContainer: {
-                //     width: "100%",
-                //     backgroundColor: "#ffffff",
-                //   },
-                //   description: {
-                //     fontWeight: "bold",
-                //   },
-                //   predefinedPlacesDescription: {
-                //     color: "#2c2f33",
-                //     height: 30,
-                //   },
-                // }}
-                // currentLocation={true}
-                // currentLocationLabel="Current location"
-                // nearbyPlacesAPI="GooglePlacesSearch"
-                // GoogleReverseGeocodingQuery={{}}
-                // GooglePlacesSearchQuery={{
-                //   rankby: "distance",
-                //   types: "food",
-                // }}
-                // filterReverseGeocodingByTypes={[
-                //   "locality",
-                //   "administrative_area_level_3",
-                // ]}
-                predefinedPlaces={[homePlace, workPlace]}
-                // debounce={200}
-                // renderLeftButton={() => (
-                //   <Image
-                //     style={{
-                //       width: 25,
-                //       height: 25,
-                //       marginTop: 10,
-                //       marginLeft: 15,
-                //     }}
-                //     source={require("../../assets/images/user/from.png")}
-                //   />
-                // )}
-                // renderRightButton={() => <Text />}
-              />
+          <DestinationCard style={styles.fromToContainer}>
+            <View style={styles.destinationContainer}>
+              <GooglePlacesInput predefinedPlaces={[homePlace, workPlace]} />
             </View>
-            <View style={{ width: 400, minHeight: 120, maxHeight: 120 }}>
+            <View style={styles.fromToDash}></View>
+            <View style={styles.destinationContainer}>
               <GooglePlacesDropOff predefinedPlaces={[homePlace, workPlace]} />
             </View>
+          </DestinationCard>
+          <View style={styles.requestButtonsContainer}>
             <TouchableOpacity
               style={styles.requestContainer}
               onPress={this._validatePickUpAndDropOffLocations}
@@ -152,7 +81,7 @@ export default class UserPickup extends React.Component {
             >
               <Text style={styles.requestText}>REQUEST COMPLETED</Text>
             </TouchableOpacity>
-          </Content>
+          </View>
         </KeyboardAvoidingView>
         <Toast ref={(toast) => (this.toast = toast)} />
       </Container>
@@ -238,7 +167,7 @@ export default class UserPickup extends React.Component {
         //console.log("keys"+child.key);
         DriverKeys.push(child.key);
       });
-      for (i = 0; i < DriverKeys.length; i++) {
+      for (let i = 0; i < DriverKeys.length; i++) {
         counts.push(DriverKeys[i]);
       }
 
@@ -317,7 +246,19 @@ export default class UserPickup extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  requestText: {},
+  fromToContainer: {
+    top: 5,
+    padding: 20,
+  },
+  destinationContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    paddingTop: 20,
+  },
+  requestText: {
+    color: "#fff",
+  },
   containerView: {
     flex: 1,
     backgroundColor: "#ffffff",
@@ -330,12 +271,23 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginLeft: 8,
   },
+  requestButtonsContainer: {
+    top: 250,
+  },
   requestContainer: {
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: Colors.purple,
     height: 50,
     width: 350,
     marginLeft: 5,
+    borderRadius: 25,
+    backgroundColor: Colors.darkGrey,
+  },
+  fromToDash: {
+    marginLeft: 15,
+    width: 2,
+    height: 100,
+    borderLeftWidth: 1,
+    borderLeftColor: "#000",
   },
 });
