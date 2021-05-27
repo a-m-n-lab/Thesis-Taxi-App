@@ -2,132 +2,156 @@ import React from "react";
 import {
   StyleSheet,
   Text,
-  View,
-  Button,
   AsyncStorage,
   Image,
-  TouchableHighlight,
-  TouchableOpacity,
   Alert,
+  View,
 } from "react-native";
-import {
-  Content,
-  Container,
-  Header,
-  Left,
-  Icon,
-  Footer,
-  Body,
-  Card,
-  CardItem,
-} from "native-base";
-import { CheckBox } from "react-native-elements";
-import MainButton from "../../components/MainButton";
-import Colors from "../../constants/Colors";
 import Toast, { DURATION } from "react-native-easy-toast";
 import * as firebase from "firebase";
 import ApiKeys from "../../constants/ApiKeys";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import HeaderButton from "../../components/HeaderButton";
+import { ThemeContext } from "../../Themes/dark";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { Ionicons } from "@expo/vector-icons";
 
 export default class UserPayment extends React.Component {
-  static navigationOptions = {};
+  //  static navigationOptions = {};
   constructor(props) {
     super(props);
     this.state = {
-      Cash: false,
-      Card: false,
+      Cash: null,
+      Card: null,
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
     }
   }
-
+  componentDidMount() {
+    this.retrivePaymentMethod();
+  }
+  static contextType = ThemeContext;
   render() {
+    const { dark, theme, toggle } = this.context;
     return (
-      <Container style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: theme.backgroundColor }}>
         <Toast ref={(toast) => (this.toast = toast)} />
+        <View>
+          <Text style={styles.paymentTitle}> Payment </Text>
+          <Text style={styles.paymentSubTitle}> PAYMENT METHODS </Text>
+        </View>
+        <TouchableOpacity
+          style={[
+            styles.cash,
+            {
+              borderColor: this.state.Cash ? "#f57a8b" : "black",
+              borderWidth: this.state.Cash ? 1 : 0,
+              padding: 15,
+              top: 35,
+            },
+          ]}
+          onPress={() => {
+            this.setState({
+              selectedButton: "button1",
+              Cash: !this.state.Cash,
+            }),
+              this.addPayments();
+          }}
+          // onPress={() => this.setState({})}
+        >
+          <Image
+            source={require("../../assets/images/user/money.png")}
+            style={{ height: 50, width: 50 }}
+          />
+          <Text
+            style={{
+              fontSize: 20,
+              marginTop: 5,
+              marginLeft: 5,
+              padding: 14,
+              fontWeight: "bold",
+            }}
+          >
+            Cash payment
+          </Text>
+          {/* {this.state.Cash ? (
+            <Image
+              source={require("../../assets/images/user/ok.png")}
+              style={{
+                left: 100,
+                justifyContent: "space-even",
+                width: 50,
+                height: 50,
+              }}
+            />
+          ) : null} */}
+          {/* <CheckBox
+            onPress={() => this.setState({ Cash: !this.state.Cash })}
+            checked={this.state.Cash}
+          /> */}
+        </TouchableOpacity>
 
-        <Content>
-          <Card>
-            {/* {this.state.paymentData.map((opt) => (
-              <CheckBox
-                title={opt.title}
-                checked={opt.checked}
-                key={opt.title}
-                onPress={() => {
-                  opt.checked = !opt.checked;
-                  this.setState({
-                    paymentData: [...this.state.paymentData],
-                  });
-                }}
-              />
-            ))} */}
+        <TouchableOpacity
+          style={[
+            styles.card,
+            {
+              borderColor: this.state.Card ? "#fca4b0" : "black",
+              borderWidth: this.state.Card ? 1 : 0,
+              padding: 15,
+              top: 50,
+            },
+          ]}
+          onPress={() => {
+            this.setState({
+              selectedButton: "button2",
+              Card: !this.state.Card,
+            }),
+              this.addPayments();
+          }}
+        >
+          <Image
+            source={require("../../assets/images/user/card.png")}
+            style={{ height: 50, width: 50 }}
+          />
+          <Text
+            style={{
+              fontWeight: "bold",
+              fontSize: 20,
+              marginTop: 5,
+              marginLeft: 5,
+              padding: 14,
+            }}
+          >
+            Card payment
+          </Text>
+          {/* {this.state.Card ? (
+            <Image
+              source={require("../../assets/images/user/ok.png")}
+              style={{
+                left: 100,
+                justifyContent: "space-even",
+                width: 25,
+                height: 25,
+              }}
+            />
+          ) : null} */}
+          {/* <CheckBox
+            onPress={() => this.setState({ Card: !this.state.Card })}
+            checked={this.state.Card}
 
-            <CardItem style={{ marginTop: 5 }}>
-              <Body style={{ flexDirection: "row" }}>
-                <Image
-                  source={require("../../assets/images/user/cash.png")}
-                  style={{ height: 50, width: 50 }}
-                />
-                <Text
-                  style={{
-                    color: "gray",
-                    fontSize: 20,
-                    marginTop: 5,
-                    marginLeft: 5,
-                  }}
-                >
-                  CASH
-                </Text>
-                <CheckBox
-                  onPress={() => this.setState({ Cash: !this.state.Cash })}
-                  checked={this.state.Cash}
-
-                  //leftText={leftText}
-                />
-              </Body>
-            </CardItem>
-          </Card>
-          <Card>
-            <CardItem style={{ marginTop: 5 }}>
-              <Body style={{ flexDirection: "row" }}>
-                <Image
-                  source={require("../../assets/images/user/card.png")}
-                  style={{ height: 50, width: 50 }}
-                />
-                <Text
-                  style={{
-                    color: "gray",
-                    fontSize: 20,
-                    marginTop: 5,
-                    marginLeft: 5,
-                  }}
-                >
-                  CARD
-                </Text>
-                <CheckBox
-                  onPress={() => this.setState({ Card: !this.state.Card })}
-                  checked={this.state.Card}
-
-                  //leftText={leftText}
-                />
-              </Body>
-            </CardItem>
-          </Card>
-          <MainButton style={styles.saveButton} onPress={this._addPayments}>
-            SAVE
-          </MainButton>
-        </Content>
-      </Container>
+            //leftText={leftText}
+          /> */}
+        </TouchableOpacity>
+      </View>
     );
   }
 
-  _addPayments = async () => {
+  addPayments = async () => {
     //alert("Mobile Money:"+this.state.MobileMoney+"  Cash"+this.state.Cash);
     Alert.alert(
       "Payments Confirm",
-      "If you accept, your payments status is going to be updated ",
+      "Your payments status is going to be updated ",
       [
         //{text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
         {
@@ -135,14 +159,14 @@ export default class UserPayment extends React.Component {
           onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
-        { text: "OK", onPress: this._addPaymentsToRiderDatabase },
+        { text: "OK", onPress: this.addPaymentsToRiderDatabase },
       ],
       { cancelable: false }
     );
   };
 
   //addPayments to the database
-  _addPaymentsToRiderDatabase = async () => {
+  addPaymentsToRiderDatabase = async () => {
     AsyncStorage.getItem("riderId")
       .then((riderID) =>
         firebase
@@ -155,7 +179,7 @@ export default class UserPayment extends React.Component {
           .then(
             () => {
               //firebase.database().ref(`Payments/${RiderID}/PaymentsHistory`);
-              this.toast.show("payments updated successfully");
+              this.toast.show("Payment method has been successfully updated ");
             },
             (error) => {
               this.toast.show(error.message);
@@ -164,9 +188,32 @@ export default class UserPayment extends React.Component {
       )
       .catch((e) => console.log("err", e));
   };
+
+  retrivePaymentMethod() {
+    riderID = firebase.auth().currentUser.uid;
+    firebase
+      .database()
+      .ref("Payments/" + riderID + "/PaymentsMode")
+      .once("value")
+      .then(function (snapshot) {
+        cashDat = snapshot.child("Cash").val();
+        cardDat = snapshot.child("Card").val();
+      })
+      .then(
+        () => {
+          this.setState({ Cash: cashDat, Card: cardDat });
+          console.log("CASH" + this.state.Cash);
+        },
+        (error) => {
+          // console.error("error"+error);
+          // console.log("the user id:"+userId);
+        }
+      );
+  }
 }
 UserPayment.navigationOptions = (navData) => {
   return {
+    headerTitle: false,
     headerLeft: () => (
       <HeaderButtons HeaderButtonComponent={HeaderButton} color="white">
         <Item
@@ -186,11 +233,43 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#ffffff",
   },
-  map: {
-    height: 600,
-    marginTop: 0,
+  paymentSubTitle: {
+    padding: 10,
+    color: "gray",
+  },
+  paymentTitle: {
+    fontWeight: "bold",
+    padding: 5,
+    fontSize: 50,
+  },
+  cash: {
+    flexDirection: "row",
+    padding: 20,
+    margin: 10,
+    shadowColor: "gray",
+    shadowOffset: { width: 3, height: 5 },
+    shadowRadius: 3,
+    shadowOpacity: 0.26,
+    elevation: 2,
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 5,
+  },
+  card: {
+    flexDirection: "row",
+    padding: 20,
+    margin: 10,
+    shadowColor: "gray",
+    shadowOffset: { width: 3, height: 5 },
+    shadowRadius: 3,
+    shadowOpacity: 0.26,
+    elevation: 2,
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 5,
   },
   saveButton: {
-    backgroundColor: Colors.purple,
+    backgroundColor: "gray",
+    width: 100,
   },
 });

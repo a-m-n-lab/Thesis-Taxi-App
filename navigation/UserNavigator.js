@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Platform,
   SafeAreaView,
@@ -15,7 +15,6 @@ import UserMap from "../screens/UserHome";
 import UserProfileScreen from "../screens/UserProfileScreen";
 import AboutUsScreen from "../screens/AboutUsScreen";
 import EditUserScreen from "../screens/EditUserScreen";
-import Colors from "../constants/Colors";
 
 import CustomDrawerSwitchComponent from "../components/navigation/CustomDrawerSwitchComponent";
 import CustomDrawerContentComponent from "../components/navigation/CustomDrawerContent";
@@ -24,11 +23,16 @@ import UserPickup from "../screens/user/UserPickup";
 import UserLogout from "../screens/user/UserLogout";
 import UserPayment from "../screens/user/UserPayment";
 import UserHistory from "../screens/user/UserHistory";
-
+import { Ionicons } from "@expo/vector-icons";
+import { ThemeContext } from "../Themes/dark";
+//const { dark, theme, toggle } = useContext(ThemeContext);
 const defaultNavOptions = {
   headerTitleAlign: "center",
   headerStyle: {
     backgroundColor: Platform.OS === "android" ? "black" : "white",
+    elevation: 0,
+    shadowOpacity: 0,
+    borderBottomWidth: 0,
   },
   navigationOptions: {
     headerShown: false,
@@ -43,9 +47,8 @@ const UserNavigator = createStackNavigator(
     Address: { screen: UserPickup },
   },
   {
-    // headerMode: "none",
     navigationOptions: {
-      // headerShown: false,
+      headerShown: false,
       drawerIcon: (drawerConfig) => (
         // <AntDesign name="login" size={24} color="black" />
         <Image
@@ -54,10 +57,6 @@ const UserNavigator = createStackNavigator(
         />
       ),
       title: "Maps",
-      // headerMode: 'none',
-      // navigationOptions: {
-      //     headerVisible: false,
-      // }
     },
     defaultNavigationOptions: defaultNavOptions,
   }
@@ -93,10 +92,10 @@ const UserPaymentStack = createStackNavigator(
           source={require("../assets/images/navigation/payment.png")}
           style={{ width: 24, height: 24 }}
         />
-        // <MaterialIcons name="payment" size={24} color="black" />
       ),
       title: "Payment",
     },
+
     defaultNavigationOptions: defaultNavOptions,
   }
 );
@@ -117,7 +116,7 @@ const UsersHistory = createStackNavigator(
         //   color="black" //"drawerConfig.tintColor"
         // />
       ),
-      headerTitle: "History",
+      title: "History",
     },
     defaultNavigationOptions: defaultNavOptions,
   }
@@ -126,6 +125,7 @@ const AboutUs = createStackNavigator(
   {
     AboutUs: {
       screen: AboutUsScreen,
+      title: "About us",
     },
   },
   {
@@ -135,15 +135,10 @@ const AboutUs = createStackNavigator(
           source={require("../assets/images/navigation/info.png")}
           style={{ width: 24, height: 24 }}
         />
-        // <MaterialCommunityIcons
-        //   name="information-outline"
-        //   size={24}
-        //   color="black" //"drawerConfig.tintColor"
-        // />
       ),
-      headerTitle: "About Us",
+      title: "About Us",
     },
-    defaultNavigationOptions: defaultNavOptions,
+    //defaultNavigationOptions: defaultNavOptions,
   }
 );
 const UserLogOut = createStackNavigator(
@@ -178,7 +173,10 @@ export const UserMainNavigator = createDrawerNavigator(
   },
   {
     contentOptions: {
-      activeTintColor: "#c984f5",
+      labelStyle: {
+        color: "grey",
+        // activeTintColor: "#c984f5",
+      },
     },
 
     initialRouteName: "UserMaps",

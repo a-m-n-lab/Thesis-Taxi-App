@@ -7,7 +7,7 @@ import DriverLogout from "../screens/DriverLogout";
 import DriverHistory from "../screens/driver/DriverHistory";
 import { createAppContainer } from "react-navigation";
 import { createDrawerNavigator, DrawerItem } from "react-navigation-drawer";
-import CustomDrawerContentComponent from "../components/navigation/CustomDrawerContent";
+import DriverCustomDrawerContentComponent from "../components/navigation/DriverCustomDrawerContent";
 import Colors from "../constants/Colors";
 
 import DriverHomeContents from "../screens/driver/DriverHomeContents";
@@ -102,7 +102,7 @@ const DriverMainNavigator = createDrawerNavigator(
     //   activeTintColor: Colors.purple,
     // },
     initialRouteName: "Driver",
-    contentComponent: CustomDrawerContentComponent,
+    contentComponent: DriverCustomDrawerContentComponent,
     drawerOpenRoute: "DrawerOpen",
     drawerCloseRoute: "DrawerClose",
     drawerToggleRoute: "DrawerToggle",

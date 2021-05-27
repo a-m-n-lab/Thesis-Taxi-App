@@ -69,10 +69,6 @@ export default class UserPickup extends React.Component {
             <TouchableOpacity
               style={styles.requestContainer}
               onPress={() => {
-                // this.props.navigation.navigate("Maps", {
-                //   myArray: this.state.myCoord,
-                // });
-                // this.props.navigation.goBack();
                 this.props.navigation.state.params.returnData(
                   this.state.myCoord
                 );

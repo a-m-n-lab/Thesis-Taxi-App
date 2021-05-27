@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import {
   View,
   StyleSheet,
@@ -6,20 +6,15 @@ import {
   Text,
   Image,
   AsyncStorage,
-  LogBox,
-  Switch,
+  Button,
 } from "react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import HeaderButton from "../components/HeaderButton";
 import { Ionicons } from "@expo/vector-icons";
 import * as firebase from "firebase";
 import ApiKeys from "../constants/ApiKeys";
-import { Card } from "native-base";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import Colors from "../constants/Colors";
 import { ThemeContext } from "../Themes/dark";
-
-//import Card from "../components/Card";
 
 export default class UserProfileScreen extends React.Component {
   constructor(props) {
@@ -31,6 +26,7 @@ export default class UserProfileScreen extends React.Component {
       lastname: "",
       phone: "",
       date: "",
+      screenState: false,
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
@@ -40,7 +36,28 @@ export default class UserProfileScreen extends React.Component {
 
   componentDidMount() {
     this.renderFunction();
+    const { navigation } = this.props;
+    navigation.addListener("willFocus", () => this.renderFunction());
   }
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    //console.log("componentDidup");
+    // const screenSt = this.props.navigation.getParam("stateS");
+    // console.log(screenSt);
+    // console.log(this.state.screenState);
+    // this.setState({ screenState: screenSt });
+    // if (this.state.screenState == screenSt) {
+    //   //   console.log(this.state.phone);
+    //   this.changeFunction();
+    // }
+    // AppState.addEventListener("change", this.storeUserLocation());
+  }
+  changeFunction = () => {
+    //  this.setState({ screenState: screenState });
+    //this.setState({ stateOfScreen: stateS });
+    // const result = this.props.navigation.getParam("stateOfScreen");
+    this.renderFunction();
+    //this.screenState(result);
+  };
   renderFunction = () => {
     userId = firebase.auth().currentUser.uid; //get the id first
     if (userId) {
@@ -91,7 +108,7 @@ export default class UserProfileScreen extends React.Component {
               }}
               source={require("../assets/images/user/user.jpg")}
             ></Image>
-            <Text style={[styles.name, { color: theme.color }]}>
+            <Text style={[styles.name, { color: theme.color, flex: 1 }]}>
               Hello, {""}
               {this.state.firstname} {""}!
             </Text>
@@ -109,7 +126,7 @@ export default class UserProfileScreen extends React.Component {
                 fontWeight: "bold",
               }}
             />
-            <Text style={[styles.profileText, { color: theme.color }]}>
+            <Text style={[styles.profileText, { color: theme.color, flex: 1 }]}>
               {this.state.firstname} {this.state.lastname}
             </Text>
           </View>
@@ -138,6 +155,7 @@ export default class UserProfileScreen extends React.Component {
               "ro-RO"
             )}
           </Text>
+          <Button title="Refresh" onPress={this.changeFunction} />
         </View>
         {/* <Text style={styles.profileText}>
             Registered since
@@ -145,28 +163,6 @@ export default class UserProfileScreen extends React.Component {
               "ro-RO"
             )}
           </Text> */}
-
-        <View style={styles.containerSwitch}>
-          <Ionicons
-            name="moon-outline"
-            size={20}
-            //color={{ color: theme.color }}
-            style={{
-              color: theme.color,
-              fontWeight: "bold",
-            }}
-          />
-          <Text style={[styles.profileText, { color: theme.color }]}>
-            Dark Mode
-          </Text>
-          <Switch
-            style={{ left: 220 }}
-            trackColor={{ false: "#767577", true: "purple" }}
-            thumbColor={dark ? "#fff" : "#f4f3f4"}
-            onChange={toggle}
-            value={dark}
-          />
-        </View>
       </View>
     );
   }
@@ -190,10 +186,18 @@ UserProfileScreen.navigationOptions = (navData) => {
     headerRight: () => (
       <HeaderButtons HeaderButtonComponent={HeaderButton}>
         <Item
+          iconName="refresh-outline"
+          // color={Platform.OS === "android" ? "white" : "black"}
+          color={"purple"}
+          onPress={this.changeFunction}
+        />
+        <Item
           // color={Platform.OS === "android" ? "white" : "black"}
           color={"purple"}
           title="Edit"
-          onPress={() => navData.navigation.navigate("EditProfile")}
+          onPress={() => {
+            navData.navigation.navigate("EditProfile");
+          }}
         />
       </HeaderButtons>
     ),

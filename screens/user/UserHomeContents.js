@@ -20,17 +20,20 @@ import MapView, {
   Animated,
   Callout,
 } from "react-native-maps";
+import { Icon } from "react-native-elements";
 import MapViewDirections from "react-native-maps-directions";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import HeaderButton from "../../components/HeaderButton";
 //import Toast from "react-native-simple-toast";
-import customMapStyle from "../driver/customMapStyle.json";
+import lightMapStyle from "../../Themes/lightMapStyle.json";
+import darkMapStyle from "../../Themes/darkMapStyle.json";
 import marker from "../../assets/images/user/marker3.png";
 import * as firebase from "firebase";
 import ApiKeys from "../../constants/ApiKeys";
 import fromIcon from "../../assets/images/to4.png";
 import toIcon from "../../assets/images/to2.png";
 import MapButton from "../../components/userprofile/MapButton";
+import { ThemeContext } from "../../Themes/dark";
 
 let { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
@@ -40,7 +43,6 @@ const LATITUDE_DELTA = 0.1322;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 export default class UserHomeContents extends React.Component {
-  static navigationOptions = {};
   static DriverID;
   static Firstname = "";
   static Lastname = "";
@@ -61,15 +63,18 @@ export default class UserHomeContents extends React.Component {
       isMounted: false,
       coordonates: [],
       ready: true,
+      lightTheme: "",
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
     }
   }
+  static contextType = ThemeContext;
 
   componentDidMount() {
     //this.isMounted = true;
     LogBox.ignoreLogs(["Require cycle:"]);
+    // this.state.lightTheme = contextType.theme;
 
     navigator.geolocation.getCurrentPosition(
       //get current position
@@ -95,7 +100,7 @@ export default class UserHomeContents extends React.Component {
             addressName: myCoordonates,
           });
         });
-        console.log(this.state.addressName);
+        // console.log(this.state.addressName);
         this.setState({
           region: {
             latitude: position.coords.latitude,
@@ -152,19 +157,21 @@ export default class UserHomeContents extends React.Component {
     //Toast.toastInstance = null;
     //  }
   }
-  setRegion(region) {
-    if (this.state.ready) {
-      setTimeout(() => this.map.mapview.animateToRegion(region), 10);
-    }
-    //this.setState({ region });
-  }
-  onMapReady = (e) => {
-    if (!this.state.ready) {
-      this.setState({ ready: true });
-    }
-  };
+  // setRegion(region) {
+  //   if (this.state.ready) {
+  //     setTimeout(() => this.map.mapview.animateToRegion(region), 10);
+  //   }
+  //   //this.setState({ region });
+  // }
+  // onMapReady = (e) => {
+  //   if (!this.state.ready) {
+  //     this.setState({ ready: true });
+  //   }
+  // };
 
   render() {
+    const { dark, theme, map, toggle } = this.context;
+    // console.log(theme);
     return (
       <Container>
         <Content>
@@ -175,7 +182,7 @@ export default class UserHomeContents extends React.Component {
               showsUserLocation={true}
               followUserLocation={true}
               showsBuildings={true}
-              onMapReady={this.onMapReady}
+              // onMapReady={this.onMapReady}
               showsPointsOfInterest={true}
               zoomEnabled
               zoomControlEnabled={true}
@@ -183,15 +190,14 @@ export default class UserHomeContents extends React.Component {
               region={this.state.region}
               onRegionChange={(region) => this.setState({ region })}
               onRegionChangeComplete={(region) => this.setState({ region })}
-              customMapStyle={customMapStyle}
+              customMapStyle={
+                theme.backgroundColor == "#151618"
+                  ? darkMapStyle
+                  : lightMapStyle
+              }
             >
-              {/* <Animated
-                region={this.state.region}
-                onRegionChange={this.onRegionChange}
-              /> */}
               <MapView.Marker
                 image={marker}
-                // image={require("../../assets/images/user/passeneger.png")}
                 coordinate={this.state.region}
                 tracksViewChanges={true}
               >
@@ -409,12 +415,15 @@ export default class UserHomeContents extends React.Component {
 
 UserHomeContents.navigationOptions = (navData) => {
   return {
+    headerTitle: false,
     headerLeft: () => (
       <HeaderButtons HeaderButtonComponent={HeaderButton} color="white">
-        <Item
+        <Icon
+          raised
+          name="menu-outline"
+          type="ionicon"
           color={Platform.OS == "android" ? "white" : "black"}
           title="Menu"
-          iconName="ios-menu"
           onPress={() => {
             navData.navigation.toggleDrawer();
           }}

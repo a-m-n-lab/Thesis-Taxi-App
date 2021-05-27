@@ -103,6 +103,7 @@ const AboutUsScreen = (props) => {
 
 AboutUsScreen.navigationOptions = (navData) => {
   return {
+    headerTitle: "About Us",
     headerLeft: () => (
       <HeaderButtons HeaderButtonComponent={HeaderButton}>
         <Item

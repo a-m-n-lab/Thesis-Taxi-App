@@ -8,6 +8,7 @@ import {
   ImageBackground,
   Image,
   TextInput,
+  TouchableOpacity,
 } from "react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import Input from "../components/Input";
@@ -18,6 +19,8 @@ import * as firebase from "firebase";
 import ApiKeys from "../constants/ApiKeys";
 import Toast, { DURATION } from "react-native-easy-toast";
 import { Card, Row } from "native-base";
+import { ThemeContext } from "../Themes/dark";
+import * as ImagePicker from "expo-image-picker";
 //import Card from "../components/Card";
 export default class EditUserScreen extends React.Component {
   constructor(props) {
@@ -27,12 +30,38 @@ export default class EditUserScreen extends React.Component {
       lastname: "",
       phone: "",
       email: "",
+      screenState: true,
+      image: null,
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
     }
   }
+  openImagePickerAsync = async () => {
+    let permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
 
+    if (permissionResult.granted === false) {
+      alert("Permission to access camera roll is required!");
+      return;
+    }
+
+    let pickerResult = await ImagePicker.launchImageLibraryAsync();
+
+    if (pickerResult.cancelled === true) {
+      return;
+    }
+    if (this.state.image !== null) {
+      return (
+        <View style={styles.container}>
+          <Image source={{ uri: this.state.image }} style={styles.thumbnail} />
+        </View>
+      );
+    }
+    this.setState({ image: pickerResult.uri });
+  };
+
+  static contextType = ThemeContext;
   componentDidMount() {
     this.renderFunction();
     console.log("componentdidmount");
@@ -61,6 +90,7 @@ export default class EditUserScreen extends React.Component {
         );
     }
   };
+
   saveFunction = () => {
     userId = firebase.auth().currentUser.uid; //get the id first
     if (userId) {
@@ -75,27 +105,42 @@ export default class EditUserScreen extends React.Component {
       this.toast.show("Profile updated", 800);
     }
 
+    // this.props.navigation.navigate("UserProfile", {
+    //   stateOfScreen: true,
+    // });
+
     this.props.navigation.goBack();
   };
-
-  handleChange = (inputText) => {};
+  // goBack() {
+  //   this.props.navigation.navigate("UserProfile", {
+  //     stateS: this.state.screenState,
+  //   });
+  //   // this.props.navigation.setParams({ stateS: this.state.screenState });
+  //   // this.props.navigation.goBack();
+  // }
   componentWillUnmount() {
     // fix Warning: Can't perform a React state update on an unmounted component
   }
   render() {
+    const { dark, theme } = this.context;
     return (
-      <View style={{ backgroundColor: "white", flex: 1 }}>
+      <View style={{ backgroundColor: theme.backgroundColor, flex: 1 }}>
         <Toast ref={(toast) => (this.toast = toast)} />
-        <Image
-          style={{
-            top: 30,
-            width: 100,
-            height: 100,
-            borderRadius: 400 / 2,
-            alignSelf: "center",
-          }}
-          source={require("../assets/images/user/user.jpg")}
-        />
+        <TouchableOpacity
+          onPress={this.openImagePickerAsync}
+          style={styles.button}
+        >
+          <Image
+            style={{
+              top: 30,
+              width: 100,
+              height: 100,
+              borderRadius: 400 / 2,
+              alignSelf: "center",
+            }}
+            source={require("../assets/images/user/user.jpg")}
+          />
+        </TouchableOpacity>
         <View style={styles.container}>
           <View style={styles.firstname}>
             <Text style={styles.profileText}>First Name:</Text>
@@ -133,7 +178,13 @@ export default class EditUserScreen extends React.Component {
             <Text style={styles.emailStyle}>{this.state.email}</Text>
           </View>
           <View style={{ top: 150 }}>
-            <MainButton style={styles.saveButton} onPress={this.saveFunction}>
+            <MainButton
+              style={styles.saveButton}
+              // onPress={() => {
+              //   this.saveFunction(), this.goBack();
+              // }}
+              onPress={this.saveFunction}
+            >
               Save
             </MainButton>
           </View>
@@ -146,17 +197,6 @@ export default class EditUserScreen extends React.Component {
 EditUserScreen.navigationOptions = (navData) => {
   return {
     headerTitle: "Edit Profile",
-
-    // headerRight: () => (
-    //   <HeaderButtons HeaderButtonComponent={HeaderButton}>
-    //     <Item
-    //       color={Platform.OS === "android" ? "white" : "black"}
-    //       title="Edit"
-    //       iconName="save-outline"
-    //       //onPress={() =>saveFunction()}
-    //     />
-    //   </HeaderButtons>
-    // ),
   };
 };
 const styles = StyleSheet.create({
