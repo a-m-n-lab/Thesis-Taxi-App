@@ -5,26 +5,29 @@ import {
   AsyncStorage,
   Dimensions,
   Alert,
+  ActivityIndicator,
 } from "react-native";
-import Colors from "../constants/Colors";
-import Logo from "../components/Logo";
+import Colors from "../../constants/Colors";
+import Logo from "../../components/Logo";
 
-import Subtitle from "../components/Subtitle";
-import Input from "../components/Input";
-import MainButton from "../components/MainButton";
-import Card from "../components/Card";
+import Subtitle from "../../components/Subtitle";
+import Input from "../../components/Input";
+import MainButton from "../../components/MainButton";
+import Card from "../../components/Card";
 import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import * as firebase from "firebase";
-import ApiKeys from "../constants/ApiKeys";
+import ApiKeys from "../../constants/ApiKeys";
 //import Toast from "react-native-simple-toast";
 import Toast, { DURATION } from "react-native-easy-toast";
-export default class DriverLogin extends React.Component {
+import { HeaderTitle } from "react-navigation-stack";
+export default class DriverLoginScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       password: "",
       email: "",
+      isLoading: false,
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
@@ -57,7 +60,11 @@ export default class DriverLogin extends React.Component {
                 initialValue=""
               />
             </View>
-
+            {this.state.isLoading ? (
+              <View style={styles.loading}>
+                <ActivityIndicator size="large" color="#9d6bb0" />
+              </View>
+            ) : null}
             <View style={styles.passwordIconContainer}>
               <Ionicons name="key-outline" size={28} color="grey" />
             </View>
@@ -76,7 +83,9 @@ export default class DriverLogin extends React.Component {
             <View style={styles.loginButtonContainer}>
               <MainButton
                 style={styles.loginButton}
-                onPress={this._signInAsync}
+                onPress={() => {
+                  this.setState({ isLoading: true }, this.signInAsync);
+                }}
               >
                 LOGIN
               </MainButton>
@@ -87,7 +96,7 @@ export default class DriverLogin extends React.Component {
       </View>
     );
   }
-  _signInAsync = async () => {
+  signInAsync = async () => {
     //await AsyncStorage.setItem('userToken', 'rider');
 
     let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -110,12 +119,12 @@ export default class DriverLogin extends React.Component {
       .then(
         () => {
           AsyncStorage.setItem("driverId", firebase.auth().currentUser.uid);
+          this.getDriverRole();
         },
         (error) => {
           this.toast.show("error:" + error.message, 500);
         }
       );
-    this.getDriverRole();
   };
   getDriverRole = () => {
     AsyncStorage.getItem("driverId") //**driverId
@@ -135,7 +144,10 @@ export default class DriverLogin extends React.Component {
               Alert.alert("Alert", "This user is not registered as a Driver", [
                 {
                   text: "Cancel",
-                  onPress: () => console.log("Cancel Pressed"),
+                  onPress: () => {
+                    console.log("Cancel Pressed"),
+                      this.setState({ isLoading: false });
+                  },
                   style: "cancel",
                 },
               ]);
@@ -144,9 +156,6 @@ export default class DriverLogin extends React.Component {
       );
   };
 
-  goToDriver = () => {
-    this.props.navigation.navigate("DriversPage");
-  };
   // getDriverRole = () => {
   //   AsyncStorage.getItem("driverId") //**driverId
   //     .then(
@@ -202,13 +211,18 @@ export default class DriverLogin extends React.Component {
   //     );
   // };
 }
-
+DriverLoginScreen.navigationOptions = () => {
+  return {
+    headerTitle: "Driver Login",
+  };
+};
 const styles = StyleSheet.create({
   driverLoginContainer: {
     flex: 1,
     backgroundColor: "white",
   },
   loginContainer: {
+    padding: 15,
     top: 10,
   },
   cardContainer: {
@@ -237,5 +251,15 @@ const styles = StyleSheet.create({
     width: 150,
     alignItems: "center",
     //justifyContent: "center",
+  },
+  loading: {
+    opacity: 0.6,
+    position: "absolute",
+    left: 25,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

@@ -9,14 +9,13 @@ import {
   Button,
 } from "react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
-import HeaderButton from "../components/HeaderButton";
+import HeaderButton from "../../components/HeaderButton";
 import { Ionicons } from "@expo/vector-icons";
 import * as firebase from "firebase";
-import ApiKeys from "../constants/ApiKeys";
-import Colors from "../constants/Colors";
-import { ThemeContext } from "../Themes/dark";
+import ApiKeys from "../../constants/ApiKeys";
+import Colors from "../../constants/Colors";
 
-export default class UserProfileScreen extends React.Component {
+export default class DriverProfileScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -26,13 +25,11 @@ export default class UserProfileScreen extends React.Component {
       lastname: "",
       phone: "",
       date: "",
-      screenState: false,
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
     }
   }
-  static contextType = ThemeContext;
 
   componentDidMount() {
     this.renderFunction();
@@ -61,10 +58,10 @@ export default class UserProfileScreen extends React.Component {
   renderFunction = () => {
     userId = firebase.auth().currentUser.uid; //get the id first
     if (userId) {
-      AsyncStorage.setItem("RiderId", userId);
+      // AsyncStorage.setItem("RiderId", userId);
       firebase
         .database()
-        .ref("RiderIds/" + userId + "/Details") //use id to check details
+        .ref("Drivers/" + userId + "/Details") //use id to check details
         .once(
           "value",
           function (snapshot) {
@@ -72,14 +69,14 @@ export default class UserProfileScreen extends React.Component {
             var firstname = snapshot.child("firstname").val();
             var lastname = snapshot.child("lastname").val();
             var phone = snapshot.child("phone").val();
-            var date = snapshot.child("currentDate").val();
+            //   var date = snapshot.child("currentDate").val();
             //console.log(snapshot.val());
             this.setState({
               email,
               firstname,
               lastname,
               phone,
-              date,
+              //  date,
             });
           }.bind(this)
         );
@@ -89,10 +86,8 @@ export default class UserProfileScreen extends React.Component {
     // fix Warning: Can't perform a React state update on an unmounted component
   }
   render() {
-    const { dark, theme, toggle } = this.context;
-
     return (
-      <View style={{ flex: 1, backgroundColor: theme.backgroundColor }}>
+      <View style={{ flex: 1 }}>
         <View style={styles.profileDetails}>
           <View
             style={{
@@ -106,17 +101,15 @@ export default class UserProfileScreen extends React.Component {
                 height: 100,
                 borderRadius: 400 / 2,
               }}
-              source={require("../assets/images/user/user.jpg")}
+              source={require("../../assets/images/user/user.jpg")}
             ></Image>
-            <Text style={[styles.name, { color: theme.color, flex: 1 }]}>
+            <Text style={[styles.name, { flex: 1 }]}>
               Hello, {""}
               {this.state.firstname} {""}!
             </Text>
           </View>
         </View>
-        <View
-          style={[styles.details, { backgroundColor: theme.backgroundCard }]}
-        >
+        <View style={[styles.details, { backgroundColor: "white" }]}>
           <View style={styles.firstname}>
             <Ionicons
               name="person-outline"
@@ -126,37 +119,20 @@ export default class UserProfileScreen extends React.Component {
                 fontWeight: "bold",
               }}
             />
-            <Text style={[styles.profileText, { color: theme.color, flex: 1 }]}>
+            <Text style={[styles.profileText, { flex: 1 }]}>
               {this.state.firstname} {this.state.lastname}
             </Text>
           </View>
           <View style={styles.email}>
             <Ionicons name="mail-outline" size={26} color="grey" />
-            <Text style={[styles.profileText, { color: theme.color }]}>
-              {this.state.email}
-            </Text>
+            <Text style={styles.profileText}>{this.state.email}</Text>
           </View>
           <View style={styles.phone}>
             <Ionicons name="call-outline" size={26} color="grey" />
-            <Text style={[styles.profileText, { color: theme.color }]}>
-              {this.state.phone}
-            </Text>
+            <Text style={[styles.profileText]}>{this.state.phone}</Text>
           </View>
         </View>
-        <View
-          style={[styles.member, { backgroundColor: theme.backgroundCard }]}
-        >
-          <Text style={[styles.profileText, { color: theme.color }]}>
-            Registration date:
-          </Text>
-          <Text style={[styles.profileText, { color: theme.color }]}>
-            {" "}
-            {new Date((this.state.date / 1000) * 1000).toLocaleDateString(
-              "ro-RO"
-            )}
-          </Text>
-          <Button title="Refresh" onPress={this.changeFunction} />
-        </View>
+
         {/* <Text style={styles.profileText}>
             Registered since
             {new Date((this.state.date / 1000) * 1000).toLocaleDateString(
@@ -168,39 +144,21 @@ export default class UserProfileScreen extends React.Component {
   }
 }
 
-UserProfileScreen.navigationOptions = (navData) => {
+DriverProfileScreen.navigationOptions = (navData) => {
   return {
-    headerTitle: "User Profile",
-    headerLeft: () => (
-      <HeaderButtons HeaderButtonComponent={HeaderButton}>
-        <Item
-          color={Platform.OS === "android" ? "white" : "black"}
-          title="Menu"
-          iconName="ios-menu"
-          onPress={() => {
-            navData.navigation.toggleDrawer();
-          }}
-        />
-      </HeaderButtons>
-    ),
-    headerRight: () => (
-      <HeaderButtons HeaderButtonComponent={HeaderButton}>
-        <Item
-          iconName="refresh-outline"
-          // color={Platform.OS === "android" ? "white" : "black"}
-          color={"purple"}
-          onPress={this.changeFunction}
-        />
-        <Item
-          // color={Platform.OS === "android" ? "white" : "black"}
-          color={"purple"}
-          title="Edit"
-          onPress={() => {
-            navData.navigation.navigate("EditProfile");
-          }}
-        />
-      </HeaderButtons>
-    ),
+    headerTitle: "Driver Profile",
+    // headerLeft: () => (
+    //   <HeaderButtons HeaderButtonComponent={HeaderButton}>
+    //     <Item
+    //       color={Platform.OS === "android" ? "white" : "black"}
+    //       title="Menu"
+    //       iconName="ios-menu"
+    //       onPress={() => {
+    //         navData.navigation.toggleDrawer();
+    //       }}
+    //     />
+    //   </HeaderButtons>
+    // ),
   };
 };
 const styles = StyleSheet.create({

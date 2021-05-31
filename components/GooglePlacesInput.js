@@ -24,7 +24,7 @@ const GooglePlacesInput = (props) => {
       fetchDetails={true}
       renderDescription={(row) => row.description}
       onPress={(data, details = null) => {
-        console.log(data, details);
+        // console.log(data, details);
         //set pick up data from google auto complete
         (pickupName = data.description), // selected address
           (pickupLatitude = `${details.geometry.location.lat}`),
@@ -45,7 +45,8 @@ const GooglePlacesInput = (props) => {
       }}
       styles={{
         textInputContainer: {
-          width: "100%",
+          width: "90%",
+          borderRadius: 20,
         },
         description: {
           fontWeight: "bold",
@@ -68,7 +69,14 @@ const GooglePlacesInput = (props) => {
       ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
       predefinedPlaces={[homePlace, workPlace]}
       debounce={200}
-      renderLeftButton={() => <View style={styles.fromDot}></View>}
+      renderLeftButton={() => (
+        <View style={styles.from}>
+          <Image
+            source={require("../assets/images/user/from.png")}
+            style={{ width: 20, height: 20 }}
+          />
+        </View>
+      )}
       renderRightButton={() => <Text />}
     />
   );
@@ -85,13 +93,9 @@ const styles = StyleSheet.create({
     width: 12,
     padding: 8,
   },
-  fromDot: {
+  from: {
     top: 15,
-    width: 12,
-    height: 12,
-    borderRadius: 12,
-    backgroundColor: "#000",
-    marginLeft: 10,
+    //marginLeft: 8,
   },
 });
 

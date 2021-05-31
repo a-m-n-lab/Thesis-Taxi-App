@@ -15,7 +15,7 @@ import ApiKeys from "../../constants/ApiKeys";
 import { Card } from "native-base";
 import Dash from "react-native-dash";
 
-export default class DriverHistory extends React.Component {
+export default class DriverCancelled extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -48,13 +48,10 @@ export default class DriverHistory extends React.Component {
             pkname = snapshot.child(key + "/riderpickname").val();
             dpname = snapshot.child(key + "/riderdropname").val();
             dt = snapshot.child(key + "/rideDate").val();
-            price = snapshot.child(key + "/ridePrice").val();
-
             order.push({
               pickupname: pkname,
               dropname: dpname,
               date: dt,
-              price: price,
               // pickupname: snapshot.child("riderpickname").val(),
               // dropname: snapshot.child("riderdropname").val(),
               // date: snapshot.child("rideDate").val(),
@@ -63,7 +60,7 @@ export default class DriverHistory extends React.Component {
             this.setState({
               order: order,
             });
-            // console.log(order);
+            console.log(order);
             return false;
           });
         });
@@ -86,8 +83,7 @@ export default class DriverHistory extends React.Component {
           {this.state.order.map((u, i) => {
             return (
               <View style={{ alignItems: "center", justifyContent: "center" }}>
-                <Card key={i.id} style={styles.card}>
-                  {/* key={i} */}
+                <Card key={i} style={styles.card}>
                   <View style={styles.calendarTime}>
                     <View style={styles.date}>
                       <Image
@@ -111,9 +107,10 @@ export default class DriverHistory extends React.Component {
                       </Text>
                     </View>
                     <View style={styles.price}>
-                      <Text style={{ color: "#745cc4", fontWeight: "bold" }}>
+                      {/* <Text style={{ color: "#745cc4", fontWeight: "bold" }}>
+                        {" "}
                         {parseFloat(u.price).toFixed(2)} RON
-                      </Text>
+                      </Text> */}
                     </View>
                   </View>
                   <View style={styles.address}>
@@ -177,7 +174,7 @@ export default class DriverHistory extends React.Component {
   }
 }
 
-DriverHistory.navigationOptions = (navData) => {
+DriverCancelled.navigationOptions = (navData) => {
   return {
     headerTitle: "History",
     headerLeft: () => (

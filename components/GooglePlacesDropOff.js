@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, StyleSheet, View } from "react-native";
+import { Text, StyleSheet, View, Image } from "react-native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
 const GooglePlacesDropOff = (props) => {
@@ -13,7 +13,7 @@ const GooglePlacesDropOff = (props) => {
       fetchDetails={true}
       renderDescription={(row) => row.description}
       onPress={(data, details = null) => {
-        console.log(data, details);
+        // console.log(data, details);
         (dropOffName = data.description), // selected address
           (dropOffLatitude = `${details.geometry.location.lat}`),
           (dropOffLongitude = `${details.geometry.location.lng}`),
@@ -33,14 +33,16 @@ const GooglePlacesDropOff = (props) => {
       }}
       styles={{
         textInputContainer: {
-          width: "100%",
-          backgroundColor: "#ffffff",
+          width: "90%",
+          // backgroundColor: "#ffffff",
+          borderRadius: 20,
         },
         description: {
           fontWeight: "bold",
         },
         predefinedPlacesDescription: {
           color: "#2c2f33",
+          // borderRadius: 50,
         },
       }}
       currentLocation={true}
@@ -57,19 +59,20 @@ const GooglePlacesDropOff = (props) => {
       ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
       predefinedPlaces={props.predefinedPlaces}
       debounce={200}
-      renderLeftButton={() => <View style={styles.toDot}></View>}
+      renderLeftButton={() => (
+        <View style={styles.toDot}>
+          <Image
+            source={require("../assets/images/to.png")}
+            style={{ width: 20, height: 20, top: 10 }}
+          />
+        </View>
+      )}
       renderRightButton={() => <Text />}
     />
   );
 };
 
 const styles = StyleSheet.create({
-  toDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 12,
-    backgroundColor: "#bc13fe",
-    marginLeft: 10,
-  },
+  toDot: {},
 });
 export default GooglePlacesDropOff;

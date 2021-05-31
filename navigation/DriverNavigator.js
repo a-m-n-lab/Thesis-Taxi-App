@@ -5,8 +5,11 @@ import DriverHome from "../screens/DriverHome";
 //import DriverPageScreen from "../screens/DriverPageScreen";
 import DriverLogout from "../screens/DriverLogout";
 import DriverHistory from "../screens/driver/DriverHistory";
+import DriverCancelled from "../screens/driver/DriverCancelled";
 import { createAppContainer } from "react-navigation";
 import { createDrawerNavigator, DrawerItem } from "react-navigation-drawer";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import DriverProfileScreen from "../screens/driver/DriverProfileScreen";
 import DriverCustomDrawerContentComponent from "../components/navigation/DriverCustomDrawerContent";
 import Colors from "../constants/Colors";
 
@@ -25,25 +28,24 @@ const DriverNavigator = createStackNavigator(
     //DriverHomePage: { screen: DriverHome },
     DriversPage: {
       screen: DriverHomeContents,
-      navigationOptions: {
-        headerTitle: "Driver",
-      },
     },
+    DriverProfile: { screen: DriverProfileScreen },
   },
   {
     navigationOptions: {
       drawerIcon: (drawerConfig) => (
         // <AntDesign name="login" size={24} color="black" />
         <Image
-          source={require("../assets/images/user/profile.jpg")}
+          source={require("../assets/images/navigation/home.png")}
           style={{ height: 24, width: 24 }}
         />
       ),
-      title: "Driver",
+      title: "Maps",
     },
     defaultNavigationOptions: defaultNavOptions,
   }
 );
+
 const DriversHistory = createStackNavigator(
   {
     DriverHistory,
@@ -66,6 +68,19 @@ const DriversHistory = createStackNavigator(
     defaultNavigationOptions: defaultNavOptions,
   }
 );
+
+// const DriverTab = createMaterialTopTabNavigator();
+// const Tab = function MyTabs() {
+//   return (
+//     <NavigationContainer>
+//       <DriverTab.Navigator>
+//         <DriverTab.Screen component={DriverHistory} />
+//         <DriverTab.Screen component={DriverCancelled} />
+//       </DriverTab.Navigator>
+//     </NavigationContainer>
+//   );
+// };
+
 const DriverLogOut = createStackNavigator(
   {
     Logo: { screen: DriverLogout },
@@ -89,6 +104,7 @@ const DriverMainNavigator = createDrawerNavigator(
     Driver: {
       screen: DriverNavigator,
     },
+    // Tab,
     History: DriversHistory,
     Logout: { screen: DriverLogOut },
   },

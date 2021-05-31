@@ -7,7 +7,10 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Alert,
+  ScrollView,
+  Image,
 } from "react-native";
+import Card from "../../components/Card";
 import { Content, Container } from "native-base";
 import Colors from "../../constants/Colors";
 //import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -16,6 +19,7 @@ import GooglePlacesDropOff from "../../components/GooglePlacesDropOff";
 //import Toast from "react-native-simple-toast";
 import DestinationCard from "../../components/userprofile/DestinationCard";
 import Toast, { DURATION } from "react-native-easy-toast";
+import Dash from "react-native-dash";
 import * as firebase from "firebase";
 import ApiKeys from "../../constants/ApiKeys";
 
@@ -40,34 +44,64 @@ export default class UserPickup extends React.Component {
     super(props);
     this.state = {
       myCoord: [],
+      destinations: [],
+      driverId: [],
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
     }
   }
+  componentDidMount() {
+    this.recentDestination();
+  }
+  componentDidUpdate() {
+    // this.recentDestination();
+  }
   render() {
     return (
-      <Container style={{ flex: 1, alignItems: "center" }}>
-        <KeyboardAvoidingView style={{ flex: 1 }}>
+      <Container style={{ flex: 1 }}>
+        <KeyboardAvoidingView>
           <DestinationCard style={styles.fromToContainer}>
             <View style={styles.destinationContainer}>
               <GooglePlacesInput predefinedPlaces={[homePlace, workPlace]} />
             </View>
-            <View style={styles.fromToDash}></View>
-            <View style={styles.destinationContainer}>
+            <Dash style={styles.dash} />
+            <View style={styles.toContainer}>
               <GooglePlacesDropOff predefinedPlaces={[homePlace, workPlace]} />
             </View>
           </DestinationCard>
+          <View style={styles.recentView}>
+            <Text style={styles.history}> RECENT </Text>
+            {this.state.destinations.slice(0, 2).map((u, i) => {
+              return (
+                <View item={i} key={i.id}>
+                  <View style={styles.recent}>
+                    <Image
+                      style={{ width: 30, height: 30, borderRadius: 50 }}
+                      source={require("../../assets/images/user/dest.png")}
+                    />
+                    <Text style={styles.destinationsText}> {u.pickupname}</Text>
+                  </View>
+                  <View style={styles.recent}>
+                    <Image
+                      style={{ width: 30, height: 30, borderRadius: 20 }}
+                      source={require("../../assets/images/user/dest.png")}
+                    />
+                    <Text style={styles.destinationsText}> {u.dropname}</Text>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
           <View style={styles.requestButtonsContainer}>
             <TouchableOpacity
-              style={styles.requestContainer}
+              style={styles.request}
               onPress={this._validatePickUpAndDropOffLocations}
             >
-              <Text style={styles.requestText}>REQUEST</Text>
+              <Text style={styles.requestText}>Request ride</Text>
             </TouchableOpacity>
-            <Text></Text>
             <TouchableOpacity
-              style={styles.requestContainer}
+              style={styles.completed}
               onPress={() => {
                 this.props.navigation.state.params.returnData(
                   this.state.myCoord
@@ -75,7 +109,7 @@ export default class UserPickup extends React.Component {
                 this.props.navigation.goBack();
               }}
             >
-              <Text style={styles.requestText}>REQUEST COMPLETED</Text>
+              <Text style={styles.requestText}>Request completed</Text>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
@@ -83,7 +117,70 @@ export default class UserPickup extends React.Component {
       </Container>
     );
   }
+  recentDestination() {
+    userId = firebase.auth().currentUser.uid; //get the id first
+    //if (userId) {
+    firebase
+      .database()
+      .ref("Ride_History/" + userId + "/") //use id to check details
+      .once("value", (snapshot) => {
+        var driverId = [];
+        snapshot.forEach((childSnapshot) => {
+          var key = childSnapshot.key;
+          // childSnapshot.forEach((childChildSnapshot) => {
+          var ids = childSnapshot.child("/driverID").val(); //snapshot.child("key" + )
+          driverId.push({
+            id: ids,
+          });
+          var uniqueIds = [];
+          driverId.map((dID) => {
+            if (uniqueIds.indexOf(dID.id) === -1) {
+              //check for unique DriverIDS
+              uniqueIds.push(dID.id);
+            }
+          });
+          this.setState({
+            driverId: uniqueIds,
+          });
 
+          return false;
+        });
+      });
+
+    firebase
+      .database()
+      .ref(
+        "Ride_History/" +
+          this.state.driverId.map((y) => {
+            var y = y.id;
+          }) +
+          "/"
+      )
+      .once("value", (snapshot) => {
+        var order = [];
+        snapshot.forEach((childSnapshot) => {
+          var key2 = childSnapshot.key;
+
+          childSnapshot.forEach((childChildSnapshot) => {
+            var key3 = childSnapshot.key;
+            var pkname = childChildSnapshot.child("/riderpickname").val();
+            var dpname = childChildSnapshot.child("/riderdropname").val();
+            if (pkname != null && userId == riderId) {
+              order.push({
+                pickupname: pkname,
+                dropname: dpname,
+              });
+
+              this.setState({
+                destinations: order,
+              });
+
+              return false;
+            }
+          });
+        });
+      });
+  }
   _validatePickUpAndDropOffLocations = () => {
     // alert("good"+GooglePlacesInput.pickupLatitude);
     if (
@@ -103,9 +200,10 @@ export default class UserPickup extends React.Component {
           myCoord: [...prevState.myCoord, latLongObj1],
         })
         // () => {
-        //   console.log(this.state.myCoord);
+        //   console.log("this.state.myCoord" + this.state.myCoord);
         // }
       );
+
       //this.setState({ myCoord: [...this.state.myCoord, latLongObj1] });
     }
 
@@ -243,17 +341,27 @@ export default class UserPickup extends React.Component {
 
 const styles = StyleSheet.create({
   fromToContainer: {
-    top: 5,
-    padding: 20,
+    top: 10,
+    alignSelf: "center",
+    paddingLeft: 25,
+    borderRadius: 25,
+    width: "80%",
   },
   destinationContainer: {
     flexDirection: "row",
     alignItems: "center",
     width: "100%",
-    paddingTop: 20,
+    // paddingTop: 20,
+  },
+  toContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    paddingTop: 15,
   },
   requestText: {
-    color: "#fff",
+    color: "white",
+    fontWeight: "bold",
   },
   containerView: {
     flex: 1,
@@ -267,8 +375,14 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginLeft: 8,
   },
+  recentView: { marginTop: 30 },
+  history: {
+    marginLeft: 15,
+    color: "gray",
+    paddingBottom: 20,
+  },
   requestButtonsContainer: {
-    top: 250,
+    //  top: 250,
   },
   requestContainer: {
     alignItems: "center",
@@ -279,11 +393,52 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     backgroundColor: Colors.darkGrey,
   },
+  recent: {
+    marginLeft: 15,
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: "#dde4e7",
+    paddingBottom: 10,
+    paddingTop: 5,
+    alignItems: "center",
+  },
+  destinationsText: { fontSize: 15, fontFamily: "Lato3", marginLeft: 5 },
+  request: {
+    alignSelf: "center",
+    alignItems: "center",
+    justifyContent: "center",
+    height: 50,
+    top: 50,
+    // bottom: 100,
+    width: 300,
+    marginLeft: 5,
+    borderRadius: 8,
+    backgroundColor: "#7c6ccc",
+  },
+  completed: {
+    alignSelf: "center",
+    alignItems: "center",
+    justifyContent: "center",
+    height: 50,
+    top: 70,
+    width: 300,
+    marginLeft: 5,
+    borderRadius: 8,
+    backgroundColor: "#7c6ccc",
+  },
   fromToDash: {
     marginLeft: 15,
     width: 2,
     height: 100,
     borderLeftWidth: 1,
     borderLeftColor: "#000",
+  },
+  dash: {
+    margin: 0,
+    width: 80,
+    height: 45,
+    left: 9,
+
+    flexDirection: "column",
   },
 });

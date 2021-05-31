@@ -20,7 +20,8 @@ import MapView, {
   Animated,
   Callout,
 } from "react-native-maps";
-import { Icon } from "react-native-elements";
+import { Ionicons } from "@expo/vector-icons";
+
 import MapViewDirections from "react-native-maps-directions";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import HeaderButton from "../../components/HeaderButton";
@@ -30,11 +31,11 @@ import darkMapStyle from "../../Themes/darkMapStyle.json";
 import marker from "../../assets/images/user/marker3.png";
 import * as firebase from "firebase";
 import ApiKeys from "../../constants/ApiKeys";
-import fromIcon from "../../assets/images/to4.png";
-import toIcon from "../../assets/images/to2.png";
+import fromIcon from "../../assets/images/user/from.png";
+import toIcon from "../../assets/images/to.png";
 import MapButton from "../../components/userprofile/MapButton";
 import { ThemeContext } from "../../Themes/dark";
-
+import { Icon } from "react-native-elements";
 let { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
 const LATITUDE = 0;
@@ -43,6 +44,7 @@ const LATITUDE_DELTA = 0.1322;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 export default class UserHomeContents extends React.Component {
+  map = null;
   static DriverID;
   static Firstname = "";
   static Lastname = "";
@@ -57,13 +59,14 @@ export default class UserHomeContents extends React.Component {
         latitudeDelta: LATITUDE_DELTA,
         longitudeDelta: LONGITUDE_DELTA,
       },
+      ready: true,
       addressName: "",
       isModalVisible: false,
       isConfirmButton: false,
       isMounted: false,
       coordonates: [],
-      ready: true,
       lightTheme: "",
+      orderStatus: "notAccepted",
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
@@ -71,7 +74,7 @@ export default class UserHomeContents extends React.Component {
   }
   static contextType = ThemeContext;
 
-  componentDidMount() {
+  async componentDidMount() {
     //this.isMounted = true;
     LogBox.ignoreLogs(["Require cycle:"]);
     // this.state.lightTheme = contextType.theme;
@@ -135,10 +138,11 @@ export default class UserHomeContents extends React.Component {
       }
     );
 
-    this.getDriverRequestDetails();
+    await this.getDriverRequestDetails();
 
     LogBox.ignoreLogs(["Encountered an error loading page"]);
     LogBox.ignoreAllLogs();
+    await this.orderNotAccepted();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -168,7 +172,19 @@ export default class UserHomeContents extends React.Component {
   //     this.setState({ ready: true });
   //   }
   // };
+  onMapReady = (e) => {
+    if (!this.state.ready) {
+      this.setState({ ready: true });
+    }
+  };
 
+  onRegionChange = (region) => {
+    // console.log("onRegionChange", region);
+  };
+
+  onRegionChangeComplete = (region) => {
+    // console.log("onRegionChangeComplete", region);
+  };
   render() {
     const { dark, theme, map, toggle } = this.context;
     // console.log(theme);
@@ -182,22 +198,28 @@ export default class UserHomeContents extends React.Component {
               showsUserLocation={true}
               followUserLocation={true}
               showsBuildings={true}
+              ref={(map) => {
+                this.map = map;
+              }}
               // onMapReady={this.onMapReady}
               showsPointsOfInterest={true}
               zoomEnabled
               zoomControlEnabled={true}
               //showsTraffic={true}
               region={this.state.region}
-              onRegionChange={(region) => this.setState({ region })}
-              onRegionChangeComplete={(region) => this.setState({ region })}
+              onRegionChange={this.onRegionChange}
+              onRegionChangeComplete={this.onRegionChangeComplete}
+              // onRegionChange={(region) => this.setState({ region })}
+              // onRegionChangeComplete={(region) => this.setState({ region })}
               customMapStyle={
                 theme.backgroundColor == "#151618"
                   ? darkMapStyle
                   : lightMapStyle
               }
             >
-              <MapView.Marker
-                image={marker}
+              {/* <MapView.Marker
+                //  image={marker}
+                color="black"
                 coordinate={this.state.region}
                 tracksViewChanges={true}
               >
@@ -206,12 +228,12 @@ export default class UserHomeContents extends React.Component {
                     <View style={styles.bubble}>
                       <Text style={styles.name}>{this.state.addressName}</Text>
                       {/* <Text>{UserHomeContents.longitude}</Text> */}
-                    </View>
+              {/* </View>
                     <View style={styles.arrowBorder}></View>
                     <View style={styles.arrow}></View>
                   </View>
                 </Callout>
-              </MapView.Marker>
+              </MapView.Marker>  */}
               {this.state.coordonates ? (
                 <MapViewDirections
                   origin={this.state.coordonates[0]} // optional
@@ -221,7 +243,7 @@ export default class UserHomeContents extends React.Component {
                   // ]}
                   apikey="AIzaSyCdiPwD9bgFbv7yBGA4qNIL236PVTKaqP8" // insert your API Key here
                   strokeWidth={4}
-                  strokeColor="#bc13fe"
+                  strokeColor="#9484d4"
                 />
               ) : null}
               {/* {[
@@ -229,80 +251,117 @@ export default class UserHomeContents extends React.Component {
                 ...this.state.region,
                 { latitude: 48.8478, longitude: 2.3202 }, // optional
               ]} */}
-              <MapView.Marker
-                image={toIcon}
-                coordinate={this.state.coordonates[0]}
-              />
-              <MapView.Marker
-                image={fromIcon}
-                coordinate={this.state.coordonates[1]}
-              />
+              {this.state.coordonates ? (
+                <View>
+                  <MapView.Marker
+                    image={fromIcon}
+                    coordinate={this.state.coordonates[0]}
+                  />
+                  <MapView.Marker
+                    image={toIcon}
+                    coordinate={this.state.coordonates[1]}
+                  />
+                </View>
+              ) : null}
             </MapView>
-          </View>
-          <Card style={styles.searchBoxView}>
-            <Text style={styles.fromText}> From: {this.state.addressName}</Text>
-            <View style={{ flexDirection: "row" }}>
-              <View style={styles.greenDot}></View>
-              <TextInput
-                style={styles.pickupText}
-                placeholder="Where to?"
-                underlineColorAndroid="#ffffff"
-                selectionColor="#42A5F5"
-                placeholderTextColor="#000000"
-                onFocus={() =>
-                  this.props.navigation.navigate("Address", {
-                    returnData: this.returnData.bind(this),
-                  })
-                }
+
+            <View style={styles.historyButton}>
+              <Icon
+                raised
+                name="time-outline"
+                type="ionicon"
+                color="#7c6ccc"
+                onPress={() => this.props.navigation.navigate("History")}
               />
             </View>
-          </Card>
-
-          <Footer style={styles.footerContainer}>
-            {this.state.isConfirmButton ? (
-              <TouchableOpacity
-                style={styles.DoneButton}
-                onPress={() => this.props.navigation.navigate("Address")}
-              >
-                <Text style={{ color: "#ffffff", fontWeight: "bold" }}>
-                  CONFIRM
-                </Text>
-              </TouchableOpacity>
-            ) : null}
-            {this.state.isModalVisible ? ( //!this.state.isModalVisible
-              <View
-                style={{
-                  width: 100,
-                  height: 90,
-                  backgroundColor: "#ffffff",
-                  position: "absolute",
-                  flexDirection: "row",
-                }}
-              >
-                <Image
-                  source={require("../../Images/avatar.png")}
-                  style={{
-                    width: 50,
-                    height: 50,
-                    borderRadius: 50,
-                    marginTop: 10,
-                    marginLeft: 7,
-                  }}
+            <View style={styles.searchBoxView}>
+              <Text style={styles.fromText}>
+                From: {this.state.addressName}
+              </Text>
+              <View style={{ flexDirection: "row" }}>
+                <View style={styles.purpleDot}></View>
+                <TextInput
+                  style={styles.pickupText}
+                  placeholder="Where to?"
+                  underlineColorAndroid="#ffffff"
+                  selectionColor="#42A5F5"
+                  placeholderTextColor="#000000"
+                  onFocus={() =>
+                    this.props.navigation.navigate("Address", {
+                      returnData: this.returnData.bind(this),
+                    })
+                  }
                 />
-                <Text
-                  style={{ fontSize: 18, marginTop: 18, fontWeight: "bold" }}
-                >
-                  {UserHomeContents.Firstname + " " + UserHomeContents.Lastname}
-                </Text>
-                <Text style={{ fontSize: 18, color: "#42A5F5" }}>Accepted</Text>
               </View>
-            ) : null}
-          </Footer>
+            </View>
+
+            <Footer style={styles.footerContainer}>
+              {/* {this.state.isConfirmButton ? (
+                <TouchableOpacity
+                  style={styles.DoneButton}
+                  onPress={() => this.props.navigation.navigate("Address")}
+                >
+                  <Text style={{ color: "#ffffff", fontWeight: "bold" }}>
+                    CONFIRM
+                  </Text>
+                </TouchableOpacity>
+              ) : null} */}
+              {/* {this.state.isModalVisible ? ( //!this.state.isModalVisible
+                  <View
+                    style={{
+                      width: 100,
+                      height: 90,
+                      backgroundColor: "#ffffff",
+                      position: "absolute",
+                      flexDirection: "row",
+                    }}
+                  >
+                    <Image
+                      source={require("../../assets/images/user/user.jpg")}
+                      style={{
+                        width: 50,
+                        height: 50,
+                        borderRadius: 50,
+                        marginTop: 10,
+                        marginLeft: 7,
+                      }}
+                    />
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        marginTop: 18,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {UserHomeContents.Firstname +
+                        " " +
+                        UserHomeContents.Lastname}
+                    </Text>
+                    <Text style={{ fontSize: 18, color: "#42A5F5" }}>
+                      Accepted
+                    </Text>
+                  </View>
+                ) : null} */}
+            </Footer>
+          </View>
         </Content>
       </Container>
     );
   }
-
+  async orderNotAccepted() {
+    riderId = firebase.auth().currentUser.uid;
+    await firebase
+      .database()
+      .ref("Ride_Request/" + riderId)
+      .once("value")
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          orderRequest = snapshot.child("riderID").val();
+        } else {
+          this.setState({ orderStatus: "accepted" });
+        }
+      });
+  }
   returnData(coord) {
     this.setState({ coordonates: coord }, () => {
       console.log(this.state.coordonates);
@@ -313,55 +372,56 @@ export default class UserHomeContents extends React.Component {
     //alert(this.state.region.latitude);
   };
   getDriverRequestDetails = async () => {
-    AsyncStorage.getItem("riderId")
-      .then((result) =>
-        firebase
-          .database()
-          .ref("Ride_Request/" + result)
-          .once("value")
-          .then(function (snapshot) {
-            if (snapshot.exists()) {
-              UserHomeContents.DriverID = snapshot.child("driverID").val();
-            }
-          })
-          .then(
-            () => {
-              if (!UserHomeContents.DriverID == "") {
-                this.setState({ isModalVisible: true });
-              }
+    riderId = firebase.auth().currentUser.uid;
+    AsyncStorage.setItem("riderId", riderId);
+    // AsyncStorage.getItem("riderId")
+    //   .then(
+    //     (result) =>
+    await firebase
+      .database()
+      .ref("Ride_Request/" + riderId)
+      .once("value")
+      .then(function (snapshot) {
+        if (snapshot.exists()) {
+          UserHomeContents.DriverID = snapshot.child("driverID").val();
+        }
+      })
+      .then(
+        () => {
+          if (!UserHomeContents.DriverID == "") {
+            this.setState({ isModalVisible: true });
+          }
 
-              firebase
-                .database()
-                .ref("Drivers/" + UserHomeContents.DriverID + "/Details")
-                .once("value")
-                .then(function (snapshot) {
-                  UserHomeContents.Firstname = snapshot
-                    .child("firstname")
-                    .val();
-                  UserHomeContents.Lastname = snapshot.child("lastname").val();
-                })
-                .then(
-                  () => {
-                    console.log("firstname" + UserHomeContents.Firstname);
-                  },
-                  (error) => {
-                    // console.error("error"+error);
-                    // console.log("the user id:"+userId);
-                  }
-                );
-            },
-            (error) => {
-              console.error("error" + error);
-              //console.log("the user id:"+userId);
-            }
-          )
+          firebase
+            .database()
+            .ref("Drivers/" + UserHomeContents.DriverID + "/Details")
+            .once("value")
+            .then(function (snapshot) {
+              UserHomeContents.Firstname = snapshot.child("firstname").val();
+              UserHomeContents.Lastname = snapshot.child("lastname").val();
+            })
+            .then(
+              () => {
+                console.log("firstname" + UserHomeContents.Firstname);
+              },
+              (error) => {
+                // console.error("error"+error);
+                // console.log("the user id:"+userId);
+              }
+            );
+        },
+        (error) => {
+          console.error("error" + error);
+          //console.log("the user id:"+userId);
+        }
       )
+      //  )
       .catch((e) => console.log("err", e));
 
     AsyncStorage.getItem("riderId");
-    firebase
+    await firebase
       .database()
-      .ref("Ride_confirm/" + result)
+      .ref("Ride_confirm/" + riderId)
       .once("value")
       .then(function (snapshot) {
         if (snapshot.exists()) {
@@ -418,8 +478,16 @@ UserHomeContents.navigationOptions = (navData) => {
     headerTitle: false,
     headerLeft: () => (
       <HeaderButtons HeaderButtonComponent={HeaderButton} color="white">
-        <Icon
-          raised
+        <Item
+          color={Platform.OS == "android" ? "white" : "black"}
+          title="Menu"
+          iconName="ios-menu"
+          onPress={() => {
+            navData.navigation.toggleDrawer();
+          }}
+        />
+        {/* <Icon
+          // raised
           name="menu-outline"
           type="ionicon"
           color={Platform.OS == "android" ? "white" : "black"}
@@ -427,7 +495,7 @@ UserHomeContents.navigationOptions = (navData) => {
           onPress={() => {
             navData.navigation.toggleDrawer();
           }}
-        />
+        /> */}
       </HeaderButtons>
     ),
   };
@@ -435,22 +503,23 @@ UserHomeContents.navigationOptions = (navData) => {
 
 const styles = StyleSheet.create({
   containerView: {
-    flex: 1,
-    backgroundColor: Colors.purple,
+    height: Dimensions.get("window").height,
+    // flex: 1,
+    // backgroundColor: Colors.purple,
   },
   footerContainer: {
-    backgroundColor: "white",
-    height: 185,
+    //  backgroundColor: "white",
+    //  height: 185,
   },
   map: {
-    height: 700,
-    marginTop: 0,
+    height: Dimensions.get("window").height,
+    // marginTop: 0,
   },
   searchBoxView: {
-    alignItems: "center",
+    paddingLeft: 20,
     justifyContent: "center",
     backgroundColor: "white",
-    width: "70%",
+    width: "80%",
     minHeight: 55,
     position: "absolute",
     top: 550,
@@ -519,18 +588,22 @@ const styles = StyleSheet.create({
     marginTop: -0.5,
   },
   fromText: {
-    fontSize: 10,
+    fontSize: 12,
   },
   pickupText: {
-    fontSize: 18,
+    fontSize: 22,
   },
-  greenDot: {
+  purpleDot: {
     top: 5,
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#bc13fe",
+    backgroundColor: "#7c6ccc",
     marginRight: 10,
+  },
+  historyButton: {
+    bottom: 250,
+    left: 35,
   },
 });
 AppRegistry.registerComponent("UserHomeContents", () => UserHomeContents);

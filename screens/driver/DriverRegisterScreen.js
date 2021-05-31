@@ -10,19 +10,19 @@ import {
 } from "react-native";
 //import { YellowBox } from "react-native";
 LogBox.ignoreLogs(["Require cycle:"]);
-import Colors from "../constants/Colors";
-import Logo from "../components/Logo";
+import Colors from "../../constants/Colors";
+import Logo from "../../components/Logo";
 import { Feather } from "@expo/vector-icons";
 //import Subtitle from "../components/Subtitle";
-import Input from "../components/Input";
-import MainButton from "../components/MainButton";
+import Input from "../../components/Input";
+import MainButton from "../../components/MainButton";
 
 import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 //import Toast from "react-native-simple-toast";
 import Toast from "react-native-easy-toast";
 import * as firebase from "firebase";
-import ApiKeys from "../constants/ApiKeys";
+import ApiKeys from "../../constants/ApiKeys";
 
 export default class DriverRegisterScreen extends React.Component {
   constructor(props) {

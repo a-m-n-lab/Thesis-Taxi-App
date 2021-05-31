@@ -11,15 +11,15 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
-import Input from "../components/Input";
-import MainButton from "../components/MainButton";
-import HeaderButton from "../components/HeaderButton";
-import Colors from "../constants/Colors";
+import Input from "../../components/Input";
+import MainButton from "../../components/MainButton";
+import HeaderButton from "../../components/HeaderButton";
+import Colors from "../../constants/Colors";
 import * as firebase from "firebase";
-import ApiKeys from "../constants/ApiKeys";
+import ApiKeys from "../../constants/ApiKeys";
 import Toast, { DURATION } from "react-native-easy-toast";
 import { Card, Row } from "native-base";
-import { ThemeContext } from "../Themes/dark";
+import { ThemeContext } from "../../Themes/dark";
 import * as ImagePicker from "expo-image-picker";
 //import Card from "../components/Card";
 export default class EditUserScreen extends React.Component {
@@ -138,7 +138,7 @@ export default class EditUserScreen extends React.Component {
               borderRadius: 400 / 2,
               alignSelf: "center",
             }}
-            source={require("../assets/images/user/user.jpg")}
+            source={require("../../assets/images/user/user.jpg")}
           />
         </TouchableOpacity>
         <View style={styles.container}>

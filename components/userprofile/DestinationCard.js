@@ -9,11 +9,12 @@ const DestinationCard = (props) => {
 
 const styles = StyleSheet.create({
   card: {
-    //shadowColor: "black",
+    margin: 5,
+    shadowColor: "gray",
     shadowOpacity: 0.26,
     shadowOffset: { width: 0, height: 5 },
-    //shadowRadius: 8,
-    elevation: 5,
+    shadowRadius: 11,
+    //elevation: 5,
     // borderBottomWidth: 0.5,
     // borderBottomColor: "black",
     backgroundColor: "white",

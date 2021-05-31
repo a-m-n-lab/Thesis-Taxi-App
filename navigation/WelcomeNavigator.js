@@ -1,10 +1,9 @@
 import React from "react";
-
 import { createStackNavigator } from "react-navigation-stack";
 import AuthScreen from "../screens/AuthScreen";
-import DriverLoginScreen from "../screens/DriverLoginScreen";
-import DriverRegisterScreen from "../screens/DriverRegisterScreen";
-import UserLoginScreen from "../screens/UserLoginScreen";
+import DriverLoginScreen from "../screens/driver/DriverLoginScreen";
+import DriverRegisterScreen from "../screens/driver/DriverRegisterScreen";
+import UserLoginScreen from "../screens/user/UserLoginScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
 
 const defaultNavOptions = {

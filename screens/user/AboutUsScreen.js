@@ -7,7 +7,7 @@ import {
   AccordionList,
 } from "accordion-collapse-react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
-import HeaderButton from "../components/HeaderButton";
+import HeaderButton from "../../components/HeaderButton";
 import { Icon } from "native-base";
 
 const AboutUsScreen = (props) => {

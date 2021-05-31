@@ -11,12 +11,10 @@ import { createStackNavigator } from "react-navigation-stack";
 import { DrawerNavigatorItem, createAppContainer } from "react-navigation";
 import { createDrawerNavigator, DrawerItem } from "react-navigation-drawer";
 //import UserHome from "../screens/UserHome";
-import UserMap from "../screens/UserHome";
-import UserProfileScreen from "../screens/UserProfileScreen";
-import AboutUsScreen from "../screens/AboutUsScreen";
-import EditUserScreen from "../screens/EditUserScreen";
 
-import CustomDrawerSwitchComponent from "../components/navigation/CustomDrawerSwitchComponent";
+import UserProfileScreen from "../screens/user/UserProfileScreen";
+import AboutUsScreen from "../screens/user/AboutUsScreen";
+import EditUserScreen from "../screens/user/EditUserScreen";
 import CustomDrawerContentComponent from "../components/navigation/CustomDrawerContent";
 import UserHomeContents from "../screens/user/UserHomeContents";
 import UserPickup from "../screens/user/UserPickup";
@@ -53,7 +51,7 @@ const UserNavigator = createStackNavigator(
         // <AntDesign name="login" size={24} color="black" />
         <Image
           source={require("../assets/images/navigation/home.png")}
-          style={{ height: 24, width: 24 }}
+          style={{ height: 30, width: 30 }}
         />
       ),
       title: "Maps",
@@ -73,7 +71,7 @@ const UserDrawer = createStackNavigator(
       drawerIcon: (drawerConfig) => (
         <Image
           source={require("../assets/images/navigation/edit.png")}
-          style={{ width: 24, height: 25 }}
+          style={{ width: 30, height: 30 }}
         />
       ),
       title: "Edit your profile",
@@ -90,7 +88,7 @@ const UserPaymentStack = createStackNavigator(
       drawerIcon: (drawerConfig) => (
         <Image
           source={require("../assets/images/navigation/payment.png")}
-          style={{ width: 24, height: 24 }}
+          style={{ width: 30, height: 30 }}
         />
       ),
       title: "Payment",
@@ -108,7 +106,7 @@ const UsersHistory = createStackNavigator(
       drawerIcon: (drawerConfig) => (
         <Image
           source={require("../assets/images/navigation/history.png")}
-          style={{ width: 24, height: 24 }}
+          style={{ width: 30, height: 30 }}
         />
         // <MaterialCommunityIcons
         //   name="information-outline"
@@ -133,7 +131,7 @@ const AboutUs = createStackNavigator(
       drawerIcon: (drawerConfig) => (
         <Image
           source={require("../assets/images/navigation/info.png")}
-          style={{ width: 24, height: 24 }}
+          style={{ width: 30, height: 30 }}
         />
       ),
       title: "About Us",
@@ -151,7 +149,7 @@ const UserLogOut = createStackNavigator(
         // <AntDesign name="login" size={24} color="black" />
         <Image
           source={require("../assets/images/navigation/logout.png")}
-          style={{ height: 24, width: 24 }}
+          style={{ height: 30, width: 30 }}
         />
       ),
       headerTitle: "Logout",
@@ -180,7 +178,6 @@ export const UserMainNavigator = createDrawerNavigator(
     },
 
     initialRouteName: "UserMaps",
-    // contentComponent: CustomDrawerSwitchComponent,
     contentComponent: CustomDrawerContentComponent,
     drawerOpenRoute: "DrawerOpen",
     drawerCloseRoute: "DrawerClose",

@@ -42,7 +42,7 @@ const CustomDrawerContentComponent = (props) => {
     <Container
       style={{ flex: 1, width: "100%", backgroundColor: theme.backgroundColor }}
     >
-      <Header style={{ height: 200, backgroundColor: "#f4e3ff" }}>
+      <Header style={{ height: 150, backgroundColor: "#bcb4e4" }}>
         <View
           style={{
             position: "absolute",
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   headerIcon: {
     top: 10,
     //  flexDirection: "row",
-    width: "90%",
+    width: "100%",
     flex: 1,
   },
   userHeader: { fontSize: 20, fontWeight: "bold" },
