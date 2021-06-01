@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Dimensions } from "react-native";
 import {
   Collapse,
   CollapseHeader,
@@ -15,18 +15,15 @@ const AboutUsScreen = (props) => {
     <View style={styles.container}>
       <Text
         style={{
-          fontSize: 30,
-          padding: 10,
           fontWeight: "bold",
-
-          textDecorationLine: "underline",
+          padding: 5,
+          fontSize: 50,
         }}
       >
-        {" "}
-        The frequent asked questions
+        FAQ
       </Text>
 
-      <Collapse>
+      <Collapse style={styles.collapse}>
         <CollapseHeader>
           <View style={{ flexDirection: "row" }}>
             <Text style={styles.questionText}>
@@ -45,11 +42,11 @@ const AboutUsScreen = (props) => {
         </CollapseHeader>
 
         <CollapseBody>
-          <Text style={{ fontSize: 20, fontStyle: "italic" }}>Very easy!</Text>
+          <Text style={{ fontSize: 16, fontStyle: "italic" }}>Very easy!</Text>
         </CollapseBody>
       </Collapse>
 
-      <Collapse>
+      <Collapse style={styles.collapse}>
         <CollapseHeader>
           <View style={{ flexDirection: "row" }}>
             <Text style={styles.questionText}>2. How much does it cost?</Text>
@@ -66,13 +63,13 @@ const AboutUsScreen = (props) => {
         </CollapseHeader>
 
         <CollapseBody>
-          <Text style={{ fontSize: 20, fontStyle: "italic" }}>
+          <Text style={{ fontSize: 16, fontStyle: "italic" }}>
             Absolutely nothing!
           </Text>
         </CollapseBody>
       </Collapse>
 
-      <Collapse>
+      <Collapse style={styles.collapse}>
         <CollapseHeader>
           <View style={{ flexDirection: "row" }}>
             <Text style={styles.questionText}>
@@ -91,7 +88,7 @@ const AboutUsScreen = (props) => {
         </CollapseHeader>
 
         <CollapseBody>
-          <Text style={{ fontSize: 20, fontStyle: "italic" }}>
+          <Text style={{ fontSize: 16, fontStyle: "italic" }}>
             Call our number
           </Text>
         </CollapseBody>
@@ -121,12 +118,12 @@ AboutUsScreen.navigationOptions = (navData) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    width: Dimensions.get("window").width,
     justifyContent: "center",
-    alignItems: "center",
+    // alignItems: "center",
   },
-  questionText: {
-    fontSize: 30,
+  collapse: {
+    margin: 10,
   },
 });
 

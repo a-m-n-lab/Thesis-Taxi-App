@@ -128,7 +128,8 @@ export default class UserLoginScreen extends React.Component {
         (error) => {
           this.toast.show("error:" + error.message, 500);
         }
-      );
+      )
+      .catch((e) => console.log("err", e));
   };
   getRiderRole = async () => {
     await AsyncStorage.getItem("riderId") //**driverId
@@ -161,7 +162,8 @@ export default class UserLoginScreen extends React.Component {
               );
             }
           })
-      );
+      )
+      .catch((e) => console.log("err", e));
   };
 
   //   goToMaps = () => {};

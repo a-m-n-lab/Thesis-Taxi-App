@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   LogBox,
   Platform,
+  Button,
 } from "react-native";
 import { Content, Container, Footer, Card } from "native-base";
 import Colors from "../../constants/Colors";
@@ -50,6 +51,8 @@ export default class UserHomeContents extends React.Component {
   static Lastname = "";
   static longitude = "";
   static latitude = "";
+
+  static driverId = "";
   constructor(props) {
     super(props);
     this.state = {
@@ -67,6 +70,7 @@ export default class UserHomeContents extends React.Component {
       coordonates: [],
       lightTheme: "",
       orderStatus: "notAccepted",
+      driverIdToDelete: "",
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
@@ -251,7 +255,7 @@ export default class UserHomeContents extends React.Component {
                 ...this.state.region,
                 { latitude: 48.8478, longitude: 2.3202 }, // optional
               ]} */}
-              {this.state.coordonates ? (
+              {/* {this.state.coordonates ? (
                 <View>
                   <MapView.Marker
                     image={fromIcon}
@@ -262,9 +266,8 @@ export default class UserHomeContents extends React.Component {
                     coordinate={this.state.coordonates[1]}
                   />
                 </View>
-              ) : null}
+              ) : null} */}
             </MapView>
-
             <View style={styles.historyButton}>
               <Icon
                 raised
@@ -274,6 +277,16 @@ export default class UserHomeContents extends React.Component {
                 onPress={() => this.props.navigation.navigate("History")}
               />
             </View>
+            {/* {this.state.orderStatus == "notAccepted" &&
+            this.state.coordonates[0] ? (
+              <View style={styles.declineCard}>
+                <Text>
+                  The driver has not yet accepted your request. Do you want to
+                  cancel?
+                </Text>
+                <Button title="Cancel" onPress={this.cancelTrip.bind(this)} />
+              </View>
+            ) : ( */}
             <View style={styles.searchBoxView}>
               <Text style={styles.fromText}>
                 From: {this.state.addressName}
@@ -294,7 +307,13 @@ export default class UserHomeContents extends React.Component {
                 />
               </View>
             </View>
-
+            {/* )} */}
+            {/* {this.state.orderStatus == "notAccepted" &&
+            this.state.coordonates ? (
+              <View>
+                <Text> You can still cancel</Text>
+              </View>
+            ) : null} */}
             <Footer style={styles.footerContainer}>
               {/* {this.state.isConfirmButton ? (
                 <TouchableOpacity
@@ -348,6 +367,30 @@ export default class UserHomeContents extends React.Component {
       </Container>
     );
   }
+  async cancelTrip() {
+    riderId = firebase.auth().currentUser.uid;
+    await firebase
+      .database()
+      .ref("Ride_Request/" + riderId)
+      .once("value")
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          UserHomeContents.driverId = snapshot.child("driverID").val();
+          console.log(id);
+        }
+      })
+      .catch((e) => console.log("err", e));
+
+    await firebase
+      .database()
+      .ref("Ride_Request/" + riderId)
+      .remove(),
+      firebase
+        .database()
+        .ref("Ride_Request/" + UserHomeContents.driverId)
+        .remove(),
+      this.setState({ orderStatus: "accepted" });
+  }
   async orderNotAccepted() {
     riderId = firebase.auth().currentUser.uid;
     await firebase
@@ -360,7 +403,8 @@ export default class UserHomeContents extends React.Component {
         } else {
           this.setState({ orderStatus: "accepted" });
         }
-      });
+      })
+      .catch((e) => console.log("err", e));
   }
   returnData(coord) {
     this.setState({ coordonates: coord }, () => {
@@ -428,7 +472,7 @@ export default class UserHomeContents extends React.Component {
           this.setState({ isModalVisible: true });
         }
       })
-      .then(() => {})
+
       .catch((e) => console.log("err", e));
   };
 
@@ -604,6 +648,21 @@ const styles = StyleSheet.create({
   historyButton: {
     bottom: 250,
     left: 35,
+  },
+  declineCard: {
+    bottom: 250,
+    justifyContent: "center",
+    width: "80%",
+    paddingLeft: 20,
+    backgroundColor: "white",
+    minHeight: 55,
+    position: "absolute",
+    top: 550,
+    alignSelf: "center",
+    borderWidth: 1,
+    borderColor: "#fff",
+    borderRadius: 45,
+    elevation: 5,
   },
 });
 AppRegistry.registerComponent("UserHomeContents", () => UserHomeContents);

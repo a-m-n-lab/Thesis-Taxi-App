@@ -185,12 +185,12 @@ UserProfileScreen.navigationOptions = (navData) => {
     ),
     headerRight: () => (
       <HeaderButtons HeaderButtonComponent={HeaderButton}>
-        <Item
+        {/* <Item
           iconName="refresh-outline"
           // color={Platform.OS === "android" ? "white" : "black"}
           color={"purple"}
           onPress={this.changeFunction}
-        />
+        /> */}
         <Item
           // color={Platform.OS === "android" ? "white" : "black"}
           color={"purple"}

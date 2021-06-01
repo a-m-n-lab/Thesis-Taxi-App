@@ -35,7 +35,7 @@ const defaultNavOptions = {
   navigationOptions: {
     headerShown: false,
   },
-  headerTintColor: Platform.OS === "android" ? "white" : "black",
+  // headerTintColor: Platform.OS === "android" ? "white" : "black",
 };
 
 const UserNavigator = createStackNavigator(
@@ -136,7 +136,7 @@ const AboutUs = createStackNavigator(
       ),
       title: "About Us",
     },
-    //defaultNavigationOptions: defaultNavOptions,
+    defaultNavigationOptions: defaultNavOptions,
   }
 );
 const UserLogOut = createStackNavigator(

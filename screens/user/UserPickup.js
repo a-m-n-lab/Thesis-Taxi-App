@@ -51,8 +51,8 @@ export default class UserPickup extends React.Component {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
     }
   }
-  componentDidMount() {
-    this.recentDestination();
+  async componentDidMount() {
+    await this.recentDestination();
   }
   componentDidUpdate() {
     // this.recentDestination();
@@ -117,10 +117,10 @@ export default class UserPickup extends React.Component {
       </Container>
     );
   }
-  recentDestination() {
+  async recentDestination() {
     userId = firebase.auth().currentUser.uid; //get the id first
-    //if (userId) {
-    firebase
+
+    await firebase
       .database()
       .ref("Ride_History/" + userId + "/") //use id to check details
       .once("value", (snapshot) => {
@@ -147,7 +147,7 @@ export default class UserPickup extends React.Component {
         });
       });
 
-    firebase
+    await firebase
       .database()
       .ref(
         "Ride_History/" +
@@ -159,12 +159,12 @@ export default class UserPickup extends React.Component {
       .once("value", (snapshot) => {
         var order = [];
         snapshot.forEach((childSnapshot) => {
-          var key2 = childSnapshot.key;
-
+          //  var key2 = childSnapshot.key;
           childSnapshot.forEach((childChildSnapshot) => {
-            var key3 = childSnapshot.key;
+            // var key3 = childSnapshot.key;
             var pkname = childChildSnapshot.child("/riderpickname").val();
             var dpname = childChildSnapshot.child("/riderdropname").val();
+            var riderId = childChildSnapshot.child("/riderID").val();
             if (pkname != null && userId == riderId) {
               order.push({
                 pickupname: pkname,
@@ -248,10 +248,10 @@ export default class UserPickup extends React.Component {
     }
 
     this.toast.show("Good", 500);
-    this._getNearbyDrivers();
+    this.getNearbyDrivers();
   };
 
-  _getNearbyDrivers = () => {
+  getNearbyDrivers = () => {
     var DriverKeys = [];
     var counts = [];
     var randomIndex;

@@ -540,7 +540,7 @@ export default class DriverHomeContents extends React.Component {
     await firebase
       .database()
       .ref("Ride_Request/" + driverId)
-      .once("value")
+      .on("value")
       .then((snapshot) => {
         if (snapshot.exists()) {
           DriverHomeContents.RiderID = snapshot.child("riderID").val();
@@ -615,38 +615,38 @@ export default class DriverHomeContents extends React.Component {
             this.setState({ requests: true });
             this.setState({ destOrigSet: true });
           }
-
-          firebase
-            .database()
-            .ref("RiderIds/" + DriverHomeContents.RiderID + "/Details")
-            .once("value")
-            .then(function (snapshot) {
-              DriverHomeContents.Firstname = snapshot.child("firstname").val();
-              DriverHomeContents.Lastname = snapshot.child("lastname").val();
-            })
-            .then(
-              () => {
-                console.log(
-                  "Rider's name :" +
-                    " " +
-                    DriverHomeContents.Lastname +
-                    " " +
-                    "Rider's first name :" +
-                    " " +
-                    DriverHomeContents.Firstname
-                );
-              },
-              (error) => {
-                // console.error("error"+error);
-                // console.log("the user id:"+userId);
-              }
-            );
         },
         (error) => {
           console.error("error" + error);
           //console.log("the user id:"+userId);
         }
       );
+    await firebase
+      .database()
+      .ref("RiderIds/" + DriverHomeContents.RiderID + "/Details")
+      .on("value")
+      .then(function (snapshot) {
+        DriverHomeContents.Firstname = snapshot.child("firstname").val();
+        DriverHomeContents.Lastname = snapshot.child("lastname").val();
+      })
+      .then(
+        () => {
+          console.log(
+            "Rider's name :" +
+              " " +
+              DriverHomeContents.Lastname +
+              " " +
+              "Rider's first name :" +
+              " " +
+              DriverHomeContents.Firstname
+          );
+        },
+        (error) => {
+          // console.error("error"+error);
+          // console.log("the user id:"+userId);
+        }
+      );
+
     // );
   };
 
@@ -657,7 +657,7 @@ export default class DriverHomeContents extends React.Component {
     await firebase
       .database()
       .ref("Ride_Confirm/" + driverId)
-      .once("value")
+      .on("value")
       .then(function (snapshot) {
         if (snapshot.exists()) {
           DriverHomeContents.D_RiderID = snapshot.child("riderID").val();

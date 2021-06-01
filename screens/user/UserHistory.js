@@ -58,7 +58,8 @@ export default class UserHistory extends React.Component {
 
           return false;
         });
-      });
+      })
+      .catch((e) => console.log("err", e));
 
     firebase
       .database()
@@ -101,7 +102,8 @@ export default class UserHistory extends React.Component {
             }
           });
         });
-      });
+      })
+      .catch((e) => console.log("err", e));
   };
   componentWillUnmount() {
     // fix Warning: Can't perform a React state update on an unmounted component

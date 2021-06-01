@@ -66,7 +66,8 @@ export default class DriverHistory extends React.Component {
             // console.log(order);
             return false;
           });
-        });
+        })
+        .catch((e) => console.log("err", e));
     }
   };
 
