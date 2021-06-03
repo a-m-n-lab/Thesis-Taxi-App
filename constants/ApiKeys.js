@@ -8,5 +8,6 @@ export default {
     messagingSenderId: "874076654414",
     appId: "1:874076654414:web:3a6d602b7acb84df902c1f",
     measurementId: "G-24FNS622T7",
+    persistence: true,
   },
 };

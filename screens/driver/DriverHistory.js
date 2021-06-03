@@ -7,6 +7,7 @@ import {
   FlatList,
   ScrollView,
   Image,
+  LogBox,
 } from "react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import HeaderButton from "../../components/HeaderButton";
@@ -14,6 +15,7 @@ import * as firebase from "firebase";
 import ApiKeys from "../../constants/ApiKeys";
 import { Card } from "native-base";
 import Dash from "react-native-dash";
+import { Dimensions } from "react-native";
 
 export default class DriverHistory extends React.Component {
   constructor(props) {
@@ -28,6 +30,7 @@ export default class DriverHistory extends React.Component {
 
   componentDidMount() {
     this.renderFunction();
+    LogBox.ignoreAllLogs();
   }
   renderFunction = () => {
     userId = firebase.auth().currentUser.uid; //get the id first
@@ -81,7 +84,7 @@ export default class DriverHistory extends React.Component {
     //var sec = myDate.getSeconds();
     var current = hours + ":" + min;
     return (
-      <View style={styles.container}>
+      <View style={styles.orders}>
         <ScrollView>
           <Text style={styles.history}> Your orders</Text>
           {this.state.order.map((u, i) => {
@@ -196,11 +199,13 @@ DriverHistory.navigationOptions = (navData) => {
   };
 };
 const styles = StyleSheet.create({
-  container: {
+  orders: {
+    width: Dimensions.get("window").width,
     flex: 1,
     backgroundColor: "white",
     borderRadius: 4,
   },
+  container: {},
   history: {
     fontWeight: "bold",
     padding: 5,
@@ -224,7 +229,7 @@ const styles = StyleSheet.create({
   calendar: { width: 18, height: 18 },
   time: { left: 20, flexDirection: "row" },
   dateTime: { fontSize: 17 },
-  price: { left: 115 },
+  price: { left: 50 },
   address: { padding: 15 },
 
   pickup: { flexDirection: "row", padding: 10 },

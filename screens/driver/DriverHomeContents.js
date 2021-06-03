@@ -79,8 +79,9 @@ export default class DriverHomeContents extends React.Component {
       destinationData: [],
       price: false,
       destOrigSet: false,
+      userToken: null,
     };
-    this.callFunc = this.callFunc.bind(this);
+    // this.callFunc = this.callFunc.bind(this);
 
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
@@ -97,6 +98,7 @@ export default class DriverHomeContents extends React.Component {
   }
 
   async componentDidMount() {
+    LogBox.ignoreAllLogs();
     //this.isMounted = true;
 
     navigator.geolocation.getCurrentPosition(
@@ -140,15 +142,15 @@ export default class DriverHomeContents extends React.Component {
       }
     );
 
-    await this.getRiderAcceptDetails();
-    console.log("getRiderAccept called");
+    // await this.getRiderAcceptDetails();
+    // console.log("getRiderAccept called");
 
     await this.getRiderRequestDetails();
     console.log("getRiderRequestDetails called");
     // //when a new request is added
 
     //disable the warnings in yellow box
-    LogBox.ignoreLogs(["Encountered an error loading page"]);
+    LogBox.ignoreAllLogs();
 
     DriverHomeContents.RD_Distance = await this.GetDriverRiderDistance(
       DriverHomeContents.RiderPickUpLatitude,
@@ -366,7 +368,9 @@ export default class DriverHomeContents extends React.Component {
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.AcceptButton}
-                    onPress={this.StartDriving}
+                    onPress={async () => {
+                      await this.StartDriving(), this.sendPushNotification();
+                    }}
                   >
                     <Text
                       style={{
@@ -401,13 +405,29 @@ export default class DriverHomeContents extends React.Component {
     //alert(this.state.region.latitude);
   };
 
+  sendPushNotification = async () => {
+    console.log("userToken" + this.state.userToken);
+    await fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: this.state.userToken,
+        sound: "default",
+        title: "Ride confirmation",
+        body: "The rider has confirmed your request",
+      }),
+    });
+  };
   AcceptRequest = async () => {
     //store driver information
     driverId = firebase.auth().currentUser.uid;
 
     //riderId=result,
 
-    firebase
+    await firebase
       .database()
       .ref("Ride_Confirm/" + driverId + "/")
       .set({
@@ -438,7 +458,7 @@ export default class DriverHomeContents extends React.Component {
     // AsyncStorage.getItem("driverId")
     //   .then(
     //     (result) =>
-    firebase
+    await firebase
       .database()
       .ref("Ride_Request/" + driverId)
       .remove(),
@@ -454,7 +474,7 @@ export default class DriverHomeContents extends React.Component {
     //   .then((driverID) =>
     //     //riderId=result,
 
-    firebase
+    await firebase
       .database()
       .ref("Ride_Confirm/" + DriverHomeContents.RiderID)
       .set({
@@ -467,8 +487,29 @@ export default class DriverHomeContents extends React.Component {
           this.toast.show(error.message, 500);
         }
       );
-    // )
-    // .catch((e) => console.log("err", e));
+    // await firebase
+    //   .database()
+    //   .ref("RiderIds/" + DriverHomeContents.RiderID + "/Details/token") //use id to check details
+    //   .once(
+    //     "value",
+    //     function (snapshot) {
+    //       var userToken = snapshot.child("data").val();
+    //       // this.setState({ userToken: userToken });
+    //       console.log("first user token state" + userToken);
+    //       //console.log(snapshot.val());
+    //     }.bind(this)
+    //   );
+    await firebase
+      .database()
+      .ref("RiderIds/" + DriverHomeContents.RiderID + "/Details/token")
+      .once(
+        "value",
+        function (snapshot) {
+          var userToken = snapshot.child("data").val();
+          this.setState({ userToken: userToken });
+          console.log("first user token state" + userToken);
+        }.bind(this)
+      );
   };
 
   StartDriving = async () => {
@@ -480,7 +521,7 @@ export default class DriverHomeContents extends React.Component {
     //   .then((driverID) =>
     //     //riderId=result,s
 
-    firebase
+    await firebase
       .database()
       .ref("Ride_History/" + DriverHomeContents.RiderID + "/") //
       .push({
@@ -504,7 +545,7 @@ export default class DriverHomeContents extends React.Component {
     //     ) =>
     //       //riderId=result,
 
-    firebase
+    await firebase
       .database()
       .ref("Ride_History/" + driverId + "/") // driverID***
       .push({
@@ -530,17 +571,17 @@ export default class DriverHomeContents extends React.Component {
       );
     // )
     // .catch((e) => console.log("err", e));
-    this.AcceptRequest();
+    await this.AcceptRequest();
   };
 
   getRiderRequestDetails = async () => {
     driverId = firebase.auth().currentUser.uid;
-    AsyncStorage.setItem("driverId", driverId); //**driverId
+    // AsyncStorage.setItem("driverId", driverId); //**driverId
     //   .then((result) =>
     await firebase
       .database()
       .ref("Ride_Request/" + driverId)
-      .on("value")
+      .once("value")
       .then((snapshot) => {
         if (snapshot.exists()) {
           DriverHomeContents.RiderID = snapshot.child("riderID").val();
@@ -569,15 +610,6 @@ export default class DriverHomeContents extends React.Component {
             DriverHomeContents.RiderDropUpLongitude,
             DriverHomeContents.RiderDropUpLatitude
           );
-        } else {
-          this.toast.show("No ride requests", 500);
-
-          // this.setState({ isModalVisible: false });
-        }
-      })
-
-      .then(
-        () => {
           let latLongObj = {
             latitude: parseFloat(DriverHomeContents.RiderPickUpLatitude),
             longitude: parseFloat(DriverHomeContents.RiderPickUpLongitude),
@@ -600,7 +632,11 @@ export default class DriverHomeContents extends React.Component {
               DriverHomeContents.RiderDropUpName +
               " " +
               "Pick Up Address: " +
-              DriverHomeContents.RiderPickUpName
+              DriverHomeContents.RiderPickUpName +
+              "RIDER ID : " +
+              DriverHomeContents.RiderID +
+              "DIRVER ID " +
+              driverId
           );
           console.log(
             "destinationData[0]" + this.state.destinationData[0].latitude
@@ -615,16 +651,65 @@ export default class DriverHomeContents extends React.Component {
             this.setState({ requests: true });
             this.setState({ destOrigSet: true });
           }
-        },
-        (error) => {
-          console.error("error" + error);
-          //console.log("the user id:"+userId);
+        } else {
+          this.setState({ isModalVisible: false });
+          this.toast.show("No ride requests", 500);
         }
-      );
+      });
+
+    // .then(
+    //   () => {
+    //     let latLongObj = {
+    //       latitude: parseFloat(DriverHomeContents.RiderPickUpLatitude),
+    //       longitude: parseFloat(DriverHomeContents.RiderPickUpLongitude),
+    //     };
+    //     this.setState((prevState) => ({
+    //       destinationData: [...prevState.destinationData, latLongObj],
+    //     }));
+    //     // this.setState({
+    //     //   destinationData: [latLongObj],
+    //     // });
+    //     let latLongObj1 = {
+    //       latitude: parseFloat(DriverHomeContents.RiderDropUpLatitude),
+    //       longitude: parseFloat(DriverHomeContents.RiderDropUpLongitude),
+    //     };
+    //     this.setState({
+    //       originData: [latLongObj1],
+    //     });
+    //     console.log(
+    //       "Drop Address: " +
+    //         DriverHomeContents.RiderDropUpName +
+    //         " " +
+    //         "Pick Up Address: " +
+    //         DriverHomeContents.RiderPickUpName +
+    //         "RIDER ID : " +
+    //         DriverHomeContents.RiderID +
+    //         "DIRVER ID " +
+    //         driverId
+    //     );
+    //     console.log(
+    //       "destinationData[0]" + this.state.destinationData[0].latitude
+    //     );
+    //     console.log(
+    //       "destinationData[0]" + this.state.destinationData[0].longitude
+    //     );
+    //     console.log("originData[0]" + this.state.originData[0].latitude);
+    //     console.log("originData[0]" + this.state.originData[0].longitude);
+    //     if (!DriverHomeContents.RiderID == "") {
+    //       this.setState({ isModalVisible: true });
+    //       this.setState({ requests: true });
+    //       this.setState({ destOrigSet: true });
+    //     }
+    //   },
+    //   (error) => {
+    //     console.error("error" + error);
+    //     //console.log("the user id:"+userId);
+    //   }
+    // );
     await firebase
       .database()
       .ref("RiderIds/" + DriverHomeContents.RiderID + "/Details")
-      .on("value")
+      .once("value")
       .then(function (snapshot) {
         DriverHomeContents.Firstname = snapshot.child("firstname").val();
         DriverHomeContents.Lastname = snapshot.child("lastname").val();
@@ -650,64 +735,64 @@ export default class DriverHomeContents extends React.Component {
     // );
   };
 
-  getRiderAcceptDetails = async () => {
-    driverId = firebase.auth().currentUser.uid;
-    // AsyncStorage.setItem("driverId", driverId); //**driverId */
+  // getRiderAcceptDetails = async () => {
+  //   driverId = firebase.auth().currentUser.uid;
+  //   // AsyncStorage.setItem("driverId", driverId); //**driverId */
 
-    await firebase
-      .database()
-      .ref("Ride_Confirm/" + driverId)
-      .on("value")
-      .then(function (snapshot) {
-        if (snapshot.exists()) {
-          DriverHomeContents.D_RiderID = snapshot.child("riderID").val();
-          DriverHomeContents.D_RiderPickUpName = snapshot
-            .child("riderpickname")
-            .val();
-          DriverHomeContents.D_RiderDropUpName = snapshot
-            .child("riderdropname")
-            .val();
-        }
-      })
-      .then(
-        () => {
-          console.log(
-            "this is RiderID's ID " + " " + DriverHomeContents.D_RiderID
-          );
-          console.log("this is Drivers' ID " + " " + driverId);
-          if (!DriverHomeContents.D_RiderID == "") {
-            this.setState({ isModal2Visible: true });
-          }
+  //   await firebase
+  //     .database()
+  //     .ref("Ride_Confirm/" + driverId)
+  //     .once("value")
+  //     .then(function (snapshot) {
+  //       if (snapshot.exists()) {
+  //         DriverHomeContents.D_RiderID = snapshot.child("riderID").val();
+  //         DriverHomeContents.D_RiderPickUpName = snapshot
+  //           .child("riderpickname")
+  //           .val();
+  //         DriverHomeContents.D_RiderDropUpName = snapshot
+  //           .child("riderdropname")
+  //           .val();
+  //       }
+  //     })
+  //     .then(
+  //       () => {
+  //         console.log(
+  //           "this is RiderID's ID " + " " + DriverHomeContents.D_RiderID
+  //         );
+  //         console.log("this is Drivers' ID " + " " + driverId);
+  //         if (!DriverHomeContents.D_RiderID == "") {
+  //           this.setState({ isModal2Visible: true });
+  //         }
 
-          firebase
-            .database()
-            .ref("RiderIds/" + DriverHomeContents.D_RiderID + "/Details")
-            .once("value")
-            .then(function (snapshot) {
-              DriverHomeContents.D_Firstname = snapshot
-                .child("firstname")
-                .val();
-              DriverHomeContents.D_Lastname = snapshot.child("lastname").val();
-            })
-            .then(
-              () => {
-                console.log(
-                  "(Previous) Rider's first name: " +
-                    DriverHomeContents.D_Firstname
-                );
-              },
-              (error) => {
-                console.error("error" + error);
-                // console.log("the user id:"+userId);
-              }
-            );
-        },
-        (error) => {
-          console.error("error" + error);
-          console.log("the user id:" + userId);
-        }
-      );
-  };
+  //         firebase
+  //           .database()
+  //           .ref("RiderIds/" + DriverHomeContents.D_RiderID + "/Details")
+  //           .once("value")
+  //           .then(function (snapshot) {
+  //             DriverHomeContents.D_Firstname = snapshot
+  //               .child("firstname")
+  //               .val();
+  //             DriverHomeContents.D_Lastname = snapshot.child("lastname").val();
+  //           })
+  //           .then(
+  //             () => {
+  //               console.log(
+  //                 "(Previous) Rider's first name: " +
+  //                   DriverHomeContents.D_Firstname
+  //               );
+  //             },
+  //             (error) => {
+  //               console.error("error" + error);
+  //               // console.log("the user id:"+userId);
+  //             }
+  //           );
+  //       },
+  //       (error) => {
+  //         console.error("error" + error);
+  //         console.log("the user id:" + userId);
+  //       }
+  //     );
+  // };
 
   storeUserLocation() {
     //var userLatitude=this.state.region.latitude;

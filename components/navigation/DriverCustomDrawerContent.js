@@ -1,11 +1,20 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Image, Text, StyleSheet, View, Switch } from "react-native";
+import {
+  Image,
+  Text,
+  StyleSheet,
+  View,
+  Switch,
+  Button,
+  Alert,
+} from "react-native";
 import { Content, Container, Header, Body } from "native-base";
 import { DrawerNavigatorItems } from "react-navigation-drawer";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 import * as firebase from "firebase";
 import { ThemeContext } from "../../Themes/dark";
+import { Dimensions } from "react-native";
 
 const DriverCustomDrawerContentComponent = (props) => {
   const [firstName, setFirstName] = useState("");
@@ -29,54 +38,119 @@ const DriverCustomDrawerContentComponent = (props) => {
     }
   }, []);
 
+  logoutAlertHandler = () => {
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      {
+        text: "Cancel",
+        //style: "cancel",
+        onPress: () => props.navigation.navigate("DriversPage"),
+      },
+      { text: "Yes", onPress: signOutHandler },
+    ]);
+  };
+  signOutHandler = async () => {
+    try {
+      firebase
+        .auth()
+        .signOut()
+        .then(() => props.navigation.navigate("Welcome"));
+      // signed out
+    } catch (e) {
+      // an error
+    }
+  };
+  // signOutHandler = () => {
+  //   firebase
+  //     .auth()
+  //     .signOut()
+  //     .then(() => props.navigation.navigate("Welcome"));
+  // };
+
   return (
     <Container style={{ flex: 1, width: "100%", backgroundColor: "white" }}>
-      <Header style={{ height: 150, backgroundColor: "#bcb4e4" }}>
+      <View style={{ backgroundColor: "#eee" }}>
+        <Image
+          style={StyleSheet.absoluteFill}
+          // source={require("../../assets/images/navigation/dr.jpg")}
+          source={{
+            uri: "https://www.primaryengineer.com/wp-content/uploads/2017/07/rka-header-plain.png",
+          }}
+        />
+        <Header style={{ height: 150, backgroundColor: "transparent" }}>
+          <View
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              margin: 20,
+              alignItems: "flex-start",
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => props.navigation.navigate("DriverProfile")}
+            >
+              <Image
+                source={require("../../assets/images/driver/driver.jpg")}
+                style={{ width: 70, height: 70, borderRadius: 100 }}
+              />
+              <View style={styles.headerIcon}>
+                <Text style={[styles.userHeader, { color: "white" }]}>
+                  {firstName} {lastName}
+                </Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Ionicons
+                  name="chevron-forward-outline"
+                  size={26}
+                  color="black"
+                  style={{ left: 150, position: "absolute", bottom: 10 }}
+                />
+              </View>
+              <Text
+                style={{ color: "#ffffff", fontWeight: "bold", fontSize: 20 }}
+              >
+                <View style={styles.editButton}>
+                  <Text style={[styles.button, { color: "white" }]}>
+                    See your profile
+                  </Text>
+                </View>
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </Header>
+      </View>
+      <Content>
+        <DrawerNavigatorItems {...props} />
         <View
           style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            justifyContent: "center",
-            alignItems: "center",
+            padding: 10,
+            left: 15,
+            top: Dimensions.get("window").height / 20,
           }}
         >
           <TouchableOpacity
-            onPress={() => props.navigation.navigate("DriverProfile")}
+            onPress={logoutAlertHandler}
+            style={styles.logOutButton}
           >
-            <Image
-              source={require("../../assets/images/user/user.jpg")}
-              style={{ width: 90, height: 90, borderRadius: 100 }}
+            <Ionicons
+              name="log-out-outline"
+              size={25}
+              style={{
+                fontWeight: "bold",
+              }}
             />
-            <View style={styles.headerIcon}>
-              <Text style={styles.userHeader}>
-                Hello, {firstName} {lastName}
-              </Text>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Ionicons
-                name="chevron-forward-outline"
-                size={26}
-                color="black"
-                style={{ left: 150, position: "absolute", bottom: 10 }}
-              />
-            </View>
             <Text
-              style={{ color: "#ffffff", fontWeight: "bold", fontSize: 20 }}
+              style={[
+                styles.profileText,
+                { left: 5, top: 3, fontSize: 18, fontWeight: "bold" },
+              ]}
             >
-              <View style={styles.editButton}>
-                <Text style={styles.button} color="black" title="">
-                  See your profile
-                </Text>
-              </View>
+              Logout
             </Text>
           </TouchableOpacity>
         </View>
-      </Header>
-      <Content>
-        <DrawerNavigatorItems {...props} />
       </Content>
     </Container>
   );
@@ -93,10 +167,11 @@ const styles = StyleSheet.create({
     top: 30,
   },
   headerIcon: {
-    top: 10,
+    //  top: 10,
+
     //  flexDirection: "row",
     width: "100%",
-    flex: 1,
+    // flex: 1,
   },
   userHeader: { fontSize: 20, fontWeight: "bold" },
   button: { fontSize: 17 },
@@ -107,6 +182,7 @@ const styles = StyleSheet.create({
     top: 60,
     marginBottom: 50,
   },
+  logOutButton: { color: "black", flexDirection: "row" },
 });
 
 export default DriverCustomDrawerContentComponent;

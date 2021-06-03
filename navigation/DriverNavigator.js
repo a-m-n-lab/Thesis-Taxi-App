@@ -8,12 +8,13 @@ import DriverHistory from "../screens/driver/DriverHistory";
 import DriverCancelled from "../screens/driver/DriverCancelled";
 import { createAppContainer } from "react-navigation";
 import { createDrawerNavigator, DrawerItem } from "react-navigation-drawer";
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+//import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import DriverProfileScreen from "../screens/driver/DriverProfileScreen";
 import DriverCustomDrawerContentComponent from "../components/navigation/DriverCustomDrawerContent";
 import Colors from "../constants/Colors";
 
 import DriverHomeContents from "../screens/driver/DriverHomeContents";
+import DriverEditScreen from "../screens/driver/DriverEditScreen";
 
 const defaultNavOptions = {
   headerTitleAlign: "center",
@@ -25,19 +26,18 @@ const defaultNavOptions = {
 
 const DriverNavigator = createStackNavigator(
   {
-    //DriverHomePage: { screen: DriverHome },
     DriversPage: {
       screen: DriverHomeContents,
     },
     DriverProfile: { screen: DriverProfileScreen },
+    DriverEdit: { screen: DriverEditScreen },
   },
   {
     navigationOptions: {
       drawerIcon: (drawerConfig) => (
-        // <AntDesign name="login" size={24} color="black" />
         <Image
           source={require("../assets/images/navigation/home.png")}
-          style={{ height: 24, width: 24 }}
+          style={{ height: 24, width: 24, padding: 10 }}
         />
       ),
       title: "Maps",
@@ -55,13 +55,8 @@ const DriversHistory = createStackNavigator(
       drawerIcon: (drawerConfig) => (
         <Image
           source={require("../assets/images/navigation/history.png")}
-          style={{ width: 24, height: 24 }}
+          style={{ width: 24, height: 24, padding: 10 }}
         />
-        // <MaterialCommunityIcons
-        //   name="information-outline"
-        //   size={24}
-        //   color="black" //"drawerConfig.tintColor"
-        // />
       ),
       headerTitle: "History",
     },
@@ -81,32 +76,31 @@ const DriversHistory = createStackNavigator(
 //   );
 // };
 
-const DriverLogOut = createStackNavigator(
-  {
-    Logo: { screen: DriverLogout },
-  },
-  {
-    navigationOptions: {
-      drawerIcon: (drawerConfig) => (
-        // <AntDesign name="login" size={24} color="black" />
-        <Image
-          source={require("../assets/images/navigation/logout.png")}
-          style={{ height: 24, width: 24 }}
-        />
-      ),
-      headerTitle: "Logout",
-    },
-    defaultNavigationOptions: defaultNavOptions,
-  }
-);
+// const DriverLogOut = createStackNavigator(
+//   {
+//     Logo: { screen: DriverLogout },
+//   },
+//   {
+//     navigationOptions: {
+//       drawerIcon: (drawerConfig) => (
+//         // <AntDesign name="login" size={24} color="black" />
+//         <Image
+//           source={require("../assets/images/navigation/logout.png")}
+//           style={{ height: 24, width: 24 }}
+//         />
+//       ),
+//       headerTitle: "Logout",
+//     },
+//     defaultNavigationOptions: defaultNavOptions,
+//   }
+// );
 const DriverMainNavigator = createDrawerNavigator(
   {
     Driver: {
       screen: DriverNavigator,
     },
-    // Tab,
     History: DriversHistory,
-    Logout: { screen: DriverLogOut },
+    // Logout: { screen: DriverLogOut },
   },
 
   {
@@ -114,9 +108,6 @@ const DriverMainNavigator = createDrawerNavigator(
       activeTintColor: Colors.purple,
     },
 
-    // contentOptions: {
-    //   activeTintColor: Colors.purple,
-    // },
     initialRouteName: "Driver",
     contentComponent: DriverCustomDrawerContentComponent,
     drawerOpenRoute: "DrawerOpen",

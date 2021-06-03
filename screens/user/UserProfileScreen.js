@@ -151,11 +151,23 @@ export default class UserProfileScreen extends React.Component {
           </Text>
           <Text style={[styles.profileText, { color: theme.color }]}>
             {" "}
-            {new Date((this.state.date / 1000) * 1000).toLocaleDateString(
-              "ro-RO"
-            )}
+            {
+              new Date((this.state.date / 1000) * 1000).toLocaleDateString(
+                "en-GB"
+              )
+              // this.state.date.getDate() +
+              //   "-" +
+              //   (this.state.date.getMonth() + 1) +
+              //   "-" +
+              //   this.state.date.getFullYear()
+              // (this.state.date / 1000) * 1000)
+              // .toString("dd-MM-yyyy")
+              // .toLocaleDateString(
+              //   "en-GB"
+              // )
+            }
           </Text>
-          <Button title="Refresh" onPress={this.changeFunction} />
+          {/* <Button title="Refresh" onPress={this.changeFunction} /> */}
         </View>
         {/* <Text style={styles.profileText}>
             Registered since
@@ -193,7 +205,7 @@ UserProfileScreen.navigationOptions = (navData) => {
         /> */}
         <Item
           // color={Platform.OS === "android" ? "white" : "black"}
-          color={"purple"}
+          color={"#846ccc"}
           title="Edit"
           onPress={() => {
             navData.navigation.navigate("EditProfile");
@@ -212,7 +224,7 @@ const styles = StyleSheet.create({
     fontSize: 35,
     left: 35,
     top: 25,
-    fontWeight: "bold",
+
     fontFamily: "Lato3",
   },
   profileText: {

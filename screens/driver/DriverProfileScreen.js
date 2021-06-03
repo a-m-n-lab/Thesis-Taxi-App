@@ -87,7 +87,7 @@ export default class DriverProfileScreen extends React.Component {
   }
   render() {
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: "white" }}>
         <View style={styles.profileDetails}>
           <View
             style={{
@@ -101,7 +101,7 @@ export default class DriverProfileScreen extends React.Component {
                 height: 100,
                 borderRadius: 400 / 2,
               }}
-              source={require("../../assets/images/user/user.jpg")}
+              source={require("../../assets/images/driver/driver.jpg")}
             ></Image>
             <Text style={[styles.name, { flex: 1 }]}>
               Hello, {""}
@@ -147,6 +147,24 @@ export default class DriverProfileScreen extends React.Component {
 DriverProfileScreen.navigationOptions = (navData) => {
   return {
     headerTitle: "Driver Profile",
+    headerRight: () => (
+      <HeaderButtons HeaderButtonComponent={HeaderButton}>
+        {/* <Item
+          iconName="refresh-outline"
+          // color={Platform.OS === "android" ? "white" : "black"}
+          color={"purple"}
+          onPress={this.changeFunction}
+        /> */}
+        <Item
+          // color={Platform.OS === "android" ? "white" : "black"}
+          color={"purple"}
+          title="Edit"
+          onPress={() => {
+            navData.navigation.navigate("DriverEdit");
+          }}
+        />
+      </HeaderButtons>
+    ),
     // headerLeft: () => (
     //   <HeaderButtons HeaderButtonComponent={HeaderButton}>
     //     <Item

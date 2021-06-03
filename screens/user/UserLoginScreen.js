@@ -137,7 +137,7 @@ export default class UserLoginScreen extends React.Component {
         firebase
           .database()
           .ref("RiderIds/" + result + "/Details")
-          .on("value", (snapshot) => {
+          .once("value", (snapshot) => {
             if (snapshot.exists()) {
               var isRider = snapshot.child("driver").val();
               //console.log("Is user a driver?" + isRider);

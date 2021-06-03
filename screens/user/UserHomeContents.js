@@ -13,16 +13,13 @@ import {
   Platform,
   Button,
 } from "react-native";
-import { Content, Container, Footer, Card } from "native-base";
-import Colors from "../../constants/Colors";
+import { Content, Container, Card } from "native-base";
 import MapView, {
   PROVIDER_GOOGLE,
   AnimatedRegion,
   Animated,
   Callout,
 } from "react-native-maps";
-import { Ionicons } from "@expo/vector-icons";
-
 import MapViewDirections from "react-native-maps-directions";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import HeaderButton from "../../components/HeaderButton";
@@ -37,6 +34,9 @@ import toIcon from "../../assets/images/to.png";
 import MapButton from "../../components/userprofile/MapButton";
 import { ThemeContext } from "../../Themes/dark";
 import { Icon } from "react-native-elements";
+import * as Notifications from "expo-notifications";
+import * as Permissions from "expo-permissions";
+import Constants from "expo-constants";
 let { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
 const LATITUDE = 0;
@@ -69,19 +69,92 @@ export default class UserHomeContents extends React.Component {
       isMounted: false,
       coordonates: [],
       lightTheme: "",
-      orderStatus: "notAccepted",
+      orderStatus: "",
       driverIdToDelete: "",
+      distance: null,
+      price: null,
+      driverName: "",
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
     }
   }
   static contextType = ThemeContext;
+  // registerForPushNotificationsAsync = async () => {
+  //   if (Constants.isDevice) {
+  //     const { status: existingStatus } = await Permissions.getAsync(
+  //       Permissions.NOTIFICATIONS
+  //     );
+  //     let finalStatus = existingStatus;
+  //     if (existingStatus !== "granted") {
+  //       const { status } = await Permissions.askAsync(
+  //         Permissions.NOTIFICATIONS
+  //       );
+  //       finalStatus = status;
+  //     }
+  //     if (finalStatus !== "granted") {
+  //       alert("Failed to get push token for push notification!");
+  //       return;
+  //     }
+  //     // const token = await Notifications.getExpoPushTokenAsync();
+  //     // console.log(token);
+  //     try {
+  //       //Get the token that uniqueli identifies this device
+  //       let token = await Notifications.getExpoPushTokenAsync();
 
+  //       firebase
+  //         .database()
+
+  //         .ref(`RiderIds/${currentUser}/Details`)
+  //         .set(token);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   } else {
+  //     alert("Must use physical device for Push Notifications");
+  //   }
+
+  //   if (Platform.OS === "android") {
+  //     Notifications.createChannelAndroidAsync("default", {
+  //       name: "default",
+  //       sound: true,
+  //       priority: "max",
+  //       vibrate: [0, 250, 250, 250],
+  //     });
+  //   }
+  // };
+  registerForPushNotificationsAsync = async () => {
+    const { status: existingStatus } = await Permissions.getAsync(
+      Permissions.NOTIFICATIONS
+    );
+    let finalStatus = existingStatus;
+
+    //only ask if permission have not already been determined, because
+    //iOS won't necessarily prompt the user a second time.
+    if (existingStatus !== "granted") {
+      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+      finalStatus = status;
+    }
+    if (finalStatus !== "granted") {
+      return;
+    }
+    try {
+      //Get the token that uniqueli identifies this device
+      let token = await Notifications.getExpoPushTokenAsync();
+
+      firebase
+        .database()
+        .ref("RiderIds/" + this.currentUser + "/Details/token")
+        .set(token);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   async componentDidMount() {
+    this.currentUser = firebase.auth().currentUser.uid;
+    await this.registerForPushNotificationsAsync();
     //this.isMounted = true;
-    LogBox.ignoreLogs(["Require cycle:"]);
-    // this.state.lightTheme = contextType.theme;
+    LogBox.ignoreAllLogs();
 
     navigator.geolocation.getCurrentPosition(
       //get current position
@@ -107,7 +180,7 @@ export default class UserHomeContents extends React.Component {
             addressName: myCoordonates,
           });
         });
-        // console.log(this.state.addressName);
+
         this.setState({
           region: {
             latitude: position.coords.latitude,
@@ -142,20 +215,30 @@ export default class UserHomeContents extends React.Component {
       }
     );
 
-    await this.getDriverRequestDetails();
+    // await this.getDriverRequestDetails();
 
     LogBox.ignoreLogs(["Encountered an error loading page"]);
     LogBox.ignoreAllLogs();
-    await this.orderNotAccepted();
+    console.log("CDM");
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
+  async componentDidUpdate(prevProps, prevState, snapshot) {
+    setTimeout(
+      function () {
+        this.setState({ orderStatus: "accepted" });
+      }.bind(this),
+      30000
+    );
+    // if (this.state.orderStatus !== prevState.orderStatus) {
+    //   await this.orderNotAccepted();
+    // }
+    //   }
     // this._getRiderAcceptDetails();
     // Typical usage (don't forget to compare props):
-    if (this.state.region !== prevProps.region) {
-      this.storeUserLocation();
-      // AppState.addEventListener("change", this.storeUserLocation());
-    }
+    // if (this.state.region !== prevProps.region) {
+    //   this.storeUserLocation();
+    //   // AppState.addEventListener("change", this.storeUserLocation());
+    // }
   }
 
   componentWillUnmount() {
@@ -165,17 +248,7 @@ export default class UserHomeContents extends React.Component {
     //Toast.toastInstance = null;
     //  }
   }
-  // setRegion(region) {
-  //   if (this.state.ready) {
-  //     setTimeout(() => this.map.mapview.animateToRegion(region), 10);
-  //   }
-  //   //this.setState({ region });
-  // }
-  // onMapReady = (e) => {
-  //   if (!this.state.ready) {
-  //     this.setState({ ready: true });
-  //   }
-  // };
+
   onMapReady = (e) => {
     if (!this.state.ready) {
       this.setState({ ready: true });
@@ -255,7 +328,7 @@ export default class UserHomeContents extends React.Component {
                 ...this.state.region,
                 { latitude: 48.8478, longitude: 2.3202 }, // optional
               ]} */}
-              {/* {this.state.coordonates ? (
+              {this.state.coordonates ? (
                 <View>
                   <MapView.Marker
                     image={fromIcon}
@@ -266,7 +339,7 @@ export default class UserHomeContents extends React.Component {
                     coordinate={this.state.coordonates[1]}
                   />
                 </View>
-              ) : null} */}
+              ) : null}
             </MapView>
             <View style={styles.historyButton}>
               <Icon
@@ -287,26 +360,108 @@ export default class UserHomeContents extends React.Component {
                 <Button title="Cancel" onPress={this.cancelTrip.bind(this)} />
               </View>
             ) : ( */}
-            <View style={styles.searchBoxView}>
-              <Text style={styles.fromText}>
-                From: {this.state.addressName}
-              </Text>
-              <View style={{ flexDirection: "row" }}>
-                <View style={styles.purpleDot}></View>
-                <TextInput
-                  style={styles.pickupText}
-                  placeholder="Where to?"
-                  underlineColorAndroid="#ffffff"
-                  selectionColor="#42A5F5"
-                  placeholderTextColor="#000000"
-                  onFocus={() =>
-                    this.props.navigation.navigate("Address", {
-                      returnData: this.returnData.bind(this),
-                    })
-                  }
-                />
+            {this.state.price ? (
+              <Card style={styles.MainAcceptView}>
+                <View style={styles.RiderDetails}>
+                  <Image
+                    source={require("../../assets/images/driver/driver.jpg")}
+                    style={{
+                      width: 60,
+                      height: 60,
+                      borderRadius: 200,
+                      margin: 5,
+                    }}
+                  />
+                  <Text
+                    style={{
+                      marginTop: 20,
+                      fontSize: 18,
+                      marginLeft: 15,
+                      color: "black",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {this.state.driverName}
+                  </Text>
+                  <Text
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: 20,
+                      marginLeft: 7,
+                      margin: 3,
+                      top: 5,
+                      left: 110,
+                    }}
+                  >
+                    {this.state.price.toFixed(2)}
+                  </Text>
+                  <View style={styles.distancePriceView2}>
+                    <Text style={{ fontSize: 17 }}>
+                      {this.state.distance.toFixed(2)}
+                      KM
+                    </Text>
+                  </View>
+                </View>
+                {this.state.orderStatus == "notAccepted" ? (
+                  <View style={styles.declineView}>
+                    <Text>
+                      You have 30 seconds to cancel your trip. Do you want to
+                      cancel?
+                    </Text>
+                    <TouchableOpacity
+                      style={styles.declineButton}
+                      onPress={this.cancelTrip}
+                    >
+                      <Text
+                        style={{
+                          color: "#adadad",
+                          fontWeight: "bold",
+                          fontSize: 20,
+                        }}
+                      >
+                        Cancel
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : // <View>
+                //   <Text>
+                //     You have 15 seconds to cancel your trip. Do you want to
+                //     cancel?
+                //   </Text>
+                //   <Button
+                //     title="Cancel"
+                //     onPress={this.cancelTrip.bind(this)}
+                //   />
+                // </View>
+                null}
+                {/* <Text>
+                  Price: {this.state.price.toFixed(2)} RON Distance:
+                  {this.state.distance.toFixed(2)} KM Driver's name:
+                  {this.state.driverName}
+                </Text> */}
+              </Card>
+            ) : (
+              <View style={styles.searchBoxView}>
+                <Text style={styles.fromText}>
+                  From: {this.state.addressName}
+                </Text>
+                <View style={{ flexDirection: "row" }}>
+                  <View style={styles.purpleDot}></View>
+                  <TextInput
+                    style={styles.pickupText}
+                    placeholder="Where to?"
+                    underlineColorAndroid="#ffffff"
+                    selectionColor="#42A5F5"
+                    placeholderTextColor="#000000"
+                    onFocus={() =>
+                      this.props.navigation.navigate("Address", {
+                        returnData: this.returnData.bind(this),
+                      })
+                    }
+                  />
+                </View>
               </View>
-            </View>
+            )}
             {/* )} */}
             {/* {this.state.orderStatus == "notAccepted" &&
             this.state.coordonates ? (
@@ -314,8 +469,8 @@ export default class UserHomeContents extends React.Component {
                 <Text> You can still cancel</Text>
               </View>
             ) : null} */}
-            <Footer style={styles.footerContainer}>
-              {/* {this.state.isConfirmButton ? (
+            {/* <Footer style={styles.footerContainer}> */}
+            {/* {this.state.isConfirmButton ? (
                 <TouchableOpacity
                   style={styles.DoneButton}
                   onPress={() => this.props.navigation.navigate("Address")}
@@ -325,7 +480,7 @@ export default class UserHomeContents extends React.Component {
                   </Text>
                 </TouchableOpacity>
               ) : null} */}
-              {/* {this.state.isModalVisible ? ( //!this.state.isModalVisible
+            {/* {this.state.isModalVisible ? ( //!this.state.isModalVisible
                   <View
                     style={{
                       width: 100,
@@ -361,23 +516,23 @@ export default class UserHomeContents extends React.Component {
                     </Text>
                   </View>
                 ) : null} */}
-            </Footer>
+            {/* </Footer> */}
           </View>
         </Content>
       </Container>
     );
   }
-  async cancelTrip() {
+  cancelTrip = async () => {
     riderId = firebase.auth().currentUser.uid;
     await firebase
       .database()
       .ref("Ride_Request/" + riderId)
       .once("value")
       .then((snapshot) => {
-        if (snapshot.exists()) {
-          UserHomeContents.driverId = snapshot.child("driverID").val();
-          console.log(id);
-        }
+        //if (snapshot.exists()) {
+        UserHomeContents.driverId = snapshot.child("driverID").val();
+        console.log("cancelTrip");
+        // }
       })
       .catch((e) => console.log("err", e));
 
@@ -388,28 +543,43 @@ export default class UserHomeContents extends React.Component {
       firebase
         .database()
         .ref("Ride_Request/" + UserHomeContents.driverId)
-        .remove(),
-      this.setState({ orderStatus: "accepted" });
-  }
-  async orderNotAccepted() {
-    riderId = firebase.auth().currentUser.uid;
-    await firebase
-      .database()
-      .ref("Ride_Request/" + riderId)
-      .once("value")
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          orderRequest = snapshot.child("riderID").val();
-        } else {
+        .remove()
+        .then(() => {
           this.setState({ orderStatus: "accepted" });
-        }
-      })
-      .catch((e) => console.log("err", e));
-  }
-  returnData(coord) {
-    this.setState({ coordonates: coord }, () => {
-      console.log(this.state.coordonates);
-    });
+          this.setState({ price: null });
+          this.setState({ coordonates: null });
+        });
+  };
+  // async orderNotAccepted() {
+  //   riderId = firebase.auth().currentUser.uid;
+  //   await firebase
+  //     .database()
+  //     .ref("Ride_Request/" + riderId)
+  //     .once("value")
+  //     .then((snapshot) => {
+  //       if (snapshot.exists()) {
+  //         orderRequest = snapshot.child("riderID").val();
+  //         console.log("orderNotAccepted");
+  //         this.setState({ orderStatus: "notAccepted" });
+  //       } else {
+  //         this.setState({ orderStatus: "accepted" });
+  //       }
+  //     })
+  //     .catch((e) => console.log("err", e));
+  // }
+  returnData(coord, price, distance, driverName, orderStatus) {
+    this.setState(
+      {
+        coordonates: coord,
+        price: price,
+        distance: distance,
+        driverName: driverName,
+        orderStatus: orderStatus,
+      },
+      () => {
+        // console.log(this.state.coordonates);
+      }
+    );
   }
   pickUpLocation = async () => {
     //this.props.navigation.navigate('pickUpLocation');
@@ -515,11 +685,34 @@ export default class UserHomeContents extends React.Component {
 
     // }
   }
+
+  GetDriverRiderDistance = async (lat1, lon1, lat2, lon2) => {
+    //haversine formula
+    var R = 6371; // Earth's radius
+    var dLat = this.toRad(lat2 - lat1);
+    var dLon = this.toRad(lon2 - lon1);
+    var lat1 = this.toRad(lat1);
+    var lat2 = this.toRad(lat2);
+
+    var a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    var d = R * c;
+    console.log("the distance is:" + d);
+    return d;
+  };
+  calculatePrice = async () => {
+    let priceKm = 3.15;
+    let finalPrice = this.state.distance.toFixed(2) * priceKm;
+    console.log("finalPrice" + finalPrice);
+    return finalPrice;
+  };
 }
 
 UserHomeContents.navigationOptions = (navData) => {
   return {
-    headerTitle: false,
+    // headerTitle: false,
     headerLeft: () => (
       <HeaderButtons HeaderButtonComponent={HeaderButton} color="white">
         <Item
@@ -556,7 +749,7 @@ const styles = StyleSheet.create({
     //  height: 185,
   },
   map: {
-    height: Dimensions.get("window").height,
+    height: Dimensions.get("screen").height,
     // marginTop: 0,
   },
   searchBoxView: {
@@ -649,13 +842,32 @@ const styles = StyleSheet.create({
     bottom: 250,
     left: 35,
   },
+  MainAcceptView: {
+    flex: 1,
+    //flexDirection: "row",
+    backgroundColor: "white",
+    width: 380,
+    height: 200,
+    position: "absolute",
+    top: 440,
+    left: 20,
+    borderRadius: 10,
+    marginLeft: 3,
+  },
+  RiderDetails: {
+    flexDirection: "row",
+    position: "absolute",
+    backgroundColor: "#ededed",
+    width: "100%",
+    borderRadius: 11,
+  },
   declineCard: {
     bottom: 250,
     justifyContent: "center",
     width: "80%",
     paddingLeft: 20,
     backgroundColor: "white",
-    minHeight: 55,
+    minHeight: 60,
     position: "absolute",
     top: 550,
     alignSelf: "center",
@@ -663,6 +875,32 @@ const styles = StyleSheet.create({
     borderColor: "#fff",
     borderRadius: 45,
     elevation: 5,
+  },
+
+  distancePriceView2: {
+    flex: 1,
+    // justifyContent: "flex-end",
+    position: "absolute",
+    top: 30,
+    marginLeft: 310,
+  },
+  declineView: {
+    // flexDirection: "row",
+    // position: "absolute",
+    //left: 40,
+    flex: 1,
+    justifyContent: "flex-end",
+    marginBottom: 36,
+  },
+  declineButton: {
+    alignSelf: "center",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#ededed",
+    height: 50,
+    width: 155,
+    borderRadius: 5,
+    marginLeft: 5,
   },
 });
 AppRegistry.registerComponent("UserHomeContents", () => UserHomeContents);

@@ -139,24 +139,24 @@ const AboutUs = createStackNavigator(
     defaultNavigationOptions: defaultNavOptions,
   }
 );
-const UserLogOut = createStackNavigator(
-  {
-    Logo: { screen: UserLogout },
-  },
-  {
-    navigationOptions: {
-      drawerIcon: (drawerConfig) => (
-        // <AntDesign name="login" size={24} color="black" />
-        <Image
-          source={require("../assets/images/navigation/logout.png")}
-          style={{ height: 30, width: 30 }}
-        />
-      ),
-      headerTitle: "Logout",
-    },
-    defaultNavigationOptions: defaultNavOptions,
-  }
-);
+// const UserLogOut = createStackNavigator(
+//   {
+//     Logo: { screen: UserLogout },
+//   },
+//   {
+//     navigationOptions: {
+//       drawerIcon: (drawerConfig) => (
+//         // <AntDesign name="login" size={24} color="black" />
+//         <Image
+//           source={require("../assets/images/navigation/logout.png")}
+//           style={{ height: 30, width: 30 }}
+//         />
+//       ),
+//       headerTitle: "Logout",
+//     },
+//     defaultNavigationOptions: defaultNavOptions,
+//   }
+// );
 
 export const UserMainNavigator = createDrawerNavigator(
   {
@@ -167,12 +167,13 @@ export const UserMainNavigator = createDrawerNavigator(
     Payment: UserPaymentStack,
     History: UsersHistory,
     AboutUs: AboutUs,
-    Logout: { screen: UserLogOut },
+    // Logout: { screen: UserLogOut },
   },
   {
     contentOptions: {
       labelStyle: {
         color: "grey",
+
         // activeTintColor: "#c984f5",
       },
     },

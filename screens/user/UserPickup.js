@@ -46,12 +46,17 @@ export default class UserPickup extends React.Component {
       myCoord: [],
       destinations: [],
       driverId: [],
+      distance: null,
+      price: null,
+      driverName: "",
+      orderStatus: "",
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
     }
   }
   async componentDidMount() {
+    console.log("UserPickUP CDM");
     await this.recentDestination();
   }
   componentDidUpdate() {
@@ -72,9 +77,11 @@ export default class UserPickup extends React.Component {
           </DestinationCard>
           <View style={styles.recentView}>
             <Text style={styles.history}> RECENT </Text>
+
             {this.state.destinations.slice(0, 2).map((u, i) => {
               return (
                 <View item={i} key={i.id}>
+                  {/* key={i.id} */}
                   <View style={styles.recent}>
                     <Image
                       style={{ width: 30, height: 30, borderRadius: 50 }}
@@ -96,7 +103,7 @@ export default class UserPickup extends React.Component {
           <View style={styles.requestButtonsContainer}>
             <TouchableOpacity
               style={styles.request}
-              onPress={this._validatePickUpAndDropOffLocations}
+              onPress={this.validatePickUpAndDropOffLocations}
             >
               <Text style={styles.requestText}>Request ride</Text>
             </TouchableOpacity>
@@ -104,7 +111,11 @@ export default class UserPickup extends React.Component {
               style={styles.completed}
               onPress={() => {
                 this.props.navigation.state.params.returnData(
-                  this.state.myCoord
+                  this.state.myCoord,
+                  this.state.price,
+                  this.state.distance,
+                  this.state.driverName,
+                  this.state.orderStatus
                 );
                 this.props.navigation.goBack();
               }}
@@ -117,10 +128,10 @@ export default class UserPickup extends React.Component {
       </Container>
     );
   }
-  async recentDestination() {
+  recentDestination = async () => {
     userId = firebase.auth().currentUser.uid; //get the id first
 
-    await firebase
+    firebase
       .database()
       .ref("Ride_History/" + userId + "/") //use id to check details
       .once("value", (snapshot) => {
@@ -147,7 +158,7 @@ export default class UserPickup extends React.Component {
         });
       });
 
-    await firebase
+    firebase
       .database()
       .ref(
         "Ride_History/" +
@@ -170,18 +181,17 @@ export default class UserPickup extends React.Component {
                 pickupname: pkname,
                 dropname: dpname,
               });
-
               this.setState({
                 destinations: order,
               });
-
+              // console.log(this.state.destinations);
               return false;
             }
           });
         });
       });
-  }
-  _validatePickUpAndDropOffLocations = () => {
+  };
+  validatePickUpAndDropOffLocations = async () => {
     // alert("good"+GooglePlacesInput.pickupLatitude);
     if (
       GooglePlacesInput.pickupName == null ||
@@ -242,6 +252,15 @@ export default class UserPickup extends React.Component {
         //   console.log(this.state.myCoord);
         // }
       );
+      var distance = await this.GetDriverRiderDistance(
+        GooglePlacesInput.pickupLatitude,
+        GooglePlacesInput.pickupLongitude,
+        GooglePlacesDropOff.dropOffLatitude,
+        GooglePlacesDropOff.dropOffLongitude
+      );
+      this.setState({ distance: distance });
+      var price = await this.calculatePrice();
+      this.setState({ price: price });
       // this.setState({
       //   myCoord: [...this.state.myCoord, latLongObj],
       // });
@@ -267,11 +286,11 @@ export default class UserPickup extends React.Component {
 
       randomIndex = Math.floor(Math.random() * DriverKeys.length);
 
-      this._requestDriver(counts[randomIndex]);
+      this.requestDriver(counts[randomIndex]);
     });
   };
   //------------------------------------------------------------------
-  _requestDriver = (driverID) => {
+  requestDriver = (driverID) => {
     /*firebase.database().ref('/Ride_Request/' +driverID).once('value').then(function(snapshot) {
           
           if(snapshot.exists()){
@@ -292,7 +311,6 @@ export default class UserPickup extends React.Component {
     AsyncStorage.getItem("riderId")
       .then((riderID) =>
         //riderId=result,
-
         firebase
           .database()
           .ref("Ride_Request/" + riderID)
@@ -313,7 +331,6 @@ export default class UserPickup extends React.Component {
     AsyncStorage.getItem("riderId")
       .then((riderID) =>
         //riderId=result,
-
         firebase
           .database()
           .ref("Ride_Request/" + driverID + "/")
@@ -336,6 +353,42 @@ export default class UserPickup extends React.Component {
           )
       )
       .catch((e) => console.log("err", e));
+
+    firebase
+      .database()
+      .ref("Drivers/" + driverID + "/Details")
+      .once("value")
+      .then((snapshot) => {
+        var driverName = snapshot.child("firstname").val();
+        this.setState({ driverName: driverName });
+        console.log("driverName" + this.state.driverName);
+      });
+    this.setState({ orderStatus: "notAccepted" });
+  };
+  toRad = (Value) => {
+    return (Value * Math.PI) / 180;
+  };
+  GetDriverRiderDistance = async (lat1, lon1, lat2, lon2) => {
+    //haversine formula
+    var R = 6371; // Earth's radius
+    var dLat = this.toRad(lat2 - lat1);
+    var dLon = this.toRad(lon2 - lon1);
+    var lat1 = this.toRad(lat1);
+    var lat2 = this.toRad(lat2);
+
+    var a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    var d = R * c;
+    console.log("the distance is:" + d);
+    return d;
+  };
+  calculatePrice = async () => {
+    let priceKm = 3.15;
+    let finalPrice = this.state.distance.toFixed(2) * priceKm;
+    console.log("finalPrice" + finalPrice);
+    return finalPrice;
   };
 }
 
@@ -420,7 +473,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     height: 50,
-    top: 70,
+    marginTop: 80,
     width: 300,
     marginLeft: 5,
     borderRadius: 8,
