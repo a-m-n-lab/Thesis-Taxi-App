@@ -1,9 +1,7 @@
 import React from "react";
 import { Platform, SafeAreaView, Button, View, Image } from "react-native";
 import { createStackNavigator } from "react-navigation-stack";
-import DriverHome from "../screens/DriverHome";
 //import DriverPageScreen from "../screens/DriverPageScreen";
-import DriverLogout from "../screens/DriverLogout";
 import DriverHistory from "../screens/driver/DriverHistory";
 import DriverCancelled from "../screens/driver/DriverCancelled";
 import { createAppContainer } from "react-navigation";
@@ -15,6 +13,7 @@ import Colors from "../constants/Colors";
 
 import DriverHomeContents from "../screens/driver/DriverHomeContents";
 import DriverEditScreen from "../screens/driver/DriverEditScreen";
+import DriverManageCar from "../screens/driver/DriverManageCar";
 
 const defaultNavOptions = {
   headerTitleAlign: "center",
@@ -64,6 +63,23 @@ const DriversHistory = createStackNavigator(
   }
 );
 
+const DriverCar = createStackNavigator(
+  {
+    DriverManageCar,
+  },
+  {
+    navigationOptions: {
+      drawerIcon: (drawerConfig) => (
+        <Image
+          source={require("../assets/images/navigation/addcar.png")}
+          style={{ width: 24, height: 24, padding: 10 }}
+        />
+      ),
+      headerTitle: "Add car",
+    },
+    defaultNavigationOptions: defaultNavOptions,
+  }
+);
 // const DriverTab = createMaterialTopTabNavigator();
 // const Tab = function MyTabs() {
 //   return (
@@ -101,6 +117,7 @@ const DriverMainNavigator = createDrawerNavigator(
     },
     History: DriversHistory,
     // Logout: { screen: DriverLogOut },
+    DriverCar: DriverCar,
   },
 
   {
