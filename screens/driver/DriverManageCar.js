@@ -8,6 +8,7 @@ import {
   View,
   Button,
   SafeAreaView,
+  KeyboardAvoidingView,
 } from "react-native";
 import Toast, { DURATION } from "react-native-easy-toast";
 import * as firebase from "firebase";
@@ -103,14 +104,23 @@ export default class DriverManageCar extends React.Component {
     console.log("render" + this.state.type);
     const { dark, theme, toggle } = this.context;
     return (
-      <View
+      <KeyboardAvoidingView
         style={{
           flex: 1,
+          flexDirection: "column",
+          justifyContent: "center",
           backgroundColor: "white",
-          height: Dimensions.get("screen").height,
         }}
+        behavior="padding"
+        enabled
+        keyboardVerticalOffset={100}
+        // style={{
+        //   flex: 1,
+        //   backgroundColor: "white",
+        //   height: Dimensions.get("screen").height,
+        // }}
       >
-        <SafeAreaView>
+        <ScrollView>
           <Toast ref={(toast) => (this.toast = toast)} />
           <View>
             <Text style={styles.paymentTitle}> Add your car </Text>
@@ -180,10 +190,12 @@ export default class DriverManageCar extends React.Component {
 
             <MainButton
               style={{
-                backgroundColor: "#cfcfcf",
+                backgroundColor: "#131435",
                 width: 150,
                 /// justifyContent: "center",
                 alignItems: "center",
+                color: "white",
+                fontSize: 18,
                 alignSelf: "center",
               }}
               onPress={this.addToDatabase}
@@ -191,8 +203,8 @@ export default class DriverManageCar extends React.Component {
               Add
             </MainButton>
           </View>
-        </SafeAreaView>
-      </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     );
   }
 
@@ -262,7 +274,9 @@ export default class DriverManageCar extends React.Component {
 }
 DriverManageCar.navigationOptions = (navData) => {
   return {
-    headerTitle: false,
+    headerTitle: () => {
+      "";
+    },
     headerLeft: () => (
       <HeaderButtons HeaderButtonComponent={HeaderButton} color="white">
         <Item
@@ -331,7 +345,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 4,
     backgroundColor: "#E9EFFE",
-    fontFamily: "Helevica Neue",
   },
   selectedOptionStyle: {
     margin: 5,
@@ -340,11 +353,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 4,
-    backgroundColor: "#497DF9",
-    fontFamily: "Helevica Neue",
+    backgroundColor: "#5b5bb0",
   },
   optionTextStyle: {
-    color: "#497DF9",
+    color: "#7b79cc",
   },
   selectedOptionTextStyle: {
     color: "#ffffff",
@@ -355,8 +367,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   textInput: {
-    borderWidth: 1,
-    borderColor: "gray",
+    backgroundColor: "#eaecf9",
     height: 50,
     marginLeft: 15,
     marginRight: 15,
@@ -364,8 +375,9 @@ const styles = StyleSheet.create({
     fontFamily: "Lato3",
     padding: 15,
     fontSize: 17,
+    borderRadius: 10,
     // width: Dimensions.get("window").width / 1.5,
   },
-  text: { padding: 10, color: "gray", fontSize: 20, fontWeight: "bold" },
+  text: { padding: 10, fontSize: 20, fontWeight: "bold" },
   car: { width: 350, height: 150, alignSelf: "center" },
 });

@@ -209,6 +209,8 @@ const styles = StyleSheet.create({
     padding: 10,
     width: "85%",
     justifyContent: "center",
+    backgroundColor: "#eaecf9",
+    borderRadius: 10,
   },
   profileText: {
     fontSize: 30,

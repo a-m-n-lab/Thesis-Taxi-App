@@ -18,6 +18,9 @@ import DriverManageCar from "../screens/driver/DriverManageCar";
 const defaultNavOptions = {
   headerTitleAlign: "center",
   headerStyle: {
+    elevation: 0, // remove shadow on Android
+    shadowOpacity: 0, // remove shadow on iOS
+    borderBottomWidth: 0, // Just in case.
     backgroundColor: Platform.OS === "android" ? "black" : "white",
   },
   headerTintColor: Platform.OS === "android" ? "white" : "black",
@@ -39,7 +42,7 @@ const DriverNavigator = createStackNavigator(
           style={{ height: 24, width: 24, padding: 10 }}
         />
       ),
-      title: "Maps",
+      title: "Home",
     },
     defaultNavigationOptions: defaultNavOptions,
   }
@@ -75,6 +78,7 @@ const DriverCar = createStackNavigator(
           style={{ width: 24, height: 24, padding: 10 }}
         />
       ),
+      title: "Manage car",
       headerTitle: "Add car",
     },
     defaultNavigationOptions: defaultNavOptions,

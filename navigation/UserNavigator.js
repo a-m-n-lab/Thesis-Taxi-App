@@ -54,7 +54,7 @@ const UserNavigator = createStackNavigator(
           style={{ height: 30, width: 30 }}
         />
       ),
-      title: "Maps",
+      title: "Home",
     },
     defaultNavigationOptions: defaultNavOptions,
   }

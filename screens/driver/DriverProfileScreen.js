@@ -88,11 +88,19 @@ export default class DriverProfileScreen extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, backgroundColor: "white" }}>
+        {/* <Text style={styles.profileTitle}>Your profile </Text> */}
+
         <View style={styles.profileDetails}>
           <View
             style={{
               flexDirection: "row",
               padding: 25,
+              margin: 10,
+              // backgroundColor: "#7674ca",
+              // borderTopRightRadius: 30,
+              // borderTopLeftRadius: 30,
+              // // borderBottomLeftRadius: 50,
+              // borderBottomRightRadius: 30,
             }}
           >
             <Image
@@ -109,7 +117,12 @@ export default class DriverProfileScreen extends React.Component {
             </Text>
           </View>
         </View>
-        <View style={[styles.details, { backgroundColor: "white" }]}>
+        <View
+          style={[
+            styles.details,
+            { backgroundColor: "white", justifyContent: "center" },
+          ]}
+        >
           <View style={styles.firstname}>
             <Ionicons
               name="person-outline"
@@ -146,7 +159,9 @@ export default class DriverProfileScreen extends React.Component {
 
 DriverProfileScreen.navigationOptions = (navData) => {
   return {
-    headerTitle: "Driver Profile",
+    headerTitle: () => {
+      "";
+    },
     headerRight: () => (
       <HeaderButtons HeaderButtonComponent={HeaderButton}>
         {/* <Item
@@ -157,7 +172,7 @@ DriverProfileScreen.navigationOptions = (navData) => {
         /> */}
         <Item
           // color={Platform.OS === "android" ? "white" : "black"}
-          color={"purple"}
+          color={"#7674ca"}
           title="Edit"
           onPress={() => {
             navData.navigation.navigate("DriverEdit");
@@ -181,6 +196,7 @@ DriverProfileScreen.navigationOptions = (navData) => {
 };
 const styles = StyleSheet.create({
   container: {},
+  profileTitle: { fontWeight: "bold", padding: 5, fontSize: 50 },
   profileDetails: {
     width: "100%",
   },
@@ -189,7 +205,6 @@ const styles = StyleSheet.create({
     left: 35,
     top: 25,
     fontWeight: "bold",
-    fontFamily: "Lato3",
   },
   profileText: {
     fontSize: 20,
@@ -200,27 +215,33 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     top: 10,
-    padding: 10,
-    borderBottomColor: Colors.grey,
-    borderBottomWidth: 1,
+    padding: 20,
+    height: 80,
+    backgroundColor: "#eaecf9",
+    borderRadius: 15,
+    alignItems: "center",
   },
   email: {
     width: "100%",
     flexDirection: "row",
-    top: 30,
-    padding: 10,
-    borderBottomColor: Colors.grey,
-    borderBottomWidth: 1,
+    top: 20,
+    padding: 20,
+    height: 80,
+    backgroundColor: "#eaecf9",
+    borderRadius: 15,
+    alignItems: "center",
   },
   phone: {
     width: "100%",
     flexDirection: "row",
-    top: 40,
-    padding: 10,
-    borderBottomColor: Colors.grey,
-    borderBottomWidth: 1,
+    top: 30,
+    padding: 20,
+    height: 80,
+    backgroundColor: "#eaecf9",
+    borderRadius: 15,
+    alignItems: "center",
   },
-  member: { top: 10, padding: 10, backgroundColor: "white" },
+
   details: {
     minHeight: 250,
     top: 10,

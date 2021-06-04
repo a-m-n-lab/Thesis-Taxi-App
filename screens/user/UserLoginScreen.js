@@ -7,6 +7,8 @@ import {
   Dimensions,
   Alert,
   ActivityIndicator,
+  ImageBackground,
+  KeyboardAvoidingView,
 } from "react-native";
 import Colors from "../../constants/Colors";
 import Logo from "../../components/Logo";
@@ -36,68 +38,76 @@ export default class UserLoginScreen extends React.Component {
   }
   render() {
     return (
-      <View style={styles.userLoginContainer}>
-        <Logo />
-        {/* <Subtitle>
-          {` LOG IN 
-- PASSENGER - `}
-        </Subtitle> */}
-
+      <ImageBackground
+        style={styles.screenWrapper}
+        imageStyle={styles.backgroundStyle}
+        source={require("../../assets/images/5.jpg")}
+      >
+        <View>
+          <Text style={styles.enjoy}>
+            {` Enjoy the trip 
+ with Blink `}
+          </Text>
+        </View>
         <Card style={styles.cardContainer}>
-          <View style={styles.loginContainer}>
-            <View style={styles.usernameIconContainer}>
-              <FontAwesome name="user-o" size={26} color="grey" />
-            </View>
-            <View>
-              <Input
-                id="email"
-                autoFocus={true}
-                placeholder="E-mail"
-                keyboardType="email-address"
-                required
-                email
-                autoCapitalize="none"
-                onChangeText={(email) => this.setState({ email })}
-                initialValue=""
-              />
-            </View>
-            {this.state.isLoading ? (
-              <View style={styles.loading}>
-                <ActivityIndicator size="large" color="#9d6bb0" />
+          <KeyboardAvoidingView>
+            <Text style={styles.newAcc}> Welcome back</Text>
+            <View style={styles.loginContainer}>
+              <View style={styles.usernameIconContainer}>
+                <FontAwesome name="user-o" size={26} color="grey" />
               </View>
-            ) : null}
-            <View style={styles.passwordIconContainer}>
-              <Ionicons name="key-outline" size={28} color="grey" />
-            </View>
+              <View>
+                <Input
+                  style={{ right: 65 }}
+                  id="email"
+                  autoFocus={true}
+                  placeholder="E-mail"
+                  keyboardType="email-address"
+                  required
+                  email
+                  autoCapitalize="none"
+                  onChangeText={(email) => this.setState({ email })}
+                  initialValue=""
+                />
+              </View>
+              {this.state.isLoading ? (
+                <View style={styles.loading}>
+                  <ActivityIndicator size="large" color="#9d6bb0" />
+                </View>
+              ) : null}
+              <View style={styles.passwordIconContainer}>
+                <Ionicons name="key-outline" size={28} color="grey" />
+              </View>
+              <Input
+                style={{ bottom: 20 }}
+                id="password"
+                placeholder="Password"
+                keyboardType="default"
+                secureTextEntry
+                required
+                minLength={5}
+                autoCapitalize="none"
+                onChangeText={(password) => this.setState({ password })}
+              />
 
-            <Input
-              id="password"
-              placeholder="Password"
-              keyboardType="default"
-              secureTextEntry
-              required
-              minLength={5}
-              autoCapitalize="none"
-              onChangeText={(password) => this.setState({ password })}
-            />
-
-            <View style={styles.loginButtonContainer}>
-              <Text style={styles.forgotPasswordText}>
-                Forgot your password?
-              </Text>
-              <MainButton
-                style={styles.loginButton}
-                onPress={() => {
-                  this.setState({ isLoading: true }, this.signInAsync);
-                }}
-              >
-                LOGIN
-              </MainButton>
+              <View style={styles.loginButtonContainer}>
+                <Text style={styles.forgotPasswordText}>
+                  Forgot your password?
+                </Text>
+                <MainButton
+                  style={styles.loginButton}
+                  onPress={() => {
+                    this.setState({ isLoading: true }, this.signInAsync);
+                  }}
+                >
+                  LOGIN
+                </MainButton>
+              </View>
             </View>
-          </View>
+          </KeyboardAvoidingView>
         </Card>
         <Toast ref={(toast) => (this.toast = toast)} />
-      </View>
+      </ImageBackground>
     );
   }
 
@@ -171,25 +181,47 @@ export default class UserLoginScreen extends React.Component {
 
 UserLoginScreen.navigationOptions = () => {
   return {
-    headerTitle: "User Profile",
+    headerTitle: () => {
+      "";
+    },
   };
 };
 const styles = StyleSheet.create({
-  userLoginContainer: {
-    maxHeight: Dimensions.get("window").height,
-    maxWidth: Dimensions.get("window").width,
+  screenWrapper: {
     flex: 1,
-    backgroundColor: "white",
+    position: "relative",
   },
+  backgroundStyle: {
+    resizeMode: "cover",
+    // position: "absolute",
+    // top: 0,
+    bottom: "60%",
+  },
+  enjoy: {
+    color: "white",
+    top: 100,
+    marginLeft: 20,
+    fontSize: 40,
+    fontFamily: "Lato3",
+  },
+  // userLoginContainer: {
+  //   maxHeight: Dimensions.get("window").height,
+  //   maxWidth: Dimensions.get("window").width,
+  //   flex: 1,
+  //   backgroundColor: "white",
+  // },
   loginContainer: {
-    padding: 15,
-    top: 10,
+    //padding: 10,
   },
   cardContainer: {
+    flex: 1,
+    width: "100%",
+    maxHeight: Dimensions.get("window").height,
     alignItems: "center",
     alignSelf: "center",
-    top: Dimensions.get("window").height / 7,
+    top: 130,
     paddingBottom: 30,
+    paddingRight: 35,
   },
   usernameIconContainer: {
     justifyContent: "center",
@@ -197,7 +229,7 @@ const styles = StyleSheet.create({
   },
   passwordIconContainer: {
     marginVertical: 15,
-    top: 50,
+    top: 35,
   },
   loginButtonContainer: {
     flexDirection: "row",
@@ -224,5 +256,12 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: "center",
     justifyContent: "center",
+  },
+  newAcc: {
+    fontSize: 25,
+    alignSelf: "flex-start",
+    marginLeft: 25,
+    marginTop: 25,
+    fontWeight: "bold",
   },
 });

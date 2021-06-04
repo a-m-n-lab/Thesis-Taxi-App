@@ -17,12 +17,10 @@ const fetchFonts = () => {
     //loads fonts before
     PostNoBills: require("./assets/fonts/PostNoBillsJaffna-Regular.ttf"),
     Prata: require("./assets/fonts/Prata-Regular.ttf"),
-    Prata2: require("./assets/fonts/Prata400.ttf"),
     Lato1: require("./assets/fonts/Lato-Black.ttf"),
     Lato2: require("./assets/fonts/Lato-Thin.ttf"),
     Lato3: require("./assets/fonts/Lato-Regular.ttf"),
-    OS: require("./assets/fonts/OpenSans-Light.ttf"),
-    OS2: require("./assets/fonts/OpenSans-Regular.ttf"),
+    Roboto: require("./assets/fonts/Roboto-Black.ttf"),
   });
 };
 export default function App() {

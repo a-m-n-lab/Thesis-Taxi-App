@@ -6,6 +6,9 @@ import {
   Dimensions,
   Alert,
   ActivityIndicator,
+  ImageBackground,
+  Image,
+  Text,
 } from "react-native";
 import Colors from "../../constants/Colors";
 import Logo from "../../components/Logo";
@@ -35,13 +38,32 @@ export default class DriverLoginScreen extends React.Component {
   }
   render() {
     return (
-      <View style={styles.driverLoginContainer}>
-        <Logo />
+      // <View style={{ flex: 1, backgroundColor: "black" }}>
+      <ImageBackground
+        style={styles.screenWrapper}
+        imageStyle={styles.backgroundStyle}
+        source={require("../../assets/images/5.jpg")}
+      >
+        {/* <View style={styles.driverLoginContainer}> */}
+        {/* <View style={{ flexDirection: "row" }}>
+          <Image
+            style={styles.logo}
+            source={require("../../assets/images/blacklogo.jpg")}
+          />
+          <Text style={styles.logoText}> BLINK </Text>
+        </View> */}
         {/* <Subtitle>
           {` LOG IN 
 - DRIVER - `}
         </Subtitle> */}
+        {/* <View>
+          <Text style={styles.enjoy}>
+            {` Enjoy the trip 
+  with me `}
+          </Text>
+        </View> */}
         <Card style={styles.cardContainer}>
+          <Text style={styles.newAcc}> Welcome back, driver</Text>
           <View style={styles.loginContainer}>
             <View style={styles.usernameIconContainer}>
               <FontAwesome name="user-o" size={26} color="grey" />
@@ -93,7 +115,9 @@ export default class DriverLoginScreen extends React.Component {
           </View>
         </Card>
         <Toast ref={(toast) => (this.toast = toast)} />
-      </View>
+        {/* </View> */}
+      </ImageBackground>
+      // </View>
     );
   }
   signInAsync = async () => {
@@ -213,25 +237,33 @@ export default class DriverLoginScreen extends React.Component {
 }
 DriverLoginScreen.navigationOptions = () => {
   return {
-    headerTitle: "Driver Login",
+    headerTitle: () => {
+      "";
+    },
   };
 };
 const styles = StyleSheet.create({
-  driverLoginContainer: {
-    flex: 1,
-    backgroundColor: "white",
-  },
-  loginContainer: {
-    padding: 15,
-    top: 10,
+  logo: { marginLeft: 40, top: 50, width: 40, height: 50 },
+  logoText: {
+    top: 55,
+    fontSize: 30,
+    color: Colors.purple,
+    fontFamily: "PostNoBills",
+    left: 10,
   },
   cardContainer: {
-    width: 380,
+    flex: 1,
+    width: "100%",
+    maxHeight: Dimensions.get("window").height,
     alignItems: "center",
     alignSelf: "center",
-    top: Dimensions.get("window").height / 7,
+    top: 150,
     paddingBottom: 30,
     paddingRight: 35,
+  },
+  loginContainer: {
+    padding: 10,
+    //top: 10,
   },
   usernameIconContainer: {
     justifyContent: "center",
@@ -244,6 +276,13 @@ const styles = StyleSheet.create({
   loginButtonContainer: {
     left: 190,
     top: 10,
+  },
+  newAcc: {
+    fontSize: 25,
+    alignSelf: "flex-start",
+    marginLeft: 25,
+    marginTop: 25,
+    fontWeight: "bold",
   },
   loginButton: {
     color: "white",
@@ -261,5 +300,22 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: "center",
     justifyContent: "center",
+  },
+  screenWrapper: {
+    flex: 1,
+    position: "relative",
+  },
+  backgroundStyle: {
+    resizeMode: "cover",
+    // position: "absolute",
+    // top: 0,
+    bottom: "60%",
+  },
+  enjoy: {
+    color: "white",
+    top: 100,
+    marginLeft: 20,
+    fontSize: 40,
+    fontFamily: "Lato3",
   },
 });

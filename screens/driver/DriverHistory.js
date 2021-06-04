@@ -214,7 +214,9 @@ const styles = StyleSheet.create({
   card: {
     padding: 10,
     width: "85%",
+    backgroundColor: "#eaecf9",
     justifyContent: "center",
+    borderRadius: 10,
   },
   profileText: {
     fontSize: 30,

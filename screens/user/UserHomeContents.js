@@ -755,16 +755,13 @@ const styles = StyleSheet.create({
   searchBoxView: {
     paddingLeft: 20,
     justifyContent: "center",
-    backgroundColor: "white",
+    backgroundColor: "#eaecf9",
     width: "80%",
     minHeight: 55,
     position: "absolute",
     top: 550,
     alignSelf: "center",
-    borderWidth: 1,
-    borderColor: "#fff",
     borderRadius: 45,
-    elevation: 5,
   },
   searchIcon: {
     color: "#42A5F5",

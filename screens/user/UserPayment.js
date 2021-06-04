@@ -97,7 +97,7 @@ export default class UserPayment extends React.Component {
             styles.card,
             {
               borderColor: this.state.Card ? "#fca4b0" : "black",
-              borderWidth: this.state.Card ? 1 : 0,
+              borderWidth: this.state.Card ? 2 : 0,
               padding: 15,
               top: 50,
             },

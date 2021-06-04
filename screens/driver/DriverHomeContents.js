@@ -22,7 +22,7 @@ import toIcon from "../../assets/images/to.png";
 import HeaderButton from "../../components/HeaderButton";
 import lightMapStyle from "../../Themes/lightMapStyle.json";
 import Dash from "react-native-dash";
-
+import { Icon } from "react-native-elements";
 let { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
 const LATITUDE = 0;
@@ -80,6 +80,7 @@ export default class DriverHomeContents extends React.Component {
       price: false,
       destOrigSet: false,
       userToken: null,
+      userPayment: "",
     };
     // this.callFunc = this.callFunc.bind(this);
 
@@ -263,18 +264,69 @@ export default class DriverHomeContents extends React.Component {
                       margin: 5,
                     }}
                   />
-                  <Text
-                    style={{
-                      marginTop: 20,
-                      fontSize: 18,
-                      marginLeft: 15,
-                      color: "black",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {DriverHomeContents.Firstname + " "}
-                    {DriverHomeContents.Lastname}
-                  </Text>
+                  <View>
+                    <Text
+                      style={{
+                        marginTop: 20,
+                        fontSize: 18,
+                        marginLeft: 15,
+                        color: "black",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {DriverHomeContents.Firstname + " "}
+                      {DriverHomeContents.Lastname}
+                    </Text>
+                    {this.state.userPayment == "Cash" ? (
+                      <View
+                        style={{
+                          // flexDirection: "row",
+                          backgroundColor: "#89cff0",
+                          borderRadius: 20,
+                          marginLeft: 15,
+                          alignItems: "center",
+                          padding: 2,
+                          width: 90,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            //marginTop: 10,
+                            fontSize: 18,
+                            marginLeft: 2,
+                            fontWeight: "bold",
+                            color: "white",
+                          }}
+                        >
+                          Cash
+                        </Text>
+                      </View>
+                    ) : (
+                      <View
+                        style={{
+                          // flexDirection: "row",
+                          backgroundColor: "#e6b8e0",
+                          borderRadius: 20,
+                          marginLeft: 15,
+                          alignItems: "center",
+                          padding: 2,
+                          width: 90,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            //marginTop: 10,
+                            fontSize: 18,
+                            marginLeft: 2,
+                            fontWeight: "bold",
+                            color: "white",
+                          }}
+                        >
+                          Card
+                        </Text>
+                      </View>
+                    )}
+                  </View>
                   {this.state.price ? (
                     <Text
                       style={{
@@ -283,7 +335,7 @@ export default class DriverHomeContents extends React.Component {
                         marginLeft: 7,
                         margin: 3,
                         top: 5,
-                        left: 110,
+                        left: 100,
                       }}
                     >
                       {DriverHomeContents.RD_Price.toFixed(2)} RON
@@ -635,7 +687,7 @@ export default class DriverHomeContents extends React.Component {
               DriverHomeContents.RiderPickUpName +
               "RIDER ID : " +
               DriverHomeContents.RiderID +
-              "DIRVER ID " +
+              "DRIVER ID " +
               driverId
           );
           console.log(
@@ -706,6 +758,23 @@ export default class DriverHomeContents extends React.Component {
     //     //console.log("the user id:"+userId);
     //   }
     // );
+    // await firebase
+    //   .database()
+    //   .ref("Payments/" + DriverHomeContents.RiderID + "/PaymentsMode")
+    //   .once("value")
+    //   .then( (snapshot)=> {
+    //     var card = snapshot.child("Card").val();
+    //     var cash = snapshot.child("Cash").val();
+    //   })
+
+    // await firebase
+    //   .database()
+    //   .ref("Ride_Request/" + driverId)
+    //   .once("value")
+    //   .then((snapshot) => {
+    //     if (snapshot.exists()) {
+    //     }
+    //   });
     await firebase
       .database()
       .ref("RiderIds/" + DriverHomeContents.RiderID + "/Details")
@@ -731,6 +800,20 @@ export default class DriverHomeContents extends React.Component {
           // console.log("the user id:"+userId);
         }
       );
+    await firebase
+      .database()
+      .ref("Payments/" + DriverHomeContents.RiderID + "/PaymentsMode")
+      .once("value")
+      .then((snapshot) => {
+        var card = snapshot.child("Card").val();
+        var cash = snapshot.child("Cash").val();
+        console.log(card);
+        if (card) {
+          this.setState({ userPayment: "Card" });
+        } else {
+          this.setState({ userPayment: "Cash" });
+        }
+      });
 
     // );
   };
@@ -948,9 +1031,9 @@ const styles = StyleSheet.create({
     height: 310,
     position: "absolute",
     top: 350,
-    left: 20,
+    left: 15,
     borderRadius: 10,
-    marginLeft: 3,
+    //marginLeft: 3,
   },
   searchIcon: {
     color: "#42A5F5",
@@ -979,6 +1062,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#a698d9",
+    // backgroundColor: "#272e4a",
     height: 50,
     width: 155,
     borderRadius: 30,
