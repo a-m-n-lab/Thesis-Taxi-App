@@ -80,49 +80,7 @@ export default class UserHomeContents extends React.Component {
     }
   }
   static contextType = ThemeContext;
-  // registerForPushNotificationsAsync = async () => {
-  //   if (Constants.isDevice) {
-  //     const { status: existingStatus } = await Permissions.getAsync(
-  //       Permissions.NOTIFICATIONS
-  //     );
-  //     let finalStatus = existingStatus;
-  //     if (existingStatus !== "granted") {
-  //       const { status } = await Permissions.askAsync(
-  //         Permissions.NOTIFICATIONS
-  //       );
-  //       finalStatus = status;
-  //     }
-  //     if (finalStatus !== "granted") {
-  //       alert("Failed to get push token for push notification!");
-  //       return;
-  //     }
-  //     // const token = await Notifications.getExpoPushTokenAsync();
-  //     // console.log(token);
-  //     try {
-  //       //Get the token that uniqueli identifies this device
-  //       let token = await Notifications.getExpoPushTokenAsync();
 
-  //       firebase
-  //         .database()
-
-  //         .ref(`RiderIds/${currentUser}/Details`)
-  //         .set(token);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   } else {
-  //     alert("Must use physical device for Push Notifications");
-  //   }
-
-  //   if (Platform.OS === "android") {
-  //     Notifications.createChannelAndroidAsync("default", {
-  //       name: "default",
-  //       sound: true,
-  //       priority: "max",
-  //       vibrate: [0, 250, 250, 250],
-  //     });
-  //   }
-  // };
   registerForPushNotificationsAsync = async () => {
     const { status: existingStatus } = await Permissions.getAsync(
       Permissions.NOTIFICATIONS
@@ -139,7 +97,7 @@ export default class UserHomeContents extends React.Component {
       return;
     }
     try {
-      //Get the token that uniqueli identifies this device
+      //Get the token that uniquely identifies this device
       let token = await Notifications.getExpoPushTokenAsync();
 
       firebase
@@ -235,10 +193,10 @@ export default class UserHomeContents extends React.Component {
     //   }
     // this._getRiderAcceptDetails();
     // Typical usage (don't forget to compare props):
-    // if (this.state.region !== prevProps.region) {
-    //   this.storeUserLocation();
-    //   // AppState.addEventListener("change", this.storeUserLocation());
-    // }
+    if (this.state.region !== prevProps.region) {
+      this.storeUserLocation();
+      //   // AppState.addEventListener("change", this.storeUserLocation());
+    }
   }
 
   componentWillUnmount() {

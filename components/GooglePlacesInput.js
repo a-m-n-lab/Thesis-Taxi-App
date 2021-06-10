@@ -39,7 +39,7 @@ const GooglePlacesInput = (props) => {
         key: "AIzaSyCdiPwD9bgFbv7yBGA4qNIL236PVTKaqP8",
         language: "en",
         types: "geocode",
-        radius: 2000,
+        radius: 5000,
         location: "47.368816531416826 24.67733126020572 ",
         strictbounds: true,
       }}

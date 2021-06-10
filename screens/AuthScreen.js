@@ -149,7 +149,7 @@ export default class AuthScreen extends React.Component {
           <View style={styles.registerButtonContainer}>
             <MainButton
               style={styles.registerButton}
-              onPress={this._VerifyAsync}
+              onPress={this.verifyAsync}
             >
               SIGNUP
             </MainButton>
@@ -158,7 +158,7 @@ export default class AuthScreen extends React.Component {
       </View>
     );
   }
-  _VerifyAsync = async () => {
+  verifyAsync = async () => {
     //await AsyncStorage.setItem('userToken', 'rider');
     let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     if (
@@ -172,7 +172,7 @@ export default class AuthScreen extends React.Component {
       return;
     }
     if (reg.test(this.state.email) === false) {
-      this.toast.show("INVALID EMAIL!", 500);
+      this.toast.show("Email address is invalid!");
       return;
     }
 

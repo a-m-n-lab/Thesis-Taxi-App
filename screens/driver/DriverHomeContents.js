@@ -100,7 +100,7 @@ export default class DriverHomeContents extends React.Component {
 
   async componentDidMount() {
     LogBox.ignoreAllLogs();
-    //this.isMounted = true;
+    this.isMounted = true;
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -179,7 +179,7 @@ export default class DriverHomeContents extends React.Component {
   }
 
   componentWillUnmount() {
-    this.setState({ price: false });
+    this.setState({ isMounted: false }), this.setState({ price: false });
     //  this.isMounted = false;
     //  if(!this.state.isMounted){
     navigator.geolocation.clearWatch(this.watchID);
@@ -406,7 +406,10 @@ export default class DriverHomeContents extends React.Component {
                 <View style={styles.AcceptDeclineView}>
                   <TouchableOpacity
                     style={styles.DeclineButton}
-                    onPress={this.DeclineRequest}
+                    onPress={async () => {
+                      await this.DeclineRequest(),
+                        this.sendDeclineNotification();
+                    }}
                   >
                     <Text
                       style={{
@@ -470,6 +473,22 @@ export default class DriverHomeContents extends React.Component {
         sound: "default",
         title: "Ride confirmation",
         body: "The rider has confirmed your request",
+      }),
+    });
+  };
+  sendDeclineNotification = async () => {
+    console.log("userToken" + this.state.userToken);
+    await fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: this.state.userToken,
+        sound: "default",
+        title: "Ride decline",
+        body: "The rider has declined your request",
       }),
     });
   };
@@ -922,23 +941,36 @@ export default class DriverHomeContents extends React.Component {
 }*/
   }
 
-  DeclineRequest = () => {
+  DeclineRequest = async () => {
     //alert("decline");
 
-    AsyncStorage.getItem("driverId")
+    await AsyncStorage.getItem("driverId")
       .then(
         (result) =>
           firebase
             .database()
             .ref("Ride_Request/" + result)
             .remove(),
-        firebase
+        await firebase
           .database()
           .ref("Ride_Request/" + DriverHomeContents.RiderID)
           .remove(),
         this.setState({ isModalVisible: false })
+        //originData, //destOrigSet
       )
       .catch((e) => console.log("err", e));
+
+    await firebase
+      .database()
+      .ref("RiderIds/" + DriverHomeContents.RiderID + "/Details/token")
+      .once(
+        "value",
+        function (snapshot) {
+          var userToken = snapshot.child("data").val();
+          this.setState({ userToken: userToken });
+          console.log("first user token state" + userToken);
+        }.bind(this)
+      );
   };
   DoneTrip = () => {
     //alert("done trip")

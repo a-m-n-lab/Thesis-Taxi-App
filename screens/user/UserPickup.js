@@ -39,7 +39,7 @@ export default class UserPickup extends React.Component {
   static dropOffName;
   static dropOffLatitude;
   static dropOffLongitude;
-
+  _isMounted = false;
   constructor(props) {
     super(props);
     this.state = {
@@ -56,11 +56,15 @@ export default class UserPickup extends React.Component {
     }
   }
   async componentDidMount() {
+    this._isMounted = true;
     console.log("UserPickUP CDM");
     await this.recentDestination();
   }
   componentDidUpdate() {
     // this.recentDestination();
+  }
+  componentWillUnmount() {
+    this._isMounted = false;
   }
   render() {
     return (

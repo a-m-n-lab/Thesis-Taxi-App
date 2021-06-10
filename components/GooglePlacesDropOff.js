@@ -27,7 +27,7 @@ const GooglePlacesDropOff = (props) => {
         key: "AIzaSyCdiPwD9bgFbv7yBGA4qNIL236PVTKaqP8",
         language: "en",
         types: "geocode",
-        radius: 2000,
+        radius: 5000,
         location: "47.374934475629715, 24.659682324481643",
         strictbounds: true,
       }}
