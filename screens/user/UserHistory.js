@@ -179,7 +179,7 @@ export default class UserHistory extends React.Component {
 
 UserHistory.navigationOptions = (navData) => {
   return {
-    headerTitle: false,
+    headerTitle: () => {},
     headerLeft: () => (
       <HeaderButtons HeaderButtonComponent={HeaderButton}>
         <Item

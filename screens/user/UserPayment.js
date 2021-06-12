@@ -38,7 +38,9 @@ export default class UserPayment extends React.Component {
       <View style={{ flex: 1, backgroundColor: theme.backgroundColor }}>
         <Toast ref={(toast) => (this.toast = toast)} />
         <View>
-          <Text style={styles.paymentTitle}> Payment </Text>
+          <Text style={[styles.paymentTitle, { color: theme.color }]}>
+            Payment{" "}
+          </Text>
           <Text style={styles.paymentSubTitle}> PAYMENT METHODS </Text>
         </View>
         <TouchableOpacity
@@ -49,6 +51,7 @@ export default class UserPayment extends React.Component {
               borderWidth: this.state.Cash ? 1 : 0,
               padding: 15,
               top: 35,
+              backgroundColor: theme.backgroundCard,
             },
           ]}
           onPress={() => {
@@ -71,6 +74,7 @@ export default class UserPayment extends React.Component {
               marginLeft: 5,
               padding: 14,
               fontWeight: "bold",
+              color: theme.color,
             }}
           >
             Cash payment
@@ -100,6 +104,7 @@ export default class UserPayment extends React.Component {
               borderWidth: this.state.Card ? 2 : 0,
               padding: 15,
               top: 50,
+              backgroundColor: theme.backgroundCard,
             },
           ]}
           onPress={() => {
@@ -121,6 +126,7 @@ export default class UserPayment extends React.Component {
               marginTop: 5,
               marginLeft: 5,
               padding: 14,
+              color: theme.color,
             }}
           >
             Card payment
@@ -213,7 +219,7 @@ export default class UserPayment extends React.Component {
 }
 UserPayment.navigationOptions = (navData) => {
   return {
-    headerTitle: false,
+    headerTitle: () => {},
     headerLeft: () => (
       <HeaderButtons HeaderButtonComponent={HeaderButton} color="white">
         <Item

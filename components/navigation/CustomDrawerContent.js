@@ -20,7 +20,7 @@ const CustomDrawerContentComponent = (props) => {
       firebase
         .database()
         .ref("RiderIds/" + userId + "/Details") //use id to check details
-        .once("value", function (snapshot) {
+        .on("value", function (snapshot) {
           //  firstName = snapshot.child("firstname").val();
           // lastName = snapshot.child("lastname").val();
           setFirstName(snapshot.child("firstname").val());

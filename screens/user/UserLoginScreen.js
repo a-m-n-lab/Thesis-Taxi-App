@@ -123,6 +123,7 @@ export default class UserLoginScreen extends React.Component {
     }
     if (reg.test(this.state.email) === false) {
       this.toast.show("INVALID EMAIL!", 500);
+      this.setState({ isLoading: false });
       return;
     }
 
@@ -131,7 +132,7 @@ export default class UserLoginScreen extends React.Component {
       .signInWithEmailAndPassword(this.state.email, this.state.password)
       .then(
         () => {
-          AsyncStorage.setItem("riderId", firebase.auth().currentUser.uid);
+          // AsyncStorage.setItem("riderId", firebase.auth().currentUser.uid);
           this.getRiderRole();
           //  this.props.navigation.navigate("Maps");
         },
@@ -142,38 +143,35 @@ export default class UserLoginScreen extends React.Component {
       .catch((e) => console.log("err", e));
   };
   getRiderRole = async () => {
-    await AsyncStorage.getItem("riderId") //**driverId
-      .then((result) =>
-        firebase
-          .database()
-          .ref("RiderIds/" + result + "/Details")
-          .once("value", (snapshot) => {
-            if (snapshot.exists()) {
-              var isRider = snapshot.child("driver").val();
-              //console.log("Is user a driver?" + isRider);
-              //console.log(snapshot.val());
-              if (!isRider) {
-                this.props.navigation.navigate("Maps");
-              }
-            } else {
-              Alert.alert(
-                "Alert",
-                "This user is not registered as a Passenger",
-                [
-                  {
-                    text: "Cancel",
-                    onPress: () => {
-                      console.log("Cancel Pressed"),
-                        this.setState({ isLoading: false });
-                    },
-                    style: "cancel",
-                  },
-                ]
-              );
-            }
-          })
-      )
-      .catch((e) => console.log("err", e));
+    riderId = firebase.auth().currentUser.uid;
+    // await AsyncStorage.getItem("riderId") //**driverId
+    //   .then((result) =>
+    await firebase
+      .database()
+      .ref("RiderIds/" + riderId + "/Details")
+      .once("value", (snapshot) => {
+        if (snapshot.exists()) {
+          var isRider = snapshot.child("driver").val();
+          //console.log("Is user a driver?" + isRider);
+          //console.log(snapshot.val());
+          if (!isRider) {
+            this.props.navigation.navigate("Maps");
+          }
+        } else {
+          Alert.alert("Alert", "This user is not registered as a Passenger", [
+            {
+              text: "Cancel",
+              onPress: () => {
+                console.log("Cancel Pressed"),
+                  this.setState({ isLoading: false });
+              },
+              style: "cancel",
+            },
+          ]);
+        }
+      });
+    // )
+    // .catch((e) => console.log("err", e));
   };
 
   //   goToMaps = () => {};

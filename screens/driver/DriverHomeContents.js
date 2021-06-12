@@ -12,10 +12,11 @@ import {
 } from "react-native";
 import { Content, Container, Card } from "native-base";
 import Toast, { DURATION } from "react-native-easy-toast";
-import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import * as firebase from "firebase";
 import ApiKeys from "../../constants/ApiKeys";
+import API from "../../constants/API";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import fromIcon from "../../assets/images/user/from.png";
 import toIcon from "../../assets/images/to.png";
@@ -27,7 +28,7 @@ let { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
 const LATITUDE = 0;
 const LONGITUDE = 0;
-const LATITUDE_DELTA = 0.0922;
+const LATITUDE_DELTA = 0.01;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 export default class DriverHomeContents extends React.Component {
@@ -78,9 +79,14 @@ export default class DriverHomeContents extends React.Component {
       originData: [],
       destinationData: [],
       price: false,
+      name: "",
       destOrigSet: false,
       userToken: null,
       userPayment: "",
+      latitudine: 0,
+      longitude: 0,
+      latitudineDest: 0,
+      longitudineDest: 0,
     };
     // this.callFunc = this.callFunc.bind(this);
 
@@ -88,19 +94,19 @@ export default class DriverHomeContents extends React.Component {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
     }
   }
-  callFunc() {
-    if (this.isModalVisible) {
-      this.setState({ isModalVisible: false });
-      console.log("callFunc");
-    } else {
-      this.setState({ isModalVisible: true });
-      console.log("callFunc");
-    }
-  }
+  // callFunc() {
+  //   if (this.isModalVisible) {
+  //     this.setState({ isModalVisible: false });
+  //     console.log("callFunc");
+  //   } else {
+  //     this.setState({ isModalVisible: true });
+  //     console.log("callFunc");
+  //   }
+  // }
 
   async componentDidMount() {
     LogBox.ignoreAllLogs();
-    this.isMounted = true;
+    this.setState({ isMounted: true });
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -152,22 +158,27 @@ export default class DriverHomeContents extends React.Component {
 
     //disable the warnings in yellow box
     LogBox.ignoreAllLogs();
-
-    DriverHomeContents.RD_Distance = await this.GetDriverRiderDistance(
-      DriverHomeContents.RiderPickUpLatitude,
-      DriverHomeContents.RiderPickUpLongitude,
-      DriverHomeContents.RiderDropUpLatitude,
-      DriverHomeContents.RiderDropUpLongitude
-    );
-
-    // console.log("distance");
-    DriverHomeContents.RD_Price = await this.calculatePrice();
-    this.setState({ price: true });
-    console.log("price");
   }
 
-  async componentDidUpdate(prevProps) {
+  async componentDidUpdate(prevProps, prevState) {
     //  console.log("update");
+    //if (DriverHomeContents.RD_Distance != prevProps.DriverHomeContents.RD_Distance){
+    // }
+    if (this.state.isModalVisible !== prevState.isModalVisible) {
+      console.log(this.state.isModalVisible);
+      await this.getRiderRequestDetails();
+
+      this.setState({ latitudine: this.state.originData[0].latitude });
+      this.setState({ longitudine: this.state.originData[0].longitude });
+
+      this.setState({ latitudineDest: this.state.destinationData[0].latitude });
+      this.setState({
+        longitudineDest: this.state.destinationData[0].longitude,
+      });
+    }
+    if (this.state.region !== prevProps.region) {
+      this.storeUserLocation();
+    }
     // await this.getRiderAcceptDetails();
     //  console.log("getRiderAccept update");
     //  await this.getRiderRequestDetails();
@@ -179,7 +190,7 @@ export default class DriverHomeContents extends React.Component {
   }
 
   componentWillUnmount() {
-    this.setState({ isMounted: false }), this.setState({ price: false });
+    // this.setState({ price: false });
     //  this.isMounted = false;
     //  if(!this.state.isMounted){
     navigator.geolocation.clearWatch(this.watchID);
@@ -187,12 +198,10 @@ export default class DriverHomeContents extends React.Component {
     //  }
   }
 
-  componentDidUpdate(prevProps) {
-    // Typical usage (don't forget to compare props):
-    if (this.state.region !== prevProps.region) {
-      this.storeUserLocation();
-    }
-  }
+  // componentDidUpdate(prevProps) {
+  //   // Typical usage (don't forget to compare props):
+
+  // }
 
   onMapReady = (e) => {
     if (!this.state.ready) {
@@ -210,238 +219,249 @@ export default class DriverHomeContents extends React.Component {
   render() {
     console.log("render");
     return (
-      <Container>
-        <Content>
-          <Toast ref={(toast) => (this.toast = toast)} />
-          <View style={{ justifyContent: "center" }}>
-            <MapView
-              provider={PROVIDER_GOOGLE}
-              style={styles.map}
-              showsUserLocation={true}
-              region={this.state.region}
-              ref={(map) => {
-                this.map = map;
-              }}
-              onRegionChange={this.onRegionChange}
-              onRegionChangeComplete={this.onRegionChangeComplete}
-              //showsUserLocation={true}
-              // onRegionChange={(region) => this.setState({ region })}
-              // onRegionChangeComplete={(region) => this.setState({ region })}
-              customMapStyle={lightMapStyle}
-            >
-              {this.state.originData ? (
+      // <Container>
+      // <Content>
+
+      <View style={{ justifyContent: "center", flex: 1 }}>
+        <Toast ref={(toast) => (this.toast = toast)} />
+        <MapView
+          provider={PROVIDER_GOOGLE}
+          style={styles.map}
+          showsUserLocation={true}
+          region={this.state.region}
+          ref={(map) => {
+            this.map = map;
+          }}
+          showsMyLocationButton={true}
+          showsPointsOfInterest={true}
+          zoomEnabled
+          zoomControlEnabled={true}
+          onRegionChange={this.onRegionChange}
+          onRegionChangeComplete={this.onRegionChangeComplete}
+          //showsUserLocation={true}
+          // onRegionChange={(region) => this.setState({ region })}
+          // onRegionChangeComplete={(region) => this.setState({ region })}
+          customMapStyle={lightMapStyle}
+        >
+          {this.state.origin
+            ? [
                 <MapViewDirections
                   origin={this.state.originData[0]}
                   destination={this.state.destinationData[0]}
-                  apikey="AIzaSyCdiPwD9bgFbv7yBGA4qNIL236PVTKaqP8" // insert your API Key here
+                  apikey={API.apiKey} // insert your API Key here
                   strokeWidth={4}
                   strokeColor="#9484d4"
-                />
-              ) : null}
+                />,
+                <MapView.Marker
+                  image={toIcon}
+                  coordinate={{
+                    latitude: this.state.latitudine,
+                    longitude: this.state.longitudine,
+                  }}
+                />,
+                <MapView.Marker
+                  image={fromIcon}
+                  coordinate={{
+                    latitude: this.state.latitudineDest,
+                    longitude: this.state.longitudineDest,
+                  }}
+                />,
+              ]
+            : null}
 
-              {this.state.destOrigSet ? (
+          {/* {this.state.destOrigSet ? (
                 <View>
-                  <MapView.Marker
-                    image={fromIcon}
-                    coordinate={this.state.originData[0]}
-                  />
-                  <MapView.Marker
-                    image={toIcon}
-                    coordinate={this.state.destinationData[0]}
-                  />
+                 
                 </View>
-              ) : null}
-            </MapView>
-            {this.state.isModalVisible ? (
-              <Card style={styles.MainAcceptView}>
-                <View style={styles.RiderDetails}>
-                  <Image
-                    source={require("../../assets/images/user/user.jpg")}
-                    style={{
-                      width: 60,
-                      height: 60,
-                      borderRadius: 200,
-                      margin: 5,
-                    }}
-                  />
-                  <View>
-                    <Text
-                      style={{
-                        marginTop: 20,
-                        fontSize: 18,
-                        marginLeft: 15,
-                        color: "black",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {DriverHomeContents.Firstname + " "}
-                      {DriverHomeContents.Lastname}
-                    </Text>
-                    {this.state.userPayment == "Cash" ? (
-                      <View
-                        style={{
-                          // flexDirection: "row",
-                          backgroundColor: "#89cff0",
-                          borderRadius: 20,
-                          marginLeft: 15,
-                          alignItems: "center",
-                          padding: 2,
-                          width: 90,
-                        }}
-                      >
-                        <Text
-                          style={{
-                            //marginTop: 10,
-                            fontSize: 18,
-                            marginLeft: 2,
-                            fontWeight: "bold",
-                            color: "white",
-                          }}
-                        >
-                          Cash
-                        </Text>
-                      </View>
-                    ) : (
-                      <View
-                        style={{
-                          // flexDirection: "row",
-                          backgroundColor: "#e6b8e0",
-                          borderRadius: 20,
-                          marginLeft: 15,
-                          alignItems: "center",
-                          padding: 2,
-                          width: 90,
-                        }}
-                      >
-                        <Text
-                          style={{
-                            //marginTop: 10,
-                            fontSize: 18,
-                            marginLeft: 2,
-                            fontWeight: "bold",
-                            color: "white",
-                          }}
-                        >
-                          Card
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                  {this.state.price ? (
-                    <Text
-                      style={{
-                        fontWeight: "bold",
-                        fontSize: 20,
-                        marginLeft: 7,
-                        margin: 3,
-                        top: 5,
-                        left: 100,
-                      }}
-                    >
-                      {DriverHomeContents.RD_Price.toFixed(2)} RON
-                    </Text>
-                  ) : null}
-                  {this.state.price ? (
-                    <View style={styles.distancePriceView2}>
-                      <Text style={{ fontSize: 17 }}>
-                        {DriverHomeContents.RD_Distance.toFixed(2)}
-                        KM
-                      </Text>
-                    </View>
-                  ) : null}
-                </View>
-                <View style={styles.riderLocationTitle}>
-                  <View style={styles.pickupIcon}>
-                    <Image
-                      source={require("../../assets/images/user/from.png")}
-                      style={{ width: 20, height: 20, top: 25 }}
-                    />
-                    <View
-                      style={{
-                        padding: 15,
-                        //  borderBottomWidth: 1,
-                        // borderBottomColor: "#adadad",
-                        //  width: "100%",
-                      }}
-                    >
-                      <Text
-                        style={{ fontSize: 14, color: "#636e72", bottom: 7 }}
-                      >
-                        PICK UP
-                      </Text>
-                      <Text style={{ fontSize: 17, color: "black" }}>
-                        {DriverHomeContents.RiderPickUpName}
-                      </Text>
-                    </View>
-                  </View>
-                  <Dash style={styles.dash} />
-                  <View style={styles.dropOffIcon}>
-                    <Image
-                      source={require("../../assets/images/to.png")}
-                      style={{ width: 20, height: 20, top: 10 }}
-                    />
-                    <View style={styles.dropOffView}>
-                      <Text
-                        style={{
-                          fontSize: 14,
-                          color: "#636e72",
-                        }}
-                      >
-                        DROP OFF
-                      </Text>
-                      <Text style={{ fontSize: 17, color: "black", top: 7 }}>
-                        {DriverHomeContents.RiderDropUpName}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-                <View style={styles.riderPayments}>
+              ) : null} */}
+        </MapView>
+        {this.state.isModalVisible ? (
+          <Card style={styles.MainAcceptView}>
+            <View style={styles.RiderDetails}>
+              <Image
+                source={require("../../assets/images/user/user.jpg")}
+                style={{
+                  width: 60,
+                  height: 60,
+                  borderRadius: 200,
+                  margin: 5,
+                }}
+              />
+              <View>
+                {this.state.price && this.state.isModalVisible ? (
                   <Text
-                    style={{ marginTop: 50, fontSize: 15, fontWeight: "bold" }}
+                    style={{
+                      marginTop: 20,
+                      fontSize: 18,
+                      marginLeft: 15,
+                      color: "black",
+                      fontWeight: "bold",
+                    }}
                   >
-                    {DriverHomeContents.PaymentMode}
+                    {DriverHomeContents.Firstname} {DriverHomeContents.Lastname}
+                  </Text>
+                ) : null}
+                {this.state.userPayment == "Cash" ? (
+                  <View
+                    style={{
+                      // flexDirection: "row",
+                      backgroundColor: "#89cff0",
+                      borderRadius: 20,
+                      marginLeft: 15,
+                      alignItems: "center",
+                      padding: 2,
+                      width: 90,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        //marginTop: 10,
+                        fontSize: 18,
+                        marginLeft: 2,
+                        fontWeight: "bold",
+                        color: "white",
+                      }}
+                    >
+                      Cash
+                    </Text>
+                  </View>
+                ) : (
+                  <View
+                    style={{
+                      // flexDirection: "row",
+                      // backgroundColor: "#e6b8e0",
+                      backgroundColor: "#89cff0",
+                      borderRadius: 20,
+                      marginLeft: 15,
+                      alignItems: "center",
+                      padding: 2,
+                      width: 90,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        //marginTop: 10,
+                        fontSize: 18,
+                        marginLeft: 2,
+                        fontWeight: "bold",
+                        color: "white",
+                      }}
+                    >
+                      Card
+                    </Text>
+                  </View>
+                )}
+              </View>
+              {this.state.price && this.state.isModalVisible ? (
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 20,
+                    marginLeft: 7,
+                    margin: 3,
+                    top: 5,
+                    left: 100,
+                  }}
+                >
+                  {this.state.setPrice} RON
+                </Text>
+              ) : null}
+              {/* {this.state.price == "set" ? ( */}
+              <View style={styles.distancePriceView2}>
+                <Text style={{ fontSize: 17 }}>
+                  {this.state.setDistance}
+                  KM
+                </Text>
+              </View>
+              {/* ) : null} */}
+            </View>
+            <View style={styles.riderLocationTitle}>
+              <View style={styles.pickupIcon}>
+                <Image
+                  source={require("../../assets/images/user/from.png")}
+                  style={{ width: 20, height: 20, top: 25 }}
+                />
+                <View
+                  style={{
+                    padding: 15,
+                    //  borderBottomWidth: 1,
+                    // borderBottomColor: "#adadad",
+                    //  width: "100%",
+                  }}
+                >
+                  <Text style={{ fontSize: 14, color: "#636e72", bottom: 7 }}>
+                    PICK UP
+                  </Text>
+                  <Text style={{ fontSize: 17, color: "black" }}>
+                    {DriverHomeContents.RiderPickUpName}
                   </Text>
                 </View>
-
-                <View style={styles.AcceptDeclineView}>
-                  <TouchableOpacity
-                    style={styles.DeclineButton}
-                    onPress={async () => {
-                      await this.DeclineRequest(),
-                        this.sendDeclineNotification();
+              </View>
+              <Dash style={styles.dash} />
+              <View style={styles.dropOffIcon}>
+                <Image
+                  source={require("../../assets/images/to.png")}
+                  style={{ width: 20, height: 20, top: 10 }}
+                />
+                <View style={styles.dropOffView}>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: "#636e72",
                     }}
                   >
-                    <Text
-                      style={{
-                        color: "#adadad",
-                        fontWeight: "bold",
-                        fontSize: 20,
-                      }}
-                    >
-                      Decline
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.AcceptButton}
-                    onPress={async () => {
-                      await this.StartDriving(), this.sendPushNotification();
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: "#ffffff",
-                        fontWeight: "bold",
-                        fontSize: 20,
-                      }}
-                    >
-                      Accept
-                    </Text>
-                  </TouchableOpacity>
+                    DROP OFF
+                  </Text>
+                  <Text style={{ fontSize: 17, color: "black", top: 7 }}>
+                    {DriverHomeContents.RiderDropUpName}
+                  </Text>
                 </View>
-              </Card>
-            ) : null}
+              </View>
+            </View>
+            <View style={styles.riderPayments}>
+              <Text style={{ marginTop: 50, fontSize: 15, fontWeight: "bold" }}>
+                {DriverHomeContents.PaymentMode}
+              </Text>
+            </View>
 
-            {/* (
+            <View style={styles.AcceptDeclineView}>
+              <TouchableOpacity
+                style={styles.DeclineButton}
+                onPress={async () => {
+                  await this.DeclineRequest(), this.sendDeclineNotification();
+                }}
+              >
+                <Text
+                  style={{
+                    color: "#adadad",
+                    fontWeight: "bold",
+                    fontSize: 20,
+                  }}
+                >
+                  Decline
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.AcceptButton}
+                onPress={async () => {
+                  await this.StartDriving(), this.sendPushNotification();
+                }}
+              >
+                <Text
+                  style={{
+                    color: "#ffffff",
+                    fontWeight: "bold",
+                    fontSize: 20,
+                  }}
+                >
+                  Accept
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </Card>
+        ) : null}
+
+        {/* (
               <Card style={styles.MainAcceptView}>
                 <View style={styles.RiderDetails}>
                   <Text style={{ color: "blue", fontWeight: "bold" }}>
@@ -450,9 +470,9 @@ export default class DriverHomeContents extends React.Component {
                 </View>
               </Card>
             ) */}
-          </View>
-        </Content>
-      </Container>
+      </View>
+      //  </Content>
+      //  </Container>
     );
   }
   pickUpLocation = async () => {
@@ -472,7 +492,7 @@ export default class DriverHomeContents extends React.Component {
         to: this.state.userToken,
         sound: "default",
         title: "Ride confirmation",
-        body: "The rider has confirmed your request",
+        body: "The driver has confirmed your request",
       }),
     });
   };
@@ -488,99 +508,9 @@ export default class DriverHomeContents extends React.Component {
         to: this.state.userToken,
         sound: "default",
         title: "Ride decline",
-        body: "The rider has declined your request",
+        body: "The driver has declined your request",
       }),
     });
-  };
-  AcceptRequest = async () => {
-    //store driver information
-    driverId = firebase.auth().currentUser.uid;
-
-    //riderId=result,
-
-    await firebase
-      .database()
-      .ref("Ride_Confirm/" + driverId + "/")
-      .set({
-        riderID: DriverHomeContents.RiderID,
-        riderpickname: DriverHomeContents.RiderPickUpName,
-        riderdropname: DriverHomeContents.RiderDropUpName,
-        riderpickuplatitude: DriverHomeContents.RiderPickUpLatitude,
-        riderpickuplongitude: DriverHomeContents.RiderPickUpLongitude,
-        riderDropofflatitude: DriverHomeContents.RiderDropUpLatitude,
-        riderdropofflongitude: DriverHomeContents.RiderDropUpLongitude,
-        rideDate: DriverHomeContents.RideDate,
-        rideDistance: DriverHomeContents.RD_Distance,
-        ridePrice: DriverHomeContents.RD_Price,
-      })
-      .then(
-        () => {
-          this.setState({ isModalVisible: false });
-          this.setState({ hasTripStarted: true });
-        },
-        (error) => {
-          //Toast.show(error.message,Toast.SHORT);
-          console.error("error:" + error);
-        }
-      );
-    // )
-    // .catch((e) => console.log("err", e));
-
-    // AsyncStorage.getItem("driverId")
-    //   .then(
-    //     (result) =>
-    await firebase
-      .database()
-      .ref("Ride_Request/" + driverId)
-      .remove(),
-      firebase
-        .database()
-        .ref("Ride_Request/" + DriverHomeContents.RiderID)
-        .remove(),
-      this.setState({ isModalVisible: false });
-    // )
-    // .catch((e) => console.log("err", e));
-
-    // AsyncStorage.getItem("driverId")
-    //   .then((driverID) =>
-    //     //riderId=result,
-
-    await firebase
-      .database()
-      .ref("Ride_Confirm/" + DriverHomeContents.RiderID)
-      .set({
-        driverID: driverId,
-        confirmed: true,
-      })
-      .then(
-        () => {},
-        (error) => {
-          this.toast.show(error.message, 500);
-        }
-      );
-    // await firebase
-    //   .database()
-    //   .ref("RiderIds/" + DriverHomeContents.RiderID + "/Details/token") //use id to check details
-    //   .once(
-    //     "value",
-    //     function (snapshot) {
-    //       var userToken = snapshot.child("data").val();
-    //       // this.setState({ userToken: userToken });
-    //       console.log("first user token state" + userToken);
-    //       //console.log(snapshot.val());
-    //     }.bind(this)
-    //   );
-    await firebase
-      .database()
-      .ref("RiderIds/" + DriverHomeContents.RiderID + "/Details/token")
-      .once(
-        "value",
-        function (snapshot) {
-          var userToken = snapshot.child("data").val();
-          this.setState({ userToken: userToken });
-          console.log("first user token state" + userToken);
-        }.bind(this)
-      );
   };
 
   StartDriving = async () => {
@@ -644,199 +574,202 @@ export default class DriverHomeContents extends React.Component {
     // .catch((e) => console.log("err", e));
     await this.AcceptRequest();
   };
-
-  getRiderRequestDetails = async () => {
+  AcceptRequest = async () => {
+    //store driver information
     driverId = firebase.auth().currentUser.uid;
-    // AsyncStorage.setItem("driverId", driverId); //**driverId
-    //   .then((result) =>
+
+    //riderId=result,
+
     await firebase
       .database()
-      .ref("Ride_Request/" + driverId)
-      .once("value")
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          DriverHomeContents.RiderID = snapshot.child("riderID").val();
-          DriverHomeContents.RiderPickUpName = snapshot
-            .child("pickUpName")
-            .val();
-          DriverHomeContents.RiderDropUpName = snapshot
-            .child("dropOffName")
-            .val();
-          DriverHomeContents.RiderPickUpLatitude = snapshot
-            .child("pickupLatitude")
-            .val();
-          DriverHomeContents.RiderPickUpLongitude = snapshot
-            .child("pickupLongitude")
-            .val();
-          DriverHomeContents.RiderDropUpLatitude = snapshot
-            .child("dropOffLatitude")
-            .val();
-          DriverHomeContents.RiderDropUpLongitude = snapshot
-            .child("dropOffLongitude")
-            .val();
-          DriverHomeContents.RideDate = firebase.database.ServerValue.TIMESTAMP;
-          // DriverHomeContents.RideDate =
-          //   firebase.database.ServerValue.TIMESTAMP;
-          console.log(
-            DriverHomeContents.RiderDropUpLongitude,
-            DriverHomeContents.RiderDropUpLatitude
-          );
-          let latLongObj = {
-            latitude: parseFloat(DriverHomeContents.RiderPickUpLatitude),
-            longitude: parseFloat(DriverHomeContents.RiderPickUpLongitude),
-          };
-          this.setState((prevState) => ({
-            destinationData: [...prevState.destinationData, latLongObj],
-          }));
-          // this.setState({
-          //   destinationData: [latLongObj],
-          // });
-          let latLongObj1 = {
-            latitude: parseFloat(DriverHomeContents.RiderDropUpLatitude),
-            longitude: parseFloat(DriverHomeContents.RiderDropUpLongitude),
-          };
-          this.setState({
-            originData: [latLongObj1],
-          });
-          console.log(
-            "Drop Address: " +
-              DriverHomeContents.RiderDropUpName +
-              " " +
-              "Pick Up Address: " +
-              DriverHomeContents.RiderPickUpName +
-              "RIDER ID : " +
-              DriverHomeContents.RiderID +
-              "DRIVER ID " +
-              driverId
-          );
-          console.log(
-            "destinationData[0]" + this.state.destinationData[0].latitude
-          );
-          console.log(
-            "destinationData[0]" + this.state.destinationData[0].longitude
-          );
-          console.log("originData[0]" + this.state.originData[0].latitude);
-          console.log("originData[0]" + this.state.originData[0].longitude);
-          if (!DriverHomeContents.RiderID == "") {
-            this.setState({ isModalVisible: true });
-            this.setState({ requests: true });
-            this.setState({ destOrigSet: true });
-          }
-        } else {
-          this.setState({ isModalVisible: false });
-          this.toast.show("No ride requests", 500);
-        }
-      });
-
-    // .then(
-    //   () => {
-    //     let latLongObj = {
-    //       latitude: parseFloat(DriverHomeContents.RiderPickUpLatitude),
-    //       longitude: parseFloat(DriverHomeContents.RiderPickUpLongitude),
-    //     };
-    //     this.setState((prevState) => ({
-    //       destinationData: [...prevState.destinationData, latLongObj],
-    //     }));
-    //     // this.setState({
-    //     //   destinationData: [latLongObj],
-    //     // });
-    //     let latLongObj1 = {
-    //       latitude: parseFloat(DriverHomeContents.RiderDropUpLatitude),
-    //       longitude: parseFloat(DriverHomeContents.RiderDropUpLongitude),
-    //     };
-    //     this.setState({
-    //       originData: [latLongObj1],
-    //     });
-    //     console.log(
-    //       "Drop Address: " +
-    //         DriverHomeContents.RiderDropUpName +
-    //         " " +
-    //         "Pick Up Address: " +
-    //         DriverHomeContents.RiderPickUpName +
-    //         "RIDER ID : " +
-    //         DriverHomeContents.RiderID +
-    //         "DIRVER ID " +
-    //         driverId
-    //     );
-    //     console.log(
-    //       "destinationData[0]" + this.state.destinationData[0].latitude
-    //     );
-    //     console.log(
-    //       "destinationData[0]" + this.state.destinationData[0].longitude
-    //     );
-    //     console.log("originData[0]" + this.state.originData[0].latitude);
-    //     console.log("originData[0]" + this.state.originData[0].longitude);
-    //     if (!DriverHomeContents.RiderID == "") {
-    //       this.setState({ isModalVisible: true });
-    //       this.setState({ requests: true });
-    //       this.setState({ destOrigSet: true });
-    //     }
-    //   },
-    //   (error) => {
-    //     console.error("error" + error);
-    //     //console.log("the user id:"+userId);
-    //   }
-    // );
-    // await firebase
-    //   .database()
-    //   .ref("Payments/" + DriverHomeContents.RiderID + "/PaymentsMode")
-    //   .once("value")
-    //   .then( (snapshot)=> {
-    //     var card = snapshot.child("Card").val();
-    //     var cash = snapshot.child("Cash").val();
-    //   })
-
-    // await firebase
-    //   .database()
-    //   .ref("Ride_Request/" + driverId)
-    //   .once("value")
-    //   .then((snapshot) => {
-    //     if (snapshot.exists()) {
-    //     }
-    //   });
-    await firebase
-      .database()
-      .ref("RiderIds/" + DriverHomeContents.RiderID + "/Details")
-      .once("value")
-      .then(function (snapshot) {
-        DriverHomeContents.Firstname = snapshot.child("firstname").val();
-        DriverHomeContents.Lastname = snapshot.child("lastname").val();
+      .ref("Ride_Confirm/" + driverId + "/")
+      .set({
+        riderID: DriverHomeContents.RiderID,
+        riderpickname: DriverHomeContents.RiderPickUpName,
+        riderdropname: DriverHomeContents.RiderDropUpName,
+        riderpickuplatitude: DriverHomeContents.RiderPickUpLatitude,
+        riderpickuplongitude: DriverHomeContents.RiderPickUpLongitude,
+        riderDropofflatitude: DriverHomeContents.RiderDropUpLatitude,
+        riderdropofflongitude: DriverHomeContents.RiderDropUpLongitude,
+        rideDate: DriverHomeContents.RideDate,
+        rideDistance: DriverHomeContents.RD_Distance,
+        ridePrice: DriverHomeContents.RD_Price,
       })
       .then(
         () => {
-          console.log(
-            "Rider's name :" +
-              " " +
-              DriverHomeContents.Lastname +
-              " " +
-              "Rider's first name :" +
-              " " +
-              DriverHomeContents.Firstname
-          );
+          this.setState({ isModalVisible: false });
+          console.log(this.state.isModalVisible);
+          this.setState({ hasTripStarted: true });
         },
         (error) => {
-          // console.error("error"+error);
-          // console.log("the user id:"+userId);
+          //Toast.show(error.message,Toast.SHORT);
+          console.error("error:" + error);
         }
+      );
+    // )
+    // .catch((e) => console.log("err", e));
+
+    // AsyncStorage.getItem("driverId")
+    //   .then(
+    //     (result) =>
+    await firebase
+      .database()
+      .ref("RiderIds/" + DriverHomeContents.RiderID + "/Details/token")
+      .once(
+        "value",
+        function (snapshot) {
+          var userToken = snapshot.child("data").val();
+          this.setState({ userToken: userToken });
+          console.log("first user token state" + userToken);
+        }.bind(this)
       );
     await firebase
       .database()
+      .ref("Ride_Request/" + driverId)
+      .remove();
+    firebase
+      .database()
+      .ref("Ride_Request/" + DriverHomeContents.RiderID)
+      .remove();
+    this.setState({ isModalVisible: false });
+    console.log(this.state.isModalVisible);
+    // )
+    // .catch((e) => console.log("err", e));
+
+    // AsyncStorage.getItem("driverId")
+    //   .then((driverID) =>
+    //     //riderId=result,
+
+    await firebase
+      .database()
+      .ref("Ride_Confirm/" + DriverHomeContents.RiderID)
+      .set({
+        driverID: driverId,
+        confirmed: true,
+      })
+      .then(
+        () => {},
+        (error) => {
+          this.toast.show(error.message, 500);
+        }
+      );
+    // await firebase
+    //   .database()
+    //   .ref("RiderIds/" + DriverHomeContents.RiderID + "/Details/token") //use id to check details
+    //   .once(
+    //     "value",
+    //     function (snapshot) {
+    //       var userToken = snapshot.child("data").val();
+    //       // this.setState({ userToken: userToken });
+    //       console.log("first user token state" + userToken);
+    //       //console.log(snapshot.val());
+    //     }.bind(this)
+    //   );
+  };
+
+  getRiderRequestDetails = async () => {
+    driverId = firebase.auth().currentUser.uid;
+
+    firebase
+      .database()
+      .ref("Ride_Request/")
+      .on("value", (snapshot) => {
+        if (snapshot.hasChild(driverId)) {
+          DriverHomeContents.RiderID = snapshot
+            .child(driverId + "/riderID")
+            .val();
+          DriverHomeContents.RiderPickUpName = snapshot
+            .child(driverId + "/pickUpName")
+            .val();
+          DriverHomeContents.RiderDropUpName = snapshot
+            .child(driverId + "/dropOffName")
+            .val();
+          DriverHomeContents.RiderPickUpLatitude = snapshot
+            .child(driverId + "/pickupLatitude")
+            .val();
+          DriverHomeContents.RiderPickUpLongitude = snapshot
+            .child(driverId + "/pickupLongitude")
+            .val();
+          DriverHomeContents.RiderDropUpLatitude = snapshot
+            .child(driverId + "/dropOffLatitude")
+            .val();
+          DriverHomeContents.RiderDropUpLongitude = snapshot
+            .child(driverId + "/dropOffLongitude")
+            .val();
+          DriverHomeContents.RideDate = firebase.database.ServerValue.TIMESTAMP;
+
+          if (!DriverHomeContents.RiderID == "") {
+            this.setState({ isModalVisible: true });
+            // this.setState({ requests: true });
+            // this.setState({ destOrigSet: true });
+            // this.setState({ price: "set" });
+          }
+        } else {
+          this.setState({ isModalVisible: false });
+          console.log(this.state.isModalVisible);
+          //  this.setState({ price: "" });
+          //  this.toast.show("No ride requests", 500); //added before I fucked up xD
+        }
+      });
+    var latLongObj = {
+      latitude: parseFloat(DriverHomeContents.RiderPickUpLatitude),
+      longitude: parseFloat(DriverHomeContents.RiderPickUpLongitude),
+    };
+    // this.setState((prevState) => ({
+    //   destinationData: [...prevState.destinationData, latLongObj],
+    // }));
+    this.setState({
+      destinationData: [latLongObj],
+    });
+    var latLongObj1 = {
+      latitude: parseFloat(DriverHomeContents.RiderDropUpLatitude),
+      longitude: parseFloat(DriverHomeContents.RiderDropUpLongitude),
+    };
+
+    this.setState({
+      originData: [latLongObj1],
+    });
+    firebase
+      .database()
+      .ref("RiderIds/" + DriverHomeContents.RiderID + "/Details")
+      .on("value", (snapshot) => {
+        DriverHomeContents.Firstname = snapshot.child("firstname").val();
+        DriverHomeContents.Lastname = snapshot.child("lastname").val();
+        // if (DriverHomeContents.Firstname) {
+        //   this.setState({ name: "set" });
+        // }
+      });
+    firebase
+      .database()
       .ref("Payments/" + DriverHomeContents.RiderID + "/PaymentsMode")
-      .once("value")
-      .then((snapshot) => {
+      .on("value", (snapshot) => {
         var card = snapshot.child("Card").val();
         var cash = snapshot.child("Cash").val();
         console.log(card);
         if (card) {
           this.setState({ userPayment: "Card" });
+          this.setState({ price: true });
+          this.setState({ name: "set" });
         } else {
           this.setState({ userPayment: "Cash" });
+          this.setState({ price: true });
+          this.setState({ name: "set" });
         }
       });
+    DriverHomeContents.RD_Distance = await this.GetDriverRiderDistance(
+      DriverHomeContents.RiderPickUpLatitude,
+      DriverHomeContents.RiderPickUpLongitude,
+      DriverHomeContents.RiderDropUpLatitude,
+      DriverHomeContents.RiderDropUpLongitude
+    );
+    this.setState({ setDistance: DriverHomeContents.RD_Distance.toFixed(2) });
+
+    DriverHomeContents.RD_Price = this.calculatePrice();
+    this.setState({ setPrice: DriverHomeContents.RD_Price.toFixed(2) }); //added before I fucked up xD
 
     // );
   };
-
+  getDetails = async () => {};
   // getRiderAcceptDetails = async () => {
   //   driverId = firebase.auth().currentUser.uid;
   //   // AsyncStorage.setItem("driverId", driverId); //**driverId */
@@ -943,23 +876,6 @@ export default class DriverHomeContents extends React.Component {
 
   DeclineRequest = async () => {
     //alert("decline");
-
-    await AsyncStorage.getItem("driverId")
-      .then(
-        (result) =>
-          firebase
-            .database()
-            .ref("Ride_Request/" + result)
-            .remove(),
-        await firebase
-          .database()
-          .ref("Ride_Request/" + DriverHomeContents.RiderID)
-          .remove(),
-        this.setState({ isModalVisible: false })
-        //originData, //destOrigSet
-      )
-      .catch((e) => console.log("err", e));
-
     await firebase
       .database()
       .ref("RiderIds/" + DriverHomeContents.RiderID + "/Details/token")
@@ -971,10 +887,28 @@ export default class DriverHomeContents extends React.Component {
           console.log("first user token state" + userToken);
         }.bind(this)
       );
-  };
-  DoneTrip = () => {
-    //alert("done trip")
-    this.setState({ isModalVisible: false });
+    try {
+      await firebase
+        .database()
+        .ref("Ride_Request/" + driverId)
+        .remove();
+      await firebase
+        .database()
+        .ref("Ride_Request/" + DriverHomeContents.RiderID)
+        .remove();
+      this.setState({ isModalVisible: false });
+      console.log(this.state.isModalVisible);
+      this.setState({ userPayment: "" });
+      this.setState({ originData: [] });
+      this.setState({ latitudine: "" });
+      this.setState({ longitudine: "" });
+      DriverHomeContents.Firstname = "";
+      DriverHomeContents.Lastname = "";
+      DriverHomeContents.RiderID = "";
+      //originData, //destOrigSet
+    } catch (e) {
+      console.log("err", e);
+    }
   };
 
   toRad = (Value) => {
@@ -996,7 +930,7 @@ export default class DriverHomeContents extends React.Component {
     console.log("the distance is:" + d);
     return d;
   };
-  calculatePrice = async () => {
+  calculatePrice = () => {
     let priceKm = 3.15;
     let finalPrice = DriverHomeContents.RD_Distance.toFixed(2) * priceKm;
     console.log("finalPrice" + finalPrice);
@@ -1026,7 +960,7 @@ export default class DriverHomeContents extends React.Component {
 
 DriverHomeContents.navigationOptions = (navData) => {
   return {
-    headerTitle: false,
+    headerTitle: () => {},
     headerLeft: () => (
       <HeaderButtons HeaderButtonComponent={HeaderButton} color="white">
         <Item
@@ -1093,7 +1027,8 @@ const styles = StyleSheet.create({
   AcceptButton: {
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#a698d9",
+    backgroundColor: "#453d6c",
+    //backgroundColor: "#a698d9",
     // backgroundColor: "#272e4a",
     height: 50,
     width: 155,
@@ -1186,4 +1121,4 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
 });
-AppRegistry.registerComponent("RiderHomeContents", () => RiderHomeContents);
+AppRegistry.registerComponent("DriverHomeContents", () => DriverHomeContents);

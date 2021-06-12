@@ -134,6 +134,7 @@ export default class DriverLoginScreen extends React.Component {
     }
     if (reg.test(this.state.email) === false) {
       this.toast.show("INVALID EMAIL!", 500);
+      this.setState({ isLoading: false });
       return;
     }
 

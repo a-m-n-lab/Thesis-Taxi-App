@@ -27,6 +27,7 @@ export default class UserProfileScreen extends React.Component {
       phone: "",
       date: "",
       screenState: false,
+      info: [],
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
@@ -36,8 +37,8 @@ export default class UserProfileScreen extends React.Component {
 
   componentDidMount() {
     this.renderFunction();
-    const { navigation } = this.props;
-    navigation.addListener("willFocus", () => this.renderFunction());
+    // const { navigation } = this.props;
+    // navigation.addListener("willFocus", () => this.renderFunction());
   }
   componentDidUpdate(prevProps, prevState, snapshot) {
     //console.log("componentDidup");
@@ -65,23 +66,23 @@ export default class UserProfileScreen extends React.Component {
       firebase
         .database()
         .ref("RiderIds/" + userId + "/Details") //use id to check details
-        .once(
+        .on(
           "value",
-          function (snapshot) {
-            var email = snapshot.child("email").val();
-            var firstname = snapshot.child("firstname").val();
-            var lastname = snapshot.child("lastname").val();
-            var phone = snapshot.child("phone").val();
-            var date = snapshot.child("currentDate").val();
+          (snapshot) => {
+            let info = [];
+            info = snapshot.val();
             //console.log(snapshot.val());
             this.setState({
-              email,
-              firstname,
-              lastname,
-              phone,
-              date,
+              info: info,
             });
-          }.bind(this)
+          }
+
+          //   let riderInfo = [];
+          //   riderInfo = snapshot.val();
+          //   this.setState({
+          //     riderInfo: riderInfo,
+          //   });
+          // });
         );
     }
   };
@@ -116,14 +117,21 @@ export default class UserProfileScreen extends React.Component {
             ></Image>
             <Text style={[styles.name, { color: theme.color, flex: 1 }]}>
               Hello, {""}
-              {this.state.firstname} {""}!
+              {this.state.info.firstname} {""}!
             </Text>
           </View>
         </View>
         <View
-          style={[styles.details, { backgroundColor: theme.backgroundCard }]}
+          style={[styles.details, { backgroundColor: theme.backgroundColor }]}
         >
-          <View style={styles.firstname}>
+          <View
+            style={[
+              styles.firstname,
+              {
+                backgroundColor: dark ? theme.backgroundCard : "#eaecf9",
+              },
+            ]}
+          >
             <Ionicons
               name="person-outline"
               size={26}
@@ -133,24 +141,38 @@ export default class UserProfileScreen extends React.Component {
               }}
             />
             <Text style={[styles.profileText, { color: theme.color, flex: 1 }]}>
-              {this.state.firstname} {this.state.lastname}
+              {this.state.info.firstname} {this.state.info.lastname}
             </Text>
           </View>
-          <View style={styles.email}>
+          <View
+            style={[
+              styles.email,
+              {
+                backgroundColor: dark ? theme.backgroundCard : "#eaecf9",
+              },
+            ]}
+          >
             <Ionicons name="mail-outline" size={26} color="grey" />
             <Text style={[styles.profileText, { color: theme.color }]}>
-              {this.state.email}
+              {this.state.info.email}
             </Text>
           </View>
-          <View style={styles.phone}>
+          <View
+            style={[
+              styles.phone,
+              {
+                backgroundColor: dark ? theme.backgroundCard : "#eaecf9",
+              },
+            ]}
+          >
             <Ionicons name="call-outline" size={26} color="grey" />
             <Text style={[styles.profileText, { color: theme.color }]}>
-              {this.state.phone}
+              {this.state.info.phone}
             </Text>
           </View>
         </View>
         <View
-          style={[styles.member, { backgroundColor: theme.backgroundCard }]}
+          style={[styles.member, { backgroundColor: theme.backgroundColor }]}
         >
           <Text style={[styles.profileText, { color: theme.color }]}>
             Registration date:

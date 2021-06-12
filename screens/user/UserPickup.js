@@ -9,6 +9,7 @@ import {
   Alert,
   ScrollView,
   Image,
+  LogBox,
 } from "react-native";
 import Card from "../../components/Card";
 import { Content, Container } from "native-base";
@@ -39,7 +40,7 @@ export default class UserPickup extends React.Component {
   static dropOffName;
   static dropOffLatitude;
   static dropOffLongitude;
-  _isMounted = false;
+
   constructor(props) {
     super(props);
     this.state = {
@@ -50,21 +51,24 @@ export default class UserPickup extends React.Component {
       price: null,
       driverName: "",
       orderStatus: "",
+      carBrand: "",
+      carPlate: "",
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
     }
   }
   async componentDidMount() {
-    this._isMounted = true;
+    this.setState({ isMounted: true });
     console.log("UserPickUP CDM");
     await this.recentDestination();
+    LogBox.ignoreAllLogs();
   }
   componentDidUpdate() {
     // this.recentDestination();
   }
   componentWillUnmount() {
-    this._isMounted = false;
+    this.setState({ isMounted: false });
   }
   render() {
     return (
@@ -119,7 +123,9 @@ export default class UserPickup extends React.Component {
                   this.state.price,
                   this.state.distance,
                   this.state.driverName,
-                  this.state.orderStatus
+                  this.state.orderStatus,
+                  this.state.carBrand,
+                  this.state.carPlate
                 );
                 this.props.navigation.goBack();
               }}
@@ -357,7 +363,7 @@ export default class UserPickup extends React.Component {
           )
       )
       .catch((e) => console.log("err", e));
-
+    // driverName
     firebase
       .database()
       .ref("Drivers/" + driverID + "/Details")
@@ -368,6 +374,17 @@ export default class UserPickup extends React.Component {
         console.log("driverName" + this.state.driverName);
       });
     this.setState({ orderStatus: "notAccepted" });
+
+    //driver car + license plate
+    firebase
+      .database()
+      .ref("Drivers/" + driverID + "/CarInfo")
+      .once("value")
+      .then((snapshot) => {
+        var carBrand = snapshot.child("brand").val();
+        var carPlate = snapshot.child("plate").val();
+        this.setState({ carBrand: carBrand, carPlate: carPlate });
+      });
   };
   toRad = (Value) => {
     return (Value * Math.PI) / 180;

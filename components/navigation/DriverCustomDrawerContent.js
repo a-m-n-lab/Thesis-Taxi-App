@@ -26,7 +26,8 @@ const DriverCustomDrawerContentComponent = (props) => {
       firebase
         .database()
         .ref("Drivers/" + userId + "/Details") //use id to check details
-        .once("value", function (snapshot) {
+        .on("value", function (snapshot) {
+          //worked with once
           //  firstName = snapshot.child("firstname").val();
           // lastName = snapshot.child("lastname").val();
           setFirstName(snapshot.child("firstname").val());

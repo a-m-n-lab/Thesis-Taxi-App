@@ -2,6 +2,7 @@ import React from "react";
 import { View, Image, StyleSheet, Text } from "react-native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { Icon } from "native-base";
+import API from "../constants/API";
 
 const homePlace = {
   description: "Home",
@@ -39,8 +40,8 @@ const GooglePlacesInput = (props) => {
         key: "AIzaSyCdiPwD9bgFbv7yBGA4qNIL236PVTKaqP8",
         language: "en",
         types: "geocode",
-        radius: 5000,
-        location: "47.368816531416826 24.67733126020572 ",
+        radius: 10000,
+        location: "47.3641 24.6751",
         strictbounds: true,
       }}
       styles={{

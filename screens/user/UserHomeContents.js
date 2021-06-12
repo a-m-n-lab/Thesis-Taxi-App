@@ -29,6 +29,7 @@ import darkMapStyle from "../../Themes/darkMapStyle.json";
 import marker from "../../assets/images/user/marker3.png";
 import * as firebase from "firebase";
 import ApiKeys from "../../constants/ApiKeys";
+import API from "../../constants/API";
 import fromIcon from "../../assets/images/user/from.png";
 import toIcon from "../../assets/images/to.png";
 import MapButton from "../../components/userprofile/MapButton";
@@ -37,11 +38,12 @@ import { Icon } from "react-native-elements";
 import * as Notifications from "expo-notifications";
 import * as Permissions from "expo-permissions";
 import Constants from "expo-constants";
+
 let { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
 const LATITUDE = 0;
 const LONGITUDE = 0;
-const LATITUDE_DELTA = 0.1322;
+const LATITUDE_DELTA = 0.01;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 export default class UserHomeContents extends React.Component {
@@ -74,6 +76,8 @@ export default class UserHomeContents extends React.Component {
       distance: null,
       price: null,
       driverName: "",
+      carBrand: "",
+      carPlate: "",
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
@@ -109,6 +113,7 @@ export default class UserHomeContents extends React.Component {
     }
   };
   async componentDidMount() {
+    this.setState({ isMounted: true });
     this.currentUser = firebase.auth().currentUser.uid;
     await this.registerForPushNotificationsAsync();
     //this.isMounted = true;
@@ -119,7 +124,9 @@ export default class UserHomeContents extends React.Component {
       (position) => {
         getMyData = async () => {
           return fetch(
-            "https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyCdiPwD9bgFbv7yBGA4qNIL236PVTKaqP8&address=" +
+            "https://maps.googleapis.com/maps/api/geocode/json?key= " +
+              API.apiKey +
+              "&address=" +
               position.coords.latitude +
               "," +
               position.coords.longitude
@@ -200,6 +207,7 @@ export default class UserHomeContents extends React.Component {
   }
 
   componentWillUnmount() {
+    this.setState({ isMounted: false });
     //  this.isMounted = false;
     //  if(!this.state.isMounted){
     navigator.geolocation.clearWatch(this.watchID);
@@ -224,35 +232,34 @@ export default class UserHomeContents extends React.Component {
     const { dark, theme, map, toggle } = this.context;
     // console.log(theme);
     return (
-      <Container>
-        <Content>
-          <View style={{ justifyContent: "center" }}>
-            <MapView
-              provider={PROVIDER_GOOGLE}
-              style={styles.map}
-              showsUserLocation={true}
-              followUserLocation={true}
-              showsBuildings={true}
-              ref={(map) => {
-                this.map = map;
-              }}
-              // onMapReady={this.onMapReady}
-              showsPointsOfInterest={true}
-              zoomEnabled
-              zoomControlEnabled={true}
-              //showsTraffic={true}
-              region={this.state.region}
-              onRegionChange={this.onRegionChange}
-              onRegionChangeComplete={this.onRegionChangeComplete}
-              // onRegionChange={(region) => this.setState({ region })}
-              // onRegionChangeComplete={(region) => this.setState({ region })}
-              customMapStyle={
-                theme.backgroundColor == "#151618"
-                  ? darkMapStyle
-                  : lightMapStyle
-              }
-            >
-              {/* <MapView.Marker
+      // <Container>
+      // <Content>
+      <View style={{ justifyContent: "center", flex: 1 }}>
+        <MapView
+          provider={PROVIDER_GOOGLE}
+          style={styles.map}
+          showsUserLocation={true}
+          followUserLocation={true}
+          showsBuildings={true}
+          ref={(map) => {
+            this.map = map;
+          }}
+          showsMyLocationButton={true}
+          // onMapReady={this.onMapReady}
+          showsPointsOfInterest={true}
+          zoomEnabled
+          zoomControlEnabled={true}
+          //showsTraffic={true}
+          region={this.state.region}
+          onRegionChange={this.onRegionChange}
+          onRegionChangeComplete={this.onRegionChangeComplete}
+          // onRegionChange={(region) => this.setState({ region })}
+          // onRegionChangeComplete={(region) => this.setState({ region })}
+          customMapStyle={
+            theme.backgroundColor == "#151618" ? darkMapStyle : lightMapStyle
+          }
+        >
+          {/* <MapView.Marker
                 //  image={marker}
                 color="black"
                 coordinate={this.state.region}
@@ -263,30 +270,30 @@ export default class UserHomeContents extends React.Component {
                     <View style={styles.bubble}>
                       <Text style={styles.name}>{this.state.addressName}</Text>
                       {/* <Text>{UserHomeContents.longitude}</Text> */}
-              {/* </View>
+          {/* </View>
                     <View style={styles.arrowBorder}></View>
                     <View style={styles.arrow}></View>
                   </View>
                 </Callout>
               </MapView.Marker>  */}
-              {this.state.coordonates ? (
-                <MapViewDirections
-                  origin={this.state.coordonates[0]} // optional
-                  destination={this.state.coordonates[1]} // optional
-                  // destination={[
-                  //   { latitude: 48.8478, longitude: 2.3202 }, // optional
-                  // ]}
-                  apikey="AIzaSyCdiPwD9bgFbv7yBGA4qNIL236PVTKaqP8" // insert your API Key here
-                  strokeWidth={4}
-                  strokeColor="#9484d4"
-                />
-              ) : null}
-              {/* {[
+          {this.state.coordonates ? (
+            <MapViewDirections
+              origin={this.state.coordonates[0]} // optional
+              destination={this.state.coordonates[1]} // optional
+              // destination={[
+              //   { latitude: 48.8478, longitude: 2.3202 }, // optional
+              // ]}
+              apikey={API.apiKey} // insert your API Key here
+              strokeWidth={4}
+              strokeColor="#9484d4"
+            />
+          ) : null}
+          {/* {[
                 { latitude: 48.8555, longitude: 2.3181 }, // optional
                 ...this.state.region,
                 { latitude: 48.8478, longitude: 2.3202 }, // optional
               ]} */}
-              {this.state.coordonates ? (
+          {/* {this.state.coordonates ? (
                 <View>
                   <MapView.Marker
                     image={fromIcon}
@@ -297,18 +304,18 @@ export default class UserHomeContents extends React.Component {
                     coordinate={this.state.coordonates[1]}
                   />
                 </View>
-              ) : null}
-            </MapView>
-            <View style={styles.historyButton}>
-              <Icon
-                raised
-                name="time-outline"
-                type="ionicon"
-                color="#7c6ccc"
-                onPress={() => this.props.navigation.navigate("History")}
-              />
-            </View>
-            {/* {this.state.orderStatus == "notAccepted" &&
+              ) : null} */}
+        </MapView>
+        <View style={styles.historyButton}>
+          <Icon
+            raised
+            name="time-outline"
+            type="ionicon"
+            color="#7c6ccc"
+            onPress={() => this.props.navigation.navigate("History")}
+          />
+        </View>
+        {/* {this.state.orderStatus == "notAccepted" &&
             this.state.coordonates[0] ? (
               <View style={styles.declineCard}>
                 <Text>
@@ -318,117 +325,130 @@ export default class UserHomeContents extends React.Component {
                 <Button title="Cancel" onPress={this.cancelTrip.bind(this)} />
               </View>
             ) : ( */}
-            {this.state.price ? (
-              <Card style={styles.MainAcceptView}>
-                <View style={styles.RiderDetails}>
-                  <Image
-                    source={require("../../assets/images/driver/driver.jpg")}
-                    style={{
-                      width: 60,
-                      height: 60,
-                      borderRadius: 200,
-                      margin: 5,
-                    }}
-                  />
+        {this.state.price ? (
+          <Card style={styles.MainAcceptView}>
+            <View style={styles.RiderDetails}>
+              <Image
+                source={require("../../assets/images/driver/driver.jpg")}
+                style={{
+                  width: 60,
+                  height: 60,
+                  borderRadius: 200,
+                  margin: 5,
+                }}
+              />
+              <Text
+                style={{
+                  marginTop: 10,
+                  fontSize: 20,
+                  marginLeft: 15,
+                  color: "black",
+                  fontWeight: "bold",
+                }}
+              >
+                {this.state.driverName}
+              </Text>
+              <View style={styles.carDetailsView}>
+                <Text
+                  style={{
+                    //  top: 5,
+                    fontSize: 18,
+                    // marginLeft: 10,
+                    color: "#838BC2",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {this.state.carBrand} {this.state.carPlate}
+                </Text>
+              </View>
+              <View style={styles.priceView}>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 20,
+                    //  marginLeft: 7,
+                    //  margin: 3,
+                    //  top: 5,
+                    // left: 90,
+                  }}
+                >
+                  {this.state.price.toFixed(2)} RON
+                </Text>
+              </View>
+              <View style={styles.distancePriceView2}>
+                <Text style={{ fontSize: 17 }}>
+                  {this.state.distance.toFixed(2)}
+                  KM
+                </Text>
+              </View>
+            </View>
+            {this.state.orderStatus == "notAccepted" ? (
+              <View style={styles.declineView}>
+                <Text>
+                  You have 30 seconds to cancel your trip. Do you want to
+                  cancel?
+                </Text>
+                <TouchableOpacity
+                  style={styles.declineButton}
+                  onPress={async () => await this.cancelTrip()}
+                >
                   <Text
                     style={{
-                      marginTop: 20,
-                      fontSize: 18,
-                      marginLeft: 15,
-                      color: "black",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {this.state.driverName}
-                  </Text>
-                  <Text
-                    style={{
+                      color: "#adadad",
                       fontWeight: "bold",
                       fontSize: 20,
-                      marginLeft: 7,
-                      margin: 3,
-                      top: 5,
-                      left: 110,
                     }}
                   >
-                    {this.state.price.toFixed(2)}
+                    Cancel
                   </Text>
-                  <View style={styles.distancePriceView2}>
-                    <Text style={{ fontSize: 17 }}>
-                      {this.state.distance.toFixed(2)}
-                      KM
-                    </Text>
-                  </View>
-                </View>
-                {this.state.orderStatus == "notAccepted" ? (
-                  <View style={styles.declineView}>
-                    <Text>
-                      You have 30 seconds to cancel your trip. Do you want to
-                      cancel?
-                    </Text>
-                    <TouchableOpacity
-                      style={styles.declineButton}
-                      onPress={this.cancelTrip}
-                    >
-                      <Text
-                        style={{
-                          color: "#adadad",
-                          fontWeight: "bold",
-                          fontSize: 20,
-                        }}
-                      >
-                        Cancel
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                ) : // <View>
-                //   <Text>
-                //     You have 15 seconds to cancel your trip. Do you want to
-                //     cancel?
-                //   </Text>
-                //   <Button
-                //     title="Cancel"
-                //     onPress={this.cancelTrip.bind(this)}
-                //   />
-                // </View>
-                null}
-                {/* <Text>
+                </TouchableOpacity>
+              </View>
+            ) : // <View>
+            //   <Text>
+            //     You have 15 seconds to cancel your trip. Do you want to
+            //     cancel?
+            //   </Text>
+            //   <Button
+            //     title="Cancel"
+            //     onPress={this.cancelTrip.bind(this)}
+            //   />
+            // </View>
+            null}
+            {/* <Text>
                   Price: {this.state.price.toFixed(2)} RON Distance:
                   {this.state.distance.toFixed(2)} KM Driver's name:
                   {this.state.driverName}
                 </Text> */}
-              </Card>
-            ) : (
-              <View style={styles.searchBoxView}>
-                <Text style={styles.fromText}>
-                  From: {this.state.addressName}
-                </Text>
-                <View style={{ flexDirection: "row" }}>
-                  <View style={styles.purpleDot}></View>
-                  <TextInput
-                    style={styles.pickupText}
-                    placeholder="Where to?"
-                    underlineColorAndroid="#ffffff"
-                    selectionColor="#42A5F5"
-                    placeholderTextColor="#000000"
-                    onFocus={() =>
-                      this.props.navigation.navigate("Address", {
-                        returnData: this.returnData.bind(this),
-                      })
-                    }
-                  />
-                </View>
-              </View>
-            )}
-            {/* )} */}
-            {/* {this.state.orderStatus == "notAccepted" &&
+          </Card>
+        ) : (
+          <View style={styles.searchBoxView}>
+            <Text style={styles.fromText}>From: {this.state.addressName}</Text>
+            <View style={{ flexDirection: "row" }}>
+              <View style={styles.purpleDot}></View>
+              <TextInput
+                style={styles.pickupText}
+                placeholder="Where to?"
+                underlineColorAndroid="#ffffff"
+                selectionColor="#42A5F5"
+                placeholderTextColor="#000000"
+                onFocus={() =>
+                  this.props.navigation.navigate("Address", {
+                    returnData: this.returnData.bind(this),
+                  })
+                }
+              />
+            </View>
+          </View>
+        )}
+        {/* )} */}
+        {/* {this.state.orderStatus == "notAccepted" &&
             this.state.coordonates ? (
               <View>
                 <Text> You can still cancel</Text>
               </View>
             ) : null} */}
-            {/* <Footer style={styles.footerContainer}> */}
-            {/* {this.state.isConfirmButton ? (
+        {/* <Footer style={styles.footerContainer}> */}
+        {/* {this.state.isConfirmButton ? (
                 <TouchableOpacity
                   style={styles.DoneButton}
                   onPress={() => this.props.navigation.navigate("Address")}
@@ -438,7 +458,7 @@ export default class UserHomeContents extends React.Component {
                   </Text>
                 </TouchableOpacity>
               ) : null} */}
-            {/* {this.state.isModalVisible ? ( //!this.state.isModalVisible
+        {/* {this.state.isModalVisible ? ( //!this.state.isModalVisible
                   <View
                     style={{
                       width: 100,
@@ -474,10 +494,10 @@ export default class UserHomeContents extends React.Component {
                     </Text>
                   </View>
                 ) : null} */}
-            {/* </Footer> */}
-          </View>
-        </Content>
-      </Container>
+        {/* </Footer> */}
+      </View>
+      // </Content>
+      //</Container>
     );
   }
   cancelTrip = async () => {
@@ -494,7 +514,7 @@ export default class UserHomeContents extends React.Component {
       })
       .catch((e) => console.log("err", e));
 
-    await firebase
+    firebase
       .database()
       .ref("Ride_Request/" + riderId)
       .remove(),
@@ -525,7 +545,15 @@ export default class UserHomeContents extends React.Component {
   //     })
   //     .catch((e) => console.log("err", e));
   // }
-  returnData(coord, price, distance, driverName, orderStatus) {
+  returnData(
+    coord,
+    price,
+    distance,
+    driverName,
+    orderStatus,
+    carBrand,
+    carPlate
+  ) {
     this.setState(
       {
         coordonates: coord,
@@ -533,6 +561,8 @@ export default class UserHomeContents extends React.Component {
         distance: distance,
         driverName: driverName,
         orderStatus: orderStatus,
+        carBrand: carBrand,
+        carPlate: carPlate,
       },
       () => {
         // console.log(this.state.coordonates);
@@ -545,7 +575,7 @@ export default class UserHomeContents extends React.Component {
   };
   getDriverRequestDetails = async () => {
     riderId = firebase.auth().currentUser.uid;
-    AsyncStorage.setItem("riderId", riderId);
+
     // AsyncStorage.getItem("riderId")
     //   .then(
     //     (result) =>
@@ -590,7 +620,6 @@ export default class UserHomeContents extends React.Component {
       //  )
       .catch((e) => console.log("err", e));
 
-    AsyncStorage.getItem("riderId");
     await firebase
       .database()
       .ref("Ride_confirm/" + riderId)
@@ -620,8 +649,6 @@ export default class UserHomeContents extends React.Component {
         })
         .then(
           () => {
-            //firebase.database().ref(`Payments/${RiderID}/PaymentsHistory`);
-            //Toast.show("payments updated successfully",Toast.SHORT);
             UserHomeContents.latitude = this.state.region.latitude;
             UserHomeContents.longitude = this.state.region.longitude;
             console.log(
@@ -707,7 +734,8 @@ const styles = StyleSheet.create({
     //  height: 185,
   },
   map: {
-    height: Dimensions.get("screen").height,
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height,
     // marginTop: 0,
   },
   searchBoxView: {
@@ -794,7 +822,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   historyButton: {
-    bottom: 250,
+    bottom: 185,
     left: 35,
   },
   MainAcceptView: {
@@ -831,12 +859,24 @@ const styles = StyleSheet.create({
     borderRadius: 45,
     elevation: 5,
   },
-
+  carDetailsView: {
+    // paddingTop: 10,
+    position: "absolute",
+    marginLeft: 83,
+    top: 40,
+  },
+  priceView: {
+    marginLeft: 300,
+    //  margin: 3,
+    marginTop: 10,
+    // left: 90,
+    position: "absolute",
+  },
   distancePriceView2: {
     flex: 1,
     // justifyContent: "flex-end",
     position: "absolute",
-    top: 30,
+    top: 40,
     marginLeft: 310,
   },
   declineView: {
