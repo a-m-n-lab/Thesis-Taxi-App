@@ -133,11 +133,11 @@ const CustomDrawerContentComponent = (props) => {
           {lightTheme ? (
             <View style={styles.containerSwitch}>
               <Ionicons
-                name="moon-outline"
+                name="cloudy-night-outline"
                 size={20}
                 color={{ color: theme.color }}
                 style={{
-                  color: theme.color,
+                  color: "#4417ad",
                 }}
               />
 
@@ -165,9 +165,9 @@ const CustomDrawerContentComponent = (props) => {
               <Ionicons
                 name="sunny-outline"
                 size={20}
-                color={{ color: theme.color }}
+                // color={{ color: theme.color }}
                 style={{
-                  color: theme.color,
+                  color: "#fcec03",
                   fontWeight: "bold",
                 }}
               />

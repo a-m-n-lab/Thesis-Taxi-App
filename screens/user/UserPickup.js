@@ -42,6 +42,7 @@ export default class UserPickup extends React.Component {
   static dropOffLongitude;
 
   constructor(props) {
+    _isMounted = true;
     super(props);
     this.state = {
       myCoord: [],
@@ -59,7 +60,7 @@ export default class UserPickup extends React.Component {
     }
   }
   async componentDidMount() {
-    this.setState({ isMounted: true });
+    this._isMounted = true;
     console.log("UserPickUP CDM");
     await this.recentDestination();
     LogBox.ignoreAllLogs();
@@ -68,7 +69,7 @@ export default class UserPickup extends React.Component {
     // this.recentDestination();
   }
   componentWillUnmount() {
-    this.setState({ isMounted: false });
+    this._isMounted = false;
   }
   render() {
     return (
@@ -76,11 +77,11 @@ export default class UserPickup extends React.Component {
         <KeyboardAvoidingView>
           <DestinationCard style={styles.fromToContainer}>
             <View style={styles.destinationContainer}>
-              <GooglePlacesInput predefinedPlaces={[homePlace, workPlace]} />
+              <GooglePlacesInput />
             </View>
             <Dash style={styles.dash} />
             <View style={styles.toContainer}>
-              <GooglePlacesDropOff predefinedPlaces={[homePlace, workPlace]} />
+              <GooglePlacesDropOff />
             </View>
           </DestinationCard>
           <View style={styles.recentView}>
@@ -88,7 +89,8 @@ export default class UserPickup extends React.Component {
 
             {this.state.destinations.slice(0, 2).map((u, i) => {
               return (
-                <View item={i} key={i.id}>
+                <View key={i}>
+                  {/* <View item={i} key={u.uniqueId}> */}
                   {/* key={i.id} */}
                   <View style={styles.recent}>
                     <Image
@@ -208,7 +210,7 @@ export default class UserPickup extends React.Component {
       GooglePlacesInput.pickupLatitude == null ||
       GooglePlacesInput.pickupLongitude == null
     ) {
-      this.toast.show("SET YOUR PICK UP LOCATION PLEASE", 500);
+      this.toast.show("Please set your Pick Up location", 500);
       return;
     } else {
       var latLongObj1 = {
@@ -232,7 +234,7 @@ export default class UserPickup extends React.Component {
       GooglePlacesDropOff.dropOffLatitude == null ||
       GooglePlacesDropOff.dropOffLongitude == null
     ) {
-      this.toast.show("SET YOUR DROP OFF LOCATION PLEASE", 500);
+      this.toast.show("Please set your Drop Off location", 500);
       return;
     } else {
       let latLongObj = {
@@ -329,7 +331,7 @@ export default class UserPickup extends React.Component {
           })
           .then(
             () => {
-              this.toast.show("Driver requested successful", 500);
+              this.toast.show("Driver requested successfully", 500);
             },
             (error) => {
               this.toast.show(error.message, 500);

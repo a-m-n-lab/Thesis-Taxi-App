@@ -23,9 +23,6 @@ const WelcomeNavigator = createStackNavigator(
     },
     UserSignup: {
       screen: AuthScreen,
-      navigationOptions: {
-        headerTitle: "Passenger Registration",
-      },
     },
     UserLogin: {
       screen: UserLoginScreen,

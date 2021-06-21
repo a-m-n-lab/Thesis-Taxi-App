@@ -11,10 +11,10 @@ const GooglePlacesDropOff = (props) => {
       returnKeyType={"search"}
       listViewDisplayed="auto"
       fetchDetails={true}
-      renderDescription={(row) => row.description}
+      renderDescription={(row) => row.description || row.vicinity}
       onPress={(data, details = null) => {
         // console.log(data, details);
-        (dropOffName = data.description), // selected address
+        (dropOffName = data.description || data.vicinity), // selected address
           (dropOffLatitude = `${details.geometry.location.lat}`),
           (dropOffLongitude = `${details.geometry.location.lng}`),
           //storing data
@@ -60,7 +60,7 @@ const GooglePlacesDropOff = (props) => {
       predefinedPlaces={props.predefinedPlaces}
       debounce={200}
       renderLeftButton={() => (
-        <View style={styles.toDot}>
+        <View>
           <Image
             source={require("../assets/images/to.png")}
             style={{ width: 20, height: 20, top: 10 }}
@@ -72,7 +72,4 @@ const GooglePlacesDropOff = (props) => {
   );
 };
 
-const styles = StyleSheet.create({
-  toDot: {},
-});
 export default GooglePlacesDropOff;

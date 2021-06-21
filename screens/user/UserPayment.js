@@ -58,10 +58,10 @@ export default class UserPayment extends React.Component {
             this.setState({
               selectedButton: "button1",
               Cash: !this.state.Cash,
+              Card: false,
             }),
               this.addPayments();
           }}
-          // onPress={() => this.setState({})}
         >
           <Image
             source={require("../../assets/images/user/money.png")}
@@ -111,6 +111,7 @@ export default class UserPayment extends React.Component {
             this.setState({
               selectedButton: "button2",
               Card: !this.state.Card,
+              Cash: false,
             }),
               this.addPayments();
           }}
@@ -156,8 +157,8 @@ export default class UserPayment extends React.Component {
   addPayments = async () => {
     //alert("Mobile Money:"+this.state.MobileMoney+"  Cash"+this.state.Cash);
     Alert.alert(
-      "Payments Confirm",
-      "Your payments status is going to be updated ",
+      "Payment Method",
+      "Your payment method is going to be updated ",
       [
         //{text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
         {

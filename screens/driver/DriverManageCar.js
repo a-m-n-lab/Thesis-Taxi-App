@@ -25,6 +25,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "react-native-option-picker";
 import MainButton from "../../components/MainButton";
 import { Dimensions } from "react-native";
+import Colors from "../../constants/Colors";
 const data = [
   { id: "1", title: "Economy", selected: false },
   { id: "2", title: "SUV", selected: false },
@@ -170,6 +171,8 @@ export default class DriverManageCar extends React.Component {
             <Text style={styles.text}>YEAR</Text>
             <TextInput
               keyboardType="numeric"
+              minLenght={4}
+              maxLength={4}
               style={styles.textInput}
               onChangeText={(text) => this.setState({ year: text })}
             >
@@ -190,7 +193,7 @@ export default class DriverManageCar extends React.Component {
 
             <MainButton
               style={{
-                backgroundColor: "#131435",
+                backgroundColor: Colors.darkGrey,
                 width: 150,
                 /// justifyContent: "center",
                 alignItems: "center",

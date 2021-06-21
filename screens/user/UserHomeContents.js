@@ -37,7 +37,7 @@ import { ThemeContext } from "../../Themes/dark";
 import { Icon } from "react-native-elements";
 import * as Notifications from "expo-notifications";
 import * as Permissions from "expo-permissions";
-import Constants from "expo-constants";
+//import Constants from "expo-constants";
 
 let { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
@@ -71,7 +71,7 @@ export default class UserHomeContents extends React.Component {
       isMounted: false,
       coordonates: [],
       lightTheme: "",
-      orderStatus: "",
+      orderStatus: null,
       driverIdToDelete: "",
       distance: null,
       price: null,
@@ -188,12 +188,14 @@ export default class UserHomeContents extends React.Component {
   }
 
   async componentDidUpdate(prevProps, prevState, snapshot) {
-    setTimeout(
-      function () {
-        this.setState({ orderStatus: "accepted" });
-      }.bind(this),
-      30000
-    );
+    if (this.state.orderStatus != prevState.orderStatus) {
+      setTimeout(
+        function () {
+          this.setState({ orderStatus: "accepted" });
+        }.bind(this),
+        30000
+      );
+    }
     // if (this.state.orderStatus !== prevState.orderStatus) {
     //   await this.orderNotAccepted();
     // }
@@ -294,17 +296,17 @@ export default class UserHomeContents extends React.Component {
                 { latitude: 48.8478, longitude: 2.3202 }, // optional
               ]} */}
           {/* {this.state.coordonates ? (
-                <View>
-                  <MapView.Marker
-                    image={fromIcon}
-                    coordinate={this.state.coordonates[0]}
-                  />
-                  <MapView.Marker
-                    image={toIcon}
-                    coordinate={this.state.coordonates[1]}
-                  />
-                </View>
-              ) : null} */}
+            <View>
+              <MapView.Marker
+                image={fromIcon}
+                coordinate={this.state.coordonates[0]}
+              />
+              <MapView.Marker
+                image={toIcon}
+                coordinate={this.state.coordonates[1]}
+              />
+            </View>
+          ) : null} */}
         </MapView>
         <View style={styles.historyButton}>
           <Icon
@@ -329,7 +331,7 @@ export default class UserHomeContents extends React.Component {
           <Card style={styles.MainAcceptView}>
             <View style={styles.RiderDetails}>
               <Image
-                source={require("../../assets/images/driver/driver.jpg")}
+                source={require("../../assets/images/driver/d2.jpg")}
                 style={{
                   width: 60,
                   height: 60,

@@ -179,7 +179,10 @@ export default class UserProfileScreen extends React.Component {
           </Text>
           <Text style={[styles.profileText, { color: theme.color }]}>
             {" "}
-            {
+            {new Date(
+              (this.state.info.currentDate / 1000) * 1000
+            ).toLocaleDateString("ro-RO")}
+            {/* {
               new Date((this.state.date / 1000) * 1000).toLocaleDateString(
                 "en-GB"
               )
@@ -193,7 +196,7 @@ export default class UserProfileScreen extends React.Component {
               // .toLocaleDateString(
               //   "en-GB"
               // )
-            }
+            } */}
           </Text>
           {/* <Button title="Refresh" onPress={this.changeFunction} /> */}
         </View>

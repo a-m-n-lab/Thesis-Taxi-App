@@ -205,7 +205,11 @@ export default class DriverRegisterScreen extends React.Component {
     //.catch(error => this.setState({ errorMessage: error.message }))
   };
 }
-
+DriverRegisterScreen.navigationOptions = (navData) => {
+  return {
+    headerTitle: "Driver Signup",
+  };
+};
 const styles = StyleSheet.create({
   registerContainer: {
     flex: 1,

@@ -93,7 +93,7 @@ const DriverCustomDrawerContentComponent = (props) => {
               onPress={() => props.navigation.navigate("DriverProfile")}
             >
               <Image
-                source={require("../../assets/images/driver/driver.jpg")}
+                source={require("../../assets/images/driver/d2.jpg")}
                 style={{ width: 70, height: 70, borderRadius: 100 }}
               />
               <View style={styles.headerIcon}>

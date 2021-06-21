@@ -9,17 +9,13 @@ import {
 //import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Feather } from "@expo/vector-icons";
 import { CheckBox } from "react-native-elements";
-
 import Colors from "../constants/Colors";
 import Logo from "../components/Logo";
-
 import Subtitle from "../components/Subtitle";
 import Input from "../components/Input";
 import MainButton from "../components/MainButton";
-
 import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
-
 import Toast, { DURATION } from "react-native-easy-toast";
 import * as firebase from "firebase";
 import ApiKeys from "../constants/ApiKeys";
@@ -224,7 +220,11 @@ export default class AuthScreen extends React.Component {
     //.catch(error => this.setState({ errorMessage: error.message }))
   };
 }
-
+AuthScreen.navigationOptions = (navData) => {
+  return {
+    headerTitle: "Passenger Signup",
+  };
+};
 const styles = StyleSheet.create({
   registerContainer: {
     flex: 1,

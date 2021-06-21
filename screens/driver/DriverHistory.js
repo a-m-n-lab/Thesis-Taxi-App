@@ -58,9 +58,6 @@ export default class DriverHistory extends React.Component {
               dropname: dpname,
               date: dt,
               price: price,
-              // pickupname: snapshot.child("riderpickname").val(),
-              // dropname: snapshot.child("riderdropname").val(),
-              // date: snapshot.child("rideDate").val(),
             });
 
             this.setState({
@@ -90,8 +87,11 @@ export default class DriverHistory extends React.Component {
           <Text style={styles.history}> Your orders</Text>
           {this.state.order.map((u, i) => {
             return (
-              <View style={{ alignItems: "center", justifyContent: "center" }}>
-                <Card key={i.id} style={styles.card}>
+              <View
+                key={i}
+                style={{ alignItems: "center", justifyContent: "center" }}
+              >
+                <Card style={styles.card}>
                   {/* key={i} */}
                   <View style={styles.calendarTime}>
                     <View style={styles.date}>

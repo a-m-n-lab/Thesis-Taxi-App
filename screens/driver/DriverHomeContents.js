@@ -83,10 +83,6 @@ export default class DriverHomeContents extends React.Component {
       destOrigSet: false,
       userToken: null,
       userPayment: "",
-      latitudine: 0,
-      longitude: 0,
-      latitudineDest: 0,
-      longitudineDest: 0,
     };
     // this.callFunc = this.callFunc.bind(this);
 
@@ -243,8 +239,13 @@ export default class DriverHomeContents extends React.Component {
           // onRegionChangeComplete={(region) => this.setState({ region })}
           customMapStyle={lightMapStyle}
         >
-          {this.state.origin
+          {this.state.originData
             ? [
+                // <MapView.Marker
+                //   key={1}
+                //   image={fromIcon}
+                //   coordinate={this.state.originData[0]}
+                // />,
                 <MapViewDirections
                   origin={this.state.originData[0]}
                   destination={this.state.destinationData[0]}
@@ -253,14 +254,14 @@ export default class DriverHomeContents extends React.Component {
                   strokeColor="#9484d4"
                 />,
                 <MapView.Marker
-                  image={toIcon}
+                  image={fromIcon}
                   coordinate={{
                     latitude: this.state.latitudine,
                     longitude: this.state.longitudine,
                   }}
                 />,
                 <MapView.Marker
-                  image={fromIcon}
+                  image={toIcon}
                   coordinate={{
                     latitude: this.state.latitudineDest,
                     longitude: this.state.longitudineDest,
@@ -329,8 +330,7 @@ export default class DriverHomeContents extends React.Component {
                   <View
                     style={{
                       // flexDirection: "row",
-                      // backgroundColor: "#e6b8e0",
-                      backgroundColor: "#89cff0",
+                      backgroundColor: "#e6b8e0",
                       borderRadius: 20,
                       marginLeft: 15,
                       alignItems: "center",
@@ -471,8 +471,8 @@ export default class DriverHomeContents extends React.Component {
               </Card>
             ) */}
       </View>
-      //  </Content>
-      //  </Container>
+      // </Content>
+      // </Container>
     );
   }
   pickUpLocation = async () => {
@@ -491,7 +491,7 @@ export default class DriverHomeContents extends React.Component {
       body: JSON.stringify({
         to: this.state.userToken,
         sound: "default",
-        title: "Ride confirmation",
+        title: "Ride confirmed",
         body: "The driver has confirmed your request",
       }),
     });
@@ -507,7 +507,7 @@ export default class DriverHomeContents extends React.Component {
       body: JSON.stringify({
         to: this.state.userToken,
         sound: "default",
-        title: "Ride decline",
+        title: "Ride declined",
         body: "The driver has declined your request",
       }),
     });
@@ -900,8 +900,13 @@ export default class DriverHomeContents extends React.Component {
       console.log(this.state.isModalVisible);
       this.setState({ userPayment: "" });
       this.setState({ originData: [] });
-      this.setState({ latitudine: "" });
-      this.setState({ longitudine: "" });
+      this.setState({
+        latitudine: 0,
+        longitude: 0,
+        latitudineDest: 0,
+        longitudineDest: 0,
+      });
+
       DriverHomeContents.Firstname = "";
       DriverHomeContents.Lastname = "";
       DriverHomeContents.RiderID = "";
@@ -1028,7 +1033,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#453d6c",
-    //backgroundColor: "#a698d9",
+    // backgroundColor: "#a698d9",
     // backgroundColor: "#272e4a",
     height: 50,
     width: 155,

@@ -14,6 +14,7 @@ import ApiKeys from "../../constants/ApiKeys";
 import { Card } from "native-base";
 import { ScrollView } from "react-native-gesture-handler";
 import Dash from "react-native-dash";
+import { ThemeContext } from "../../Themes/dark";
 
 export default class UserHistory extends React.Component {
   constructor(props) {
@@ -26,7 +27,7 @@ export default class UserHistory extends React.Component {
       firebase.initializeApp(ApiKeys.FirebaseConfig);
     }
   }
-
+  static contextType = ThemeContext;
   componentDidMount() {
     this.renderFunction();
   }
@@ -75,7 +76,7 @@ export default class UserHistory extends React.Component {
         snapshot.forEach((childSnapshot) => {
           var key2 = childSnapshot.key;
           // console.log("key2 : ");
-          // console.log(key2);
+          //console.log(key2);
           //   if (key == y) {
           childSnapshot.forEach((childChildSnapshot) => {
             var key3 = childSnapshot.key;
@@ -109,26 +110,48 @@ export default class UserHistory extends React.Component {
     // fix Warning: Can't perform a React state update on an unmounted component
   }
   render() {
+    const { dark, theme } = this.context;
+    console.log(this.state.order);
     var myDate = new Date((this.state.order.date / 1000) * 1000);
     var hours = myDate.getHours();
     var min = myDate.getMinutes(); //Current Minutes
     //var sec = myDate.getSeconds();
     var current = hours + ":" + min;
     return (
-      <View style={styles.container}>
+      <View
+        style={[styles.container, { backgroundColor: theme.backgroundColor }]}
+      >
         <ScrollView>
-          <Text style={styles.history}> Your trips</Text>
+          <Text style={[styles.history, { color: dark ? "#fff" : "#000" }]}>
+            {" "}
+            Your trips
+          </Text>
           {this.state.order.map((u, i) => {
             return (
-              <View style={{ alignItems: "center", justifyContent: "center" }}>
-                <Card key={i} style={styles.card}>
+              <View
+                key={i}
+                style={{ alignItems: "center", justifyContent: "center" }}
+              >
+                <Card
+                  style={[
+                    styles.card,
+                    {
+                      backgroundColor: dark ? theme.backgroundCard : "#eaecf9",
+                    },
+                  ]}
+                >
                   <View style={styles.calendarTime}>
                     <View style={styles.date}>
                       <Image
                         source={require("../../assets/images/history/calendar.png")}
                         style={styles.calendar}
                       />
-                      <Text style={styles.dateTime}>
+                      <Text
+                        style={[
+                          styles.dateTime,
+                          { color: dark ? "#fff" : "#000" },
+                        ]}
+                      >
                         {new Date((u.date / 1000) * 1000).toLocaleDateString(
                           "ro-RO"
                         )}
@@ -139,9 +162,16 @@ export default class UserHistory extends React.Component {
                         source={require("../../assets/images/history/time.png")}
                         style={styles.calendar}
                       />
-                      <Text style={styles.dateTime}>
+                      <Text
+                        style={[
+                          styles.dateTime,
+                          { color: dark ? "#fff" : "#000" },
+                        ]}
+                      >
                         {new Date((u.date / 1000) * 1000).getHours()}:
-                        {new Date((u.date / 1000) * 1000).getMinutes()}
+                        {(
+                          "0" + new Date((u.date / 1000) * 1000).getMinutes()
+                        ).slice(-2)}
                       </Text>
                     </View>
                     <View style={styles.price}>
@@ -156,7 +186,9 @@ export default class UserHistory extends React.Component {
                         source={require("../../assets/images/user/from.png")}
                         style={styles.calendar}
                       />
-                      <Text> {u.pickupname}</Text>
+                      <Text style={{ color: dark ? "#fff" : "#000" }}>
+                        {u.pickupname}
+                      </Text>
                     </View>
                     <Dash style={styles.dash} />
                     <View style={styles.dropoff}>
@@ -164,7 +196,9 @@ export default class UserHistory extends React.Component {
                         source={require("../../assets/images/to.png")}
                         style={styles.calendar}
                       />
-                      <Text> {u.dropname}</Text>
+                      <Text style={{ color: dark ? "#fff" : "#000" }}>
+                        {u.dropname}
+                      </Text>
                     </View>
                   </View>
                 </Card>
@@ -197,7 +231,7 @@ UserHistory.navigationOptions = (navData) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    // backgroundColor: "white",
     borderRadius: 4,
   },
   history: {

@@ -138,7 +138,7 @@ export default class DriverEditScreen extends React.Component {
               borderRadius: 400 / 2,
               alignSelf: "center",
             }}
-            source={require("../../assets/images/driver/driver.jpg")}
+            source={require("../../assets/images/driver/d2.jpg")}
           />
         </TouchableOpacity>
         <View style={styles.container}>

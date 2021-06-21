@@ -4,15 +4,6 @@ import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplet
 import { Icon } from "native-base";
 import API from "../constants/API";
 
-const homePlace = {
-  description: "Home",
-  geometry: { location: { lat: 47.368816531416826, lng: 24.67733126020572 } },
-};
-const workPlace = {
-  description: "Work",
-  geometry: { location: { lat: 47.374934475629715, lng: 24.659682324481643 } },
-};
-
 const GooglePlacesInput = (props) => {
   return (
     <GooglePlacesAutocomplete
@@ -23,11 +14,11 @@ const GooglePlacesInput = (props) => {
       returnKeyType={"search"}
       listViewDisplayed="auto"
       fetchDetails={true}
-      renderDescription={(row) => row.description}
+      renderDescription={(row) => row.description || row.vicinity}
       onPress={(data, details = null) => {
         // console.log(data, details);
         //set pick up data from google auto complete
-        (pickupName = data.description), // selected address
+        (pickupName = data.description || data.vicinity), // selected address
           (pickupLatitude = `${details.geometry.location.lat}`),
           (pickupLongitude = `${details.geometry.location.lng}`),
           //storing data
@@ -66,9 +57,9 @@ const GooglePlacesInput = (props) => {
       }}
       filterReverseGeocodingByTypes={[
         "locality",
-        "administrative_area_level_3",
+        "administrative_area_level_1",
       ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
-      predefinedPlaces={[homePlace, workPlace]}
+      predefinedPlaces={props.predefinedPlaces}
       debounce={200}
       renderLeftButton={() => (
         <View style={styles.from}>

@@ -109,7 +109,7 @@ export default class DriverProfileScreen extends React.Component {
                 height: 100,
                 borderRadius: 400 / 2,
               }}
-              source={require("../../assets/images/driver/driver.jpg")}
+              source={require("../../assets/images/driver/d2.jpg")}
             ></Image>
             <Text style={[styles.name, { flex: 1 }]}>
               Hello, {""}

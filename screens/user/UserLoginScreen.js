@@ -22,6 +22,7 @@ import ApiKeys from "../../constants/ApiKeys";
 //import Toast from "react-native-simple-toast";
 import Toast, { DURATION } from "react-native-easy-toast";
 import * as firebase from "firebase";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default class UserLoginScreen extends React.Component {
   constructor(props) {
@@ -91,9 +92,11 @@ export default class UserLoginScreen extends React.Component {
               />
 
               <View style={styles.loginButtonContainer}>
-                <Text style={styles.forgotPasswordText}>
-                  Forgot your password?
-                </Text>
+                <TouchableOpacity onPress={this.resetPass}>
+                  <Text style={styles.forgotPasswordText}>
+                    Forgot your password?
+                  </Text>
+                </TouchableOpacity>
                 <MainButton
                   style={styles.loginButton}
                   onPress={() => {
@@ -173,8 +176,17 @@ export default class UserLoginScreen extends React.Component {
     // )
     // .catch((e) => console.log("err", e));
   };
-
-  //   goToMaps = () => {};
+  resetPass = () => {
+    firebase
+      .auth()
+      .sendPasswordResetEmail(this.state.email)
+      .then(function (user) {
+        alert("Please check your email...");
+      })
+      .catch(function (e) {
+        console.log(e);
+      });
+  };
 }
 
 UserLoginScreen.navigationOptions = () => {

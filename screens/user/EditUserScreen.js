@@ -142,10 +142,19 @@ export default class EditUserScreen extends React.Component {
           />
         </TouchableOpacity>
         <View style={styles.container}>
-          <View style={styles.firstname}>
-            <Text style={styles.profileText}>First Name:</Text>
+          <View
+            style={[
+              styles.firstname,
+              { backgroundColor: dark ? theme.backgroundCard : "#eaecf9" },
+            ]}
+          >
+            <Text
+              style={[styles.profileText, { color: dark ? "#fff" : "#000" }]}
+            >
+              First Name:
+            </Text>
             <TextInput
-              style={styles.textInput}
+              style={[styles.textInput, { color: dark ? "#fff" : "#000" }]}
               autoFocus
               onChangeText={(text) => this.setState({ firstname: text })}
             >
@@ -153,20 +162,40 @@ export default class EditUserScreen extends React.Component {
             </TextInput>
           </View>
 
-          <View style={styles.lastname}>
-            <Text style={styles.profileText}> Last Name:</Text>
+          <View
+            style={[
+              styles.lastname,
+              { backgroundColor: dark ? theme.backgroundCard : "#eaecf9" },
+            ]}
+          >
+            <Text
+              style={[styles.profileText, { color: dark ? "#fff" : "#000" }]}
+            >
+              Last Name:
+            </Text>
             <TextInput
-              style={styles.textInput}
+              style={[styles.textInput, { color: dark ? "#fff" : "#000" }]}
               onChangeText={(text) => this.setState({ lastname: text })}
             >
               {this.state.lastname}
             </TextInput>
+            {/* <Text>{this.state.lastname}</Text> */}
           </View>
 
-          <View style={styles.phone}>
-            <Text style={styles.profileText}> Phone: </Text>
+          <View
+            style={[
+              styles.phone,
+              { backgroundColor: dark ? theme.backgroundCard : "#eaecf9" },
+            ]}
+          >
+            <Text
+              style={[styles.profileText, { color: dark ? "#fff" : "#000" }]}
+            >
+              {" "}
+              Phone:{" "}
+            </Text>
             <TextInput
-              style={styles.textInput}
+              style={[styles.textInput, { color: dark ? "#fff" : "#000" }]}
               onChangeText={(text) => this.setState({ phone: text })}
             >
               {this.state.phone}
@@ -216,7 +245,7 @@ const styles = StyleSheet.create({
   firstname: {
     padding: 15,
     top: 20,
-    backgroundColor: "#eaecf9",
+
     borderRadius: 10,
   },
   lastname: {
