@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useReducer, useEffect } from "react";
 import { View, Text, StyleSheet, TextInput } from "react-native";
 import Colors from "../constants/Colors";
 
 const Input = (props) => {
   return (
     <View style={{ ...styles.inputText, ...props.style }}>
+      {/* <Text>{props.label}</Text> */}
       <TextInput
+        {...props}
         autoFocus={props.autoFocus}
         placeholder={props.placeholder}
         style={{
@@ -26,7 +28,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderBottomColor: Colors.grey,
     borderBottomWidth: 1,
-    width: 315,
+    width: 300,
   },
 });
 

@@ -1,9 +1,14 @@
 import React from "react";
-import { View, Text, StyleSheet, ImageBackground, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ImageBackground,
+  Image,
+  Dimensions,
+} from "react-native";
 import MainButton from "../components/MainButton";
 import Colors from "../constants/Colors";
-import { HeaderButtons, Item } from "react-navigation-header-buttons";
-import HeaderButton from "../components/HeaderButton";
 
 const WelcomeScreen = (props) => {
   return (
@@ -23,7 +28,7 @@ const WelcomeScreen = (props) => {
             });
           }}
         >
-          User Login
+          Passenger Login
         </MainButton>
         <MainButton
           onPress={() => {
@@ -36,29 +41,28 @@ const WelcomeScreen = (props) => {
           <Text style={styles.newAccountText}>Don't have an account?</Text>
         </View>
         <View style={styles.registerContainer}>
-          <MainButton style={styles.registerButton}>Register now</MainButton>
+          <MainButton
+            style={styles.registerButton}
+            onPress={() => {
+              props.navigation.navigate({ routeName: "UserSignup" });
+            }}
+          >
+            Passenger Signup
+          </MainButton>
+          <MainButton
+            style={styles.registerButton}
+            onPress={() => {
+              props.navigation.navigate({ routeName: "DriverSignup" });
+            }}
+          >
+            Driver Signup
+          </MainButton>
         </View>
       </View>
     </ImageBackground>
   );
 };
 
-WelcomeScreen.navigationOptions = (navData) => {
-  return {
-    headerLeft: () => (
-      <MainButton
-        onPress={() => {
-          navData.navigation.toggleDrawer();
-        }}
-      >
-        Drawer
-      </MainButton>
-      //   <HeaderButtons HeaderButtonComponent={HeaderButton}>
-      //     <Item title="Menu" iconName="ios-menu" onPress={() => {}} />
-      //   </HeaderButtons>
-    ),
-  };
-};
 const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
@@ -82,6 +86,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   buttonContainer: {
+    height: Dimensions.get("window").height / 2, //for smaller devices - so it will be half the screen
     width: "60%",
     top: 200,
   },

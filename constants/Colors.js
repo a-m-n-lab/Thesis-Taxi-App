@@ -4,4 +4,5 @@ export default {
   darkGrey: "#2c2f33",
   black: "#23272a",
   beige: "#E5E5E5",
+  neonPurple: "#bc13fe",
 };
