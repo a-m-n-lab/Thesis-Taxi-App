@@ -1,9 +1,9 @@
 {
   "project_info": {
-    "project_number": "874076654414",
-    "firebase_url": "https://reactnative-blink-app-default-rtdb.firebaseio.com",
-    "project_id": "reactnative-blink-app",
-    "storage_bucket": "reactnative-blink-app.appspot.com"
+    "project_number": "",
+    "firebase_url": "",
+    "project_id": "",
+    "storage_bucket": ""
   },
   "client": [
     {
@@ -21,7 +21,7 @@
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBuZp6zYb8ZSCQvZYKHqI5Mtx8NCWgf5wY"
+          "current_key": "API_KEY"
         }
       ],
       "services": {
